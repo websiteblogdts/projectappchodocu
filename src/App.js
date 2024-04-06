@@ -5,13 +5,14 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-import ProductDetail from './src/screens/Product/ProductDetail';
-import ProductList from './src/screens/Product/ProductList';
-import UpdateProduct from './src/screens/Product/EditProduct';
-import AddProduct from './src/screens/Product/AddProduct';
-import User from './src/screens/User/User';
-import Profile from './src/screens/User/Profile';
-
+import ProductDetail from './screens/Product/ProductDetail';
+import ProductList from './screens/Product/ProductList';
+import UpdateProduct from './screens/Product/EditProduct';
+import AddProduct from './screens/Product/AddProduct';
+import User from './screens/User/User';
+import Profile from './screens/User/Profile';
+// import Home from './screens/Home/Home';
+// import Chat from './Screens/Chat/Chat';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
