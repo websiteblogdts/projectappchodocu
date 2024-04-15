@@ -41,7 +41,6 @@ const UpdateProduct = ({ route, navigation }) => {
         setCategory(data.category);
         // Lấy danh sách tỉnh/thành
         setProvinces(provincesData);
-  
         // Lấy danh sách quận/huyện dựa trên tỉnh/thành đã chọn
         setDistricts(districtsData);
   

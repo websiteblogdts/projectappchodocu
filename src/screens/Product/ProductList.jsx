@@ -10,7 +10,7 @@ const ProductListScreen = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch('http://appchodocu.ddns.net:3000/product/');
+      const response = await fetch('http://appchodocu.ddns.net:3000/product');
       const data = await response.json();
       setProducts(data);
     } catch (error) {

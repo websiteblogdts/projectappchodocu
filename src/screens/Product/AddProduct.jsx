@@ -194,7 +194,7 @@ const _takePhoto = () => {
 }
 
   return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+    <View style={styles.container}>
       
       <ActivityIndicator animating={loading} size="large" color="#0000ff" />
     
@@ -205,25 +205,25 @@ const _takePhoto = () => {
       )}
 
       <TextInput
-        style={{ height: 40, width: 200, borderColor: 'gray', borderWidth: 1, margin: 10 }}
+        style={styles.inputtext}
         placeholder="Name"
         value={name}
         onChangeText={text => setName(text)}
       />
       <TextInput
-        style={{ height: 40, width: 200, borderColor: 'gray', borderWidth: 1, margin: 10 }}
+        style={styles.inputtext}
         placeholder="Price"
         value={price}
         onChangeText={text => setPrice(text)}
       />
       <TextInput
-        style={{ height: 40, width: 200, borderColor: 'gray', borderWidth: 1, margin: 10 }}
+        style={styles.inputtext}
         placeholder="Description"
         value={description}
         onChangeText={text => setDescription(text)}
       />
       <TextInput
-        style={{ height: 40, width: 200, borderColor: 'gray', borderWidth: 1, margin: 10 }}
+        style={styles.inputtext}
         placeholder="category"
         value={category}
         onChangeText={text => setCategory(text)}
@@ -263,7 +263,7 @@ const _takePhoto = () => {
     </Picker>
 
       <TextInput
-        style={{ height: 40, width: 200, borderColor: 'gray', borderWidth: 1, margin: 10 }}
+        style={styles.inputtext}
         placeholder="Image URL"
         value={image}
         onChangeText={text => setImage(text)}
@@ -291,9 +291,20 @@ const _takePhoto = () => {
   );
 };
 const styles = StyleSheet.create({
-  container:{
-      flex:1
-  },
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+},
+  inputtext: {
+    height: 40,
+    width: 300,
+    borderColor: 'gray',
+    borderWidth: 1,
+    borderRadius: 5,
+    marginBottom: 10,
+    paddingHorizontal: 10,
+},
   input:{
       margin:6
   },

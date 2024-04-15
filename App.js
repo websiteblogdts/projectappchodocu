@@ -5,13 +5,15 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
+import LoginScreen from './src/screens/Login/Login';
+
 import ProductDetail from './src/screens/Product/ProductDetail';
 import ProductList from './src/screens/Product/ProductList';
 import UpdateProduct from './src/screens/Product/EditProduct';
 import AddProduct from './src/screens/Product/AddProduct';
-import User from './src/screens/User/User';
+import UserProfileScreen from './src/screens/User/UserProfileScreen';
 import Profile from './src/screens/User/Profile';
-
+import RegisterUser from './src/screens/Register/RegisterUser';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -42,7 +44,9 @@ function BottomTabs() {
             iconName = focused ? 'plus' : 'plus';
           } else if (route.name === 'Chat') {
             iconName = focused ? 'Chat' : 'chatbubble-ellipses-outline';
-          } else if (route.name === 'User') {
+          } else if (route.name === 'UserProfileScreen') {
+            iconName = focused ? 'user' : 'user';
+          }else if (route.name === 'RegisterUser') {
             iconName = focused ? 'user' : 'user';
           }
 
@@ -55,7 +59,8 @@ function BottomTabs() {
       <Tab.Screen name="Home" component={HomeStack} options={{ headerShown: false }} />
       <Tab.Screen name="AddProduct" component={AddProduct} />
       {/* <Tab.Screen name="Chat" component={ChatMess} /> */}
-      <Tab.Screen name="User" component={User} />
+      <Tab.Screen name="UserProfileScreen" component={UserProfileScreen} />
+      <Tab.Screen name="RegisterUser" component={RegisterUser} />
     </Tab.Navigator>
   );
 }
@@ -64,8 +69,10 @@ function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator>
+      <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
         <Stack.Screen name="Root" component={BottomTabs} options={{ headerShown: false }} />
-        <Stack.Screen name="Profile" component={Profile} />
+        <Stack.Screen name="Profile" component={Profile} />        
+        <Stack.Screen name="RegisterUser" component={RegisterUser} />
       </Stack.Navigator>
     </NavigationContainer>
   );
