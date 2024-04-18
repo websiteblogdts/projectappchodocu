@@ -1,9 +1,10 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-// import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
+// import { UserLoginProvider }  from './src/store/Userlogin';
 
 import LoginScreen from './src/screens/Login/Login';
 
@@ -67,6 +68,7 @@ function BottomTabs() {
 
 function App() {
   return (
+    // <UserLoginProvider>
     <NavigationContainer>
       <Stack.Navigator>
       <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
@@ -75,6 +77,7 @@ function App() {
         <Stack.Screen name="RegisterUser" component={RegisterUser} />
       </Stack.Navigator>
     </NavigationContainer>
+    // </UserLoginProvider> 
   );
 }
 

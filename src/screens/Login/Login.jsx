@@ -1,27 +1,26 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage'; 
 
 function LoginScreen({ navigation }) {
   const [identifier, setEmailOrPhone] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleLogin = () => {
-    const userData = {
-      identifier: identifier,
-      password: password
-    };
-    console.log("Registration data:", userData);
-    axios.post('http://appchodocu.ddns.net:3000/user/login', userData)
-      .then(res => {
-        // Handle successful login
-        navigation.navigate('Root'); // Navigate to the home screen after successful login
-      })
-      .catch(error => {
-        // Handle login error
-        console.error("Login error:", error);
-        alert("Invalid email or password. Please try again.");
-      });
+const handleLogin = async () => {
+    try {
+      const userData = {
+        identifier: identifier,
+        password: password
+      };
+      const response = await axios.post('http://appchodocu.ddns.net:3000/user/login', userData);
+      const { token } = response.data;
+      await AsyncStorage.setItem('userToken', token);
+      navigation.navigate('Root');
+    } catch (error) {
+      console.error("Login error:", error);
+      alert("Invalid email or password. Please try again.");
+    }
   };
 
   return (

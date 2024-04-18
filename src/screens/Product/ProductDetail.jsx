@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Image, Button, Alert, ScrollView  } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage'; 
+// import Toast from 'react-native-toast-message';
 
 const ProductDetail = ({ route, navigation }) => {
   const [product, setProduct] = useState(null);
@@ -51,9 +53,19 @@ const confirmDeleteProduct = async () => {
   
   const deleteProduct = async (productId) => {
     try {
+      const userToken = await AsyncStorage.getItem('userToken');
+  
       const response = await fetch(`http://appchodocu.ddns.net:3000/product/deleteproduct/${productId}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: {
+          'Authorization': `${userToken}`
+        }
       });
+  
+      if (!response.ok) {
+        throw new Error(`HTTP error ${response.status}`);
+      }
+  
       const data = await response.json();
       console.log('Deleted product:', data);
     } catch (error) {
@@ -61,7 +73,36 @@ const confirmDeleteProduct = async () => {
       throw new Error('Error deleting product');
     }
   };
+  
 
+  // const deleteProduct = async (productId) => {
+  //   try {
+  //     const userToken = await AsyncStorage.getItem('userToken');
+  
+  //     const response = await fetch(`http://appchodocu.ddns.net:3000/product/deleteproduct/${productId}`, {
+  //       method: 'DELETE',
+  //       headers: {
+  //         'Authorization': `${userToken}`
+  //       }
+  //     });
+  
+  //     if (!response.ok) {
+  //       throw new Error(`HTTP error ${response.status}`);
+  //     }
+  //     const data = await response.json();
+  //     console.log('Deleted product:', data);
+  //   } catch (error) {
+  //     console.error('Error deleting product:', error);
+  //     Toast.show({
+  //       type: 'error',
+  //       text1: 'Error deleting product',
+  //       text2: error.message || 'Unknown error',
+  //       visibilityTime: 3000, // Duration of the toast message
+  //       autoHide: true
+  //     });
+  //   }
+  // };
+  
   return (
     <ScrollView contentContainerStyle={styles.container}>
       {product ? (

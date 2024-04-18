@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet ,Button} from 'react-native';
 import axios from 'axios';
-// import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
+import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
 
 function UserProfileScreen({ navigation }) {
   const [userData, setUserData] = useState(null);
@@ -9,19 +9,16 @@ function UserProfileScreen({ navigation }) {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        // Lấy token từ AsyncStorage
         const token = await AsyncStorage.getItem('userToken');
-        
-        // Kiểm tra nếu token tồn tại
+        console.log('Token from AsyncStorage:', token);
         if (token) {
           const response = await axios.get('http://appchodocu.ddns.net:3000/user/profile', {
             headers: {
-              Authorization: `Bearer ${token}`,
+              Authorization: `${token}`, 
             },
           });
           setUserData(response.data);
         } else {
-          // Xử lý trường hợp không tìm thấy token
           console.log('Token not found');
         }
       } catch (error) {
@@ -32,6 +29,28 @@ function UserProfileScreen({ navigation }) {
     fetchUserData();
   }, []);
 
+
+  const handleLogout = async () => {
+    try {
+      // Xóa token từ AsyncStorage
+      await AsyncStorage.removeItem('userToken');
+      
+      // Kiểm tra xem token đã được xóa thành công hay không
+      const tokenAfterLogout = await AsyncStorage.getItem('userToken');
+      
+      if (tokenAfterLogout === null) {
+        console.log('Token has been successfully removed from AsyncStorage.');
+      } else {
+        console.log('Failed to remove token from AsyncStorage.');
+      }
+      
+      // Chuyển hướng đến màn hình đăng nhập
+      navigation.navigate('Login');
+    } catch (error) {
+      console.error('Error logging out:', error);
+    }
+  };
+  
   if (!userData) {
     return (
       <View style={styles.container}>
@@ -46,6 +65,7 @@ function UserProfileScreen({ navigation }) {
       <Text>Name: {userData.name}</Text>
       <Text>Email: {userData.email}</Text>
       <Text>Phone Number: {userData.phone_number}</Text>
+      <Button title="Logout" onPress={handleLogout} /> 
     </View>
   );
 }

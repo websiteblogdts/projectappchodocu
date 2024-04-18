@@ -4,6 +4,7 @@ import { PermissionsAndroid } from 'react-native';
 import { IconButton } from 'react-native-paper';
 import * as ImagePicker from 'react-native-image-picker';
 import { Picker } from '@react-native-picker/picker';
+import AsyncStorage from '@react-native-async-storage/async-storage'; 
 
 const UpdateProduct = ({ route, navigation }) => {
   const [name, setName] = useState('');
@@ -61,10 +62,13 @@ const UpdateProduct = ({ route, navigation }) => {
 
   const updateData = async () => {
     try {
+      const userToken = await AsyncStorage.getItem('userToken');
+
       const response = await fetch(`http://appchodocu.ddns.net:3000/product/editproduct/${route.params.productId}`, {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `${userToken}`
         },
         body: JSON.stringify({
           name,

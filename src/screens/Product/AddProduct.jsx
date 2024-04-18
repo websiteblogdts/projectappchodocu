@@ -4,15 +4,16 @@ import { PermissionsAndroid } from 'react-native';
 import { IconButton } from 'react-native-paper';
 import * as ImagePicker from 'react-native-image-picker';
 import { Picker } from '@react-native-picker/picker';
+import AsyncStorage from '@react-native-async-storage/async-storage'; 
 
 const AddProduct = () => {
+
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
   const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(false);
   const [image, setImage] = useState('');
   const [category, setCategory] = useState('');
-
   // const [image, setImage] = useState([]);
   const [uploadedImage, setUploadedImage] = useState(null);
   const [message, setMessage] = useState('');
@@ -41,10 +42,29 @@ const AddProduct = () => {
 
   const handleSubmit = async () => {
     try {
-      const response = await fetch('http://appchodocu.ddns.net:3000/product/createproduct', {
+
+      console.log("Sending product data:", {
+        name,
+        price,
+        description,
+        image,
+        category,
+        address: {
+          province: selectedProvince,
+          district: selectedDistrict,
+          ward: selectedWard
+        }
+      });
+      const userToken = await AsyncStorage.getItem('userToken');
+      if (!userToken) {
+        navigation.navigate('Login');
+        return;
+      }
+      const response = await fetch('http://appchodocu.ddns.net:3000/product/create', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `${userToken}`
         },
         body: JSON.stringify({
           name,
@@ -59,23 +79,23 @@ const AddProduct = () => {
           }
         })
       });
-  
       if (!response.ok) {
         throw new Error(`HTTP error ${response.status}`);
       }
-  
       const data = await response.json();
       console.log(data);
-      setMessage('Product added successfully!');
-    } catch (error) {
-      console.error('Error adding product:', error);
-      setMessage('Failed to add product');
+      Alert.alert('Success', 'Product added successfully!');
+      } catch (error) {
+        console.error('Error adding product:', error);
+        // Hiển thị thông báo lỗi dạng Alert
+        Alert.alert('Error', error.message || 'Failed to add product');
     }
   };
-
+  
   const requestExternalWritePermission = async () => {
     return true; // Đặt giá trị mặc định là true hoặc loại bỏ hàm này hoàn toàn
 };
+
 const handleProvinceChange = (province) => {
   setSelectedProvince(province);
   const selectedProvince = provinces.find((p) => p.Name === province);

@@ -3,6 +3,21 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = "Gcd191140";
 
+exports.getUserId = async (req, res) => {
+    try {
+      // Lấy thông tin người dùng từ mã token trong req.user
+      const user = await User.findOne({ email: req.user.email });
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+  
+      res.status(200).json({ userId: user.id });
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  };
+  
 
 exports.getRoutes = (req, res) => {
     res.send('test user');
@@ -12,7 +27,6 @@ exports.getUserProfile = async (req, res) => {
     try {
       // Lấy thông tin người dùng từ mã token trong req.user
       const user = await User.findOne({ email: req.user.email });
-  
       if (!user) {
         return res.status(404).json({ error: 'User not found' });
       }
@@ -23,7 +37,7 @@ exports.getUserProfile = async (req, res) => {
       res.status(500).json({ error: 'Internal Server Error' });
     }
   };
-  
+
 exports.login = async (req, res) => {
     const { identifier, password } = req.body;
 
@@ -41,9 +55,11 @@ exports.login = async (req, res) => {
         if (!isPasswordValid) {
             return res.status(401).json({ error: "Invalid credentials" });
         }
-
         // Tạo JWT token
-        const token = jwt.sign({ email: user.email }, JWT_SECRET, { expiresIn: '1h' }); // Token hết hạn sau 1 giờ
+        const token = jwt.sign({
+            id: user._id.toString(), // Lưu ý: Mã hóa `_id` từ ObjectID sang String
+            email: user.email
+        }, JWT_SECRET, { expiresIn: '1h' }); // Token hết hạn sau 1 giờ
 
         res.status(200).json({ message: "Login successful", token });
     } catch (error) {
