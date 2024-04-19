@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = "Gcd191140";
 
+//chỉ lấy id của user đã login
 exports.getUserId = async (req, res) => {
     try {
       // Lấy thông tin người dùng từ mã token trong req.user
@@ -10,7 +11,6 @@ exports.getUserId = async (req, res) => {
       if (!user) {
         return res.status(404).json({ error: 'User not found' });
       }
-  
       res.status(200).json({ userId: user.id });
     } catch (error) {
       console.error('Error fetching user profile:', error);
@@ -18,11 +18,11 @@ exports.getUserId = async (req, res) => {
     }
   };
   
-
 exports.getRoutes = (req, res) => {
     res.send('test user');
 };
 
+//giống detail user nhưng là lấy của user đã login
 exports.getUserProfile = async (req, res) => {
     try {
       // Lấy thông tin người dùng từ mã token trong req.user
@@ -58,16 +58,18 @@ exports.login = async (req, res) => {
         // Tạo JWT token
         const token = jwt.sign({
             id: user._id.toString(), // Lưu ý: Mã hóa `_id` từ ObjectID sang String
-            email: user.email
+            email: user.email,
+            role: user.role
         }, JWT_SECRET, { expiresIn: '1h' }); // Token hết hạn sau 1 giờ
 
-        res.status(200).json({ message: "Login successful", token });
+        res.status(200).json({ message: "Login successful",  token, role: user.role });
     } catch (error) {
         console.error("Error logging in:", error);
         res.status(500).json({ error: "Internal Server Error" });
     }
 };
 
+//chưa vali lại email và phone_number khi đăng ký phải đúng định dạng
 exports.register = async (req, res) => {
     const { email, password, phone_number, name, avatar_image, reward_points, otp_verified, account_status } = req.body;
 

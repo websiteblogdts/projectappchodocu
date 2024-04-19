@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Image, Button, Alert, ScrollView  } from 'react
 import AsyncStorage from '@react-native-async-storage/async-storage'; 
 
 
-const ProductDetail = ({ route, navigation }) => {
+const ProductDetailUser = ({ route, navigation }) => {
   const [product, setProduct] = useState(null);
   const { reloadProducts } = route.params;
 
@@ -23,7 +23,59 @@ const ProductDetail = ({ route, navigation }) => {
     }
   };
 
+  const handleUpdateProduct = (productId) => {
+    // Chuyển hướng đến trang cập nhật sản phẩm và truyền ID sản phẩm
+    navigation.navigate('UpdateProduct', { productId: product._id , reloadProducts: reloadProducts
+    });
+  };
 
+  const handleDeleteProduct = () => {
+    // Hiển thị cảnh báo xác nhận xóa sản phẩm
+    Alert.alert(
+      'Xác nhận xóa sản phẩm',
+      'Bạn có chắc chắn muốn xóa sản phẩm này?',
+      [
+        { text: 'Hủy', style: 'cancel' },
+        { text: 'Xóa', onPress: confirmDeleteProduct }
+      ]
+    );
+  };
+
+const confirmDeleteProduct = async () => {
+    try {
+      await deleteProduct(product._id);
+      reloadProducts();
+      navigation.goBack();
+    } catch (error) {
+      console.error('Error deleting product:', error);
+    }
+  };
+  
+  const deleteProduct = async (productId) => {
+    try {
+      const userToken = await AsyncStorage.getItem('userToken');
+  
+      const response = await fetch(`http://appchodocu.ddns.net:3000/product/deleteproduct/${productId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `${userToken}`
+        }
+      });
+  
+      if (!response.ok) {
+        throw new Error(`HTTP error ${response.status}`);
+      }
+  
+      const data = await response.json();
+      console.log('Deleted product:', data);
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      throw new Error('Error deleting product');
+    }
+  };
+  
+
+  
   return (
     <ScrollView contentContainerStyle={styles.container}>
       {product ? (
@@ -38,6 +90,10 @@ const ProductDetail = ({ route, navigation }) => {
 
           <Text style={styles.address}>Address: {product.address.province}, {product.address.district}, {product.address.ward}</Text>
         
+          <View style={styles.buttonContainer}>
+            <Button title="Cập nhật" onPress={handleUpdateProduct} style={styles.updateButton} />
+            <Button title="Xóa" onPress={handleDeleteProduct} />
+          </View>
         </>
       ) : (
         <Text>Loading...</Text>
@@ -69,7 +125,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   image: {
-    width: '90%',
+    width: '77%',
     height: 'auto',
     aspectRatio: 1,
     marginTop: 8,
@@ -94,4 +150,4 @@ const styles = StyleSheet.create({
 });
 
 
-export default ProductDetail;
+export default ProductDetailUser;

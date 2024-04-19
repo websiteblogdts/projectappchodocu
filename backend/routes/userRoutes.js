@@ -10,9 +10,6 @@ router.post('/register', userController.register);
 router.use(authMiddleware);
 
 router.get('/getid', authMiddleware, userController.getUserId);
-
-
-
 router.get('/', userController.getRoutes);
 router.put('/update', userController.updateUser);
 router.get('/profile',  authMiddleware, userController.getUserProfile);

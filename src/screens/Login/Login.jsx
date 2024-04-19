@@ -7,21 +7,43 @@ function LoginScreen({ navigation }) {
   const [identifier, setEmailOrPhone] = useState('');
   const [password, setPassword] = useState('');
 
+// const handleLogin = async () => {
+//     try {
+//       const userData = {
+//         identifier: identifier,
+//         password: password
+//       };
+//       const response = await axios.post('http://appchodocu.ddns.net:3000/user/login', userData);
+//       const { token } = response.data;
+//       await AsyncStorage.setItem('userToken', token);
+//       navigation.navigate('Root');
+//     } catch (error) {
+//       console.error("Login error:", error);
+//       alert("Invalid email or password. Please try again.");
+//     }
+//   };
 const handleLogin = async () => {
-    try {
+  try {
       const userData = {
-        identifier: identifier,
-        password: password
+          identifier: identifier,
+          password: password
       };
       const response = await axios.post('http://appchodocu.ddns.net:3000/user/login', userData);
-      const { token } = response.data;
+      const { token, role } = response.data; // Lấy cả role từ response data
+
+      console.log('Login successful! Role:', role, 'Token:', token); // Hiển thị role và token trong terminal
+
       await AsyncStorage.setItem('userToken', token);
-      navigation.navigate('Root');
-    } catch (error) {
+      await AsyncStorage.setItem('userRole', role); // Lưu role vào AsyncStorage
+
+      navigation.navigate(role === 'admin' ? 'Admin' : 'Root'); // Navigation dựa trên role
+  } catch (error) {
       console.error("Login error:", error);
       alert("Invalid email or password. Please try again.");
-    }
-  };
+  }
+};
+
+
 
   return (
     <View style={styles.container}>

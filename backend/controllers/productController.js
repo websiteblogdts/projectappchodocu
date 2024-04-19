@@ -2,7 +2,7 @@ const Product = require('../models/Product');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = "Gcd191140";
-const { ValidationError } = require('mongoose').Error;
+const User = require('../models/User');
 
 exports.getRoutes = (req, res) => {
     res.send('Hello son');
@@ -23,7 +23,27 @@ exports.getProductById = (req, res) => {
             res.status(500).json({ error: 'Internal server error' });
         });
 };
+// product theo user
+exports.getAllProductsByUser = (req, res) => {
+    try {
+        // Trích xuất userId từ req.user
+        const userId = req.user.id;
 
+        // Tìm tất cả các sản phẩm mà author trùng khớp với userId
+        Product.find({ author: userId })
+            .then(products => {
+                // Trả về danh sách các sản phẩm
+                res.json(products);
+            })
+            .catch(error => {
+                console.error('Error fetching products:', error);
+                res.status(500).json({ error: 'Internal server error' });
+            });
+    } catch (error) {
+        console.error('Error fetching products:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
 // Hàm xử lý hiển thị tất cả các sản phẩm
 exports.getAllProducts = (req, res) => {
     Product.find({})
