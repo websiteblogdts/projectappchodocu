@@ -25,31 +25,56 @@ const ProductDetailUser = ({ route, navigation }) => {
 
   const handleUpdateProduct = (productId) => {
     // Chuyển hướng đến trang cập nhật sản phẩm và truyền ID sản phẩm
-    navigation.navigate('UpdateProduct', { productId: product._id , reloadProducts: reloadProducts
+    navigation.navigate('EditProduct', { productId: product._id , reloadProducts: reloadProducts
     });
   };
 
-  const handleDeleteProduct = () => {
-    // Hiển thị cảnh báo xác nhận xóa sản phẩm
+//   const handleDeleteProduct = () => {
+//     // Hiển thị cảnh báo xác nhận xóa sản phẩm
+//     Alert.alert(
+//       'Xác nhận xóa sản phẩm',
+//       'Bạn có chắc chắn muốn xóa sản phẩm này?',
+//       [
+//         { text: 'Hủy', style: 'cancel' },
+//         { text: 'Xóa', onPress: confirmDeleteProduct }
+//       ]
+//     );
+//   };
+
+// const confirmDeleteProduct = async () => {
+//     try {
+//       await deleteProduct(product._id);
+//       reloadProducts();
+//       navigation.goBack();
+//     } catch (error) {
+//       console.error('Error deleting product:', error);
+//     }
+//   };
+const handleDeleteProduct = () => {
     Alert.alert(
       'Xác nhận xóa sản phẩm',
       'Bạn có chắc chắn muốn xóa sản phẩm này?',
       [
         { text: 'Hủy', style: 'cancel' },
-        { text: 'Xóa', onPress: confirmDeleteProduct }
+        { text: 'Xóa', onPress: () => {
+          confirmDeleteProduct().then(() => {
+            navigation.navigate('ProductListByUser');
+          });
+        }}
       ]
     );
-  };
+};
 
 const confirmDeleteProduct = async () => {
-    try {
-      await deleteProduct(product._id);
-      reloadProducts();
-      navigation.goBack();
-    } catch (error) {
-      console.error('Error deleting product:', error);
-    }
-  };
+  try {
+    await deleteProduct(product._id);
+    return true; // Indicate success
+  } catch (error) {
+    console.error('Error deleting product:', error);
+    return false;
+  }
+};
+
   
   const deleteProduct = async (productId) => {
     try {

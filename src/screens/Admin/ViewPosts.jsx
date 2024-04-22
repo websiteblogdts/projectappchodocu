@@ -2,38 +2,28 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, RefreshControl, Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
-const ProductListScreen = () => {
+const ViewPosts = () => {
   const navigation = useNavigation();
   const [products, setProducts] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
-  const numColumns = 2; 
-
-  const refreshData = () => {
-    // Gọi hàm làm mới dữ liệu ở đây
-    console.log('Refreshing data...');
-  };
+  const numColumns = 2; // Số cột bạn muốn hiển thị
 
   useEffect(() => {
-    // Gọi hàm làm mới dữ liệu khi màn hình được hiển thị
-    refreshData();
-  }, [])
+    const unsubscribe = navigation.addListener('focus', () => {
+        fetchProducts('true');
+    });
+    return unsubscribe;
+  }, [navigation]);
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch('http://appchodocu.ddns.net:3000/product');
+      const response = await fetch('http://appchodocu.ddns.net:3000/admin/');
       const data = await response.json();
       setProducts(data);
     } catch (error) {
       console.error('Error fetching products:', error);
     }
   };
-
-  useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', () => {
-      fetchProducts();
-    });
-    return unsubscribe;
-  }, [navigation]);
 
   const onRefresh = () => {
     setRefreshing(true);
@@ -44,9 +34,9 @@ const ProductListScreen = () => {
     navigation.navigate('ProductDetail', { productId });
   };
 
-  // const reloadProducts = async () => {
-  //   fetchProducts();
-  // };
+  const reloadProducts = async () => {
+    fetchProducts();
+  };
 
   const renderProduct = ({ item }) => {
     const screenWidth = Dimensions.get('window').width;
@@ -136,4 +126,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ProductListScreen;
+export default ViewPosts;

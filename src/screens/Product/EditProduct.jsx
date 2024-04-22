@@ -6,7 +6,7 @@ import * as ImagePicker from 'react-native-image-picker';
 import { Picker } from '@react-native-picker/picker';
 import AsyncStorage from '@react-native-async-storage/async-storage'; 
 
-const UpdateProduct = ({ route, navigation }) => {
+const EditProduct = ({ route, navigation }) => {
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
   const [description, setDescription] = useState('');
@@ -425,4 +425,4 @@ const UpdateProduct = ({ route, navigation }) => {
       fontSize: 18,
     },
   });
-export default UpdateProduct;
+export default EditProduct;

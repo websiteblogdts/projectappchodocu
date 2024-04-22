@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { View, Text,StyleSheet,Modal,TextInput, Button, Alert,ActivityIndicator,Image } from 'react-native';
-import { PermissionsAndroid } from 'react-native';
 import { IconButton } from 'react-native-paper';
 import * as ImagePicker from 'react-native-image-picker';
 import { Picker } from '@react-native-picker/picker';
@@ -92,9 +91,6 @@ const AddProduct = () => {
     }
   };
   
-  const requestExternalWritePermission = async () => {
-    return true; // Đặt giá trị mặc định là true hoặc loại bỏ hàm này hoàn toàn
-};
 
 const handleProvinceChange = (province) => {
   setSelectedProvince(province);

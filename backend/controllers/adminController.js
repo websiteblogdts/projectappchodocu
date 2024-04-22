@@ -3,15 +3,60 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = "Gcd191140";
+// const isAdmin = require('../middlewares/isAdmin');
 const User = require('../models/User');
-
+const Product = require('../models/Product');
+const Category = require('../models/Category');
 const { isValidEmail, isValidPassword, isValidPhoneNumber } = require('../middlewares/validator');
 
+exports.updateApprovedStatus = (req, res) => {
+    const productId = req.params.productId;
+    Product.findById(productId)
+        .then(product => {
+            if (!product) {
+                return res.status(404).json({ message: 'Không tìm thấy sản phẩm.' });
+            }
+            // Đảo ngược giá trị của admin_approved
+            product.admin_approved = !product.admin_approved;
 
-exports.getRoutes = (req, res) => {
-    res.send('test admin');
+            return product.save();
+        })
+        .then(updatedProduct => {
+            res.json(updatedProduct);
+        })
+        .catch(error => {
+            console.error('Lỗi khi cập nhật trạng thái phê duyệt của sản phẩm:', error);
+            res.status(500).json({ error: 'Lỗi máy chủ nội bộ.' });
+        });
 };
 
+exports.getProductFalse = (req, res) => {
+    Product.find({ admin_approved: false })
+        .then(products => {
+            if (products.length === 0) {
+                return res.status(404).json({ message: 'Không có sản phẩm.' });
+            }
+            res.send(products);
+        })
+        .catch(error => {
+            console.error('Lỗi khi lấy danh sách sản phẩm chưa được phê duyệt:', error);
+            res.status(500).json({ error: 'Lỗi máy chủ nội bộ.' });
+        });
+};
+
+exports.getProductTrue = (req, res) => {
+    Product.find({ admin_approved: true })
+        .then(products => {
+            if (products.length === 0) {
+                return res.status(404).json({ message: 'Không có sản phẩm.' });
+            }
+            res.send(products);
+        })
+        .catch(error => {
+            console.error('Lỗi khi lấy danh sách sản phẩm chưa được phê duyệt:', error);
+            res.status(500).json({ error: 'Lỗi máy chủ nội bộ.' });
+        });
+};
 
 exports.getAllUsers = async (req, res) => {
     try {
@@ -33,7 +78,6 @@ exports.getAllUsers = async (req, res) => {
 
 exports.getUserById = async (req, res) => {
     const userId = req.params.userId;
-
     try {
         // Tìm người dùng trong cơ sở dữ liệu bằng ID
         const user = await User.findById(userId);
@@ -51,30 +95,67 @@ exports.getUserById = async (req, res) => {
     }
 };
 
+// exports.lockUserAccount = async (req, res) => {
+//     try {
+//         // Kiểm tra vai trò của người dùng (chỉ admin mới được phép khóa tài khoản)
+//         if (req.user.role !== 'admin') {
+//             return res.status(403).json({ error: "You are not authorized to perform this action" });
+//         }
 
-exports.updateUserById = async (req, res) => {
-    const userId = req.params.userId;
-    let updateData = req.body;
+//         const userId = req.params.userId;
+//         const user = await User.findByIdAndUpdate(userId, { account_status: 'locked' }, { new: true });
+//         if (!user) {
+//             return res.status(404).send('User not found');
+//         }
+//         res.send('Account has been locked');
+//     } catch (error) {
+//         console.error('Error locking account:', error);
+//         res.status(500).send('Internal server error');
+//     }
+// };
 
+// exports.unlockUserAccount = async (req, res) => {
+//     try {
+//         // Kiểm tra vai trò của người dùng (chỉ admin mới được phép mở khóa tài khoản)
+//         if (req.user.role !== 'admin') {
+//             return res.status(403).json({ error: "You are not authorized to perform this action" });
+//         }
+
+//         const userId = req.params.userId;
+//         const user = await User.findByIdAndUpdate(userId, { account_status: 'active' }, { new: true });
+//         if (!user) {
+//             return res.status(404).send('User not found');
+//         }
+//         res.send('Account has been unlocked');
+//     } catch (error) {
+//         console.error('Error unlocking account:', error);
+//         res.status(500).send('Internal server error');
+//     }
+// };
+
+exports.changeStatusAccount = async (req, res) => {
     try {
-        // Kiểm tra xem có cần mã hóa mật khẩu không
-        if (updateData.password) {
-            // Mã hóa mật khẩu mới trước khi cập nhật
-            updateData.password = await bcrypt.hash(updateData.password, 10);
+        // Kiểm tra vai trò của người dùng (chỉ admin mới được phép thực hiện hành động này)
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({ error: "Bạn không được phép thực hiện hành động này." });
         }
 
-        // Cập nhật người dùng trong cơ sở dữ liệu dựa trên ID
-        const updatedUser = await User.findByIdAndUpdate(userId, updateData, { new: true });
-
-        // Kiểm tra xem người dùng có tồn tại không
-        if (!updatedUser) {
-            return res.status(404).json({ error: "User not found" });
+        const userId = req.params.userId;
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ error: 'Người dùng không tồn tại.' });
         }
 
-        res.status(200).json({ message: "User updated successfully", updatedUser });
+        // Đảo ngược trạng thái tài khoản
+        user.account_status = user.account_status === 'active' ? 'locked' : 'active';
+        await user.save();
+
+        // Trả về thông báo phản hồi
+        const action = user.account_status === 'active' ? 'unlocked' : 'locked';
+        res.json({ message: `Tài khoản đã được ${action}.` });
     } catch (error) {
-        console.error("Error updating user:", error);
-        res.status(500).json({ error: "Internal Server Error" });
+        console.error('Lỗi khi thực hiện hành động:', error);
+        res.status(500).json({ error: 'Lỗi máy chủ nội bộ.' });
     }
 };
 
@@ -83,51 +164,48 @@ exports.updateUserByIdForAdmin = async (req, res) => {
     const updateData = req.body;
 
     try {
-        // Kiểm tra vai trò của người dùng (chỉ admin mới được phép cập nhật thông tin này)
-        // if (req.user.role !== 'admin') {
-        //     return res.status(403).json({ error: "You are not authorized to perform this action" });
-        // }
-        // Kiểm tra xem các trường được cập nhật có hợp lệ không có nghĩa là điền thiếu trường nào thì nghĩ chơi đó :))
-        // const allowedUpdates = ['email', 'phone_number', 'password', 'role'];
-        // const isValidOperation = Object.keys(updateData).every((update) => allowedUpdates.includes(update));
-        // if (!isValidOperation) {
-        //     return res.status(400).json({ error: "Invalid updates" });
-        // }
+      //  Kiểm tra vai trò của người dùng (chỉ admin mới được phép cập nhật thông tin này)
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({ error: "You are not authorized to perform this action" });
+        }
+        const existingUser = await User.findById(userId);
+            // Kiểm tra xem người dùng có tồn tại không
+            if (!existingUser) {
+                return res.status(404).json({ error: "User not found" });
+            }
 
-        // Kiểm tra xem các trường dữ liệu được cập nhật có đúng định dạng hay không
-        const isValidOperation = true; // Mặc định là true, chúng ta sẽ kiểm tra từng trường riêng biệt
-      
-        // if (updateData.email.trim() === '') {
-        //     return res.status(400).json({ error: "Email cannot be empty" });
-        // }
-        // Kiểm tra định dạng email
-        if (updateData.email && !isValidEmail(updateData.email)) {
-            return res.status(400).json({ error: "Invalid email format" });
+        if (!updateData.email) {
+            // Sử dụng giá trị hiện tại của trường email trong cơ sở dữ liệu
+            updateData.email = existingUser.email;
+        } else {
+            // Kiểm tra định dạng email
+            if (!isValidEmail(updateData.email)) {
+                return res.status(400).json({ error: "Invalid email format" });
+            }
         }
       
-        // Kiểm tra định dạng số điện thoại
-        if (updateData.phone_number && !isValidPhoneNumber(updateData.phone_number)) {
-            return res.status(400).json({ error: "Invalid phone number format" });
+        if (!updateData.phone_number) {
+            updateData.phone_number = existingUser.phone_number;
+        } else {
+            // Kiểm tra định dạng số điện thoại
+            if (!isValidPhoneNumber(updateData.phone_number)) {
+                return res.status(400).json({ error: "Invalid phone number format" });
+            }
         }
-    
-         // Kiểm tra định dạng password
-         if (updateData.password && !isValidPassword(updateData.password)) {
-            return res.status(400).json({ error: "Password must be at least 10 characters long" });
-        }
-        // Kiểm tra xem có cần mã hóa mật khẩu không
-        if (updateData.password) {
+
+        if (!updateData.password) {
+            updateData.password = existingUser.password;
+        } else {
+            // Kiểm tra định dạng password
+            if (!isValidPassword(updateData.password)) {
+                return res.status(400).json({ error: "Password must be at least 10 characters long" });
+            }
             // Mã hóa mật khẩu mới trước khi cập nhật
             updateData.password = await bcrypt.hash(updateData.password, 10);
         }
         // Cập nhật người dùng trong cơ sở dữ liệu dựa trên ID
         const updatedUser = await User.findByIdAndUpdate(userId, updateData, { new: true });
 
-        // Kiểm tra xem người dùng có tồn tại không
-        if (!updatedUser) {
-            return res.status(404).json({ error: "User not found" });
-        }
-
-        // Trả về thông tin người dùng sau khi cập nhật
         res.status(200).json(updatedUser);
     } catch (error) {
         console.error("Error updating user:", error);

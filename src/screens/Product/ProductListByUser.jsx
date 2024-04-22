@@ -3,7 +3,7 @@ import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, RefreshContr
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const ProductByUser = () => {
+const ProductListByUser = () => {
   const navigation = useNavigation();
   const [products, setProducts] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
@@ -15,7 +15,7 @@ const ProductByUser = () => {
       // Lấy token từ AsyncStorage
       const userToken = await AsyncStorage.getItem('userToken');
   
-      const response = await fetch('http://appchodocu.ddns.net:3000/product/productbyuser', {
+      const response = await fetch('http://appchodocu.ddns.net:3000/product/productlistbyuser', {
         headers: {
           'Authorization': `${userToken}` // Thêm token vào header
         }
@@ -147,4 +147,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ProductByUser;
+export default ProductListByUser;

@@ -20,12 +20,16 @@ function RegisterUser({props}){
         if (nameVerify && mobileVerify && emailVerify && passwordVerify) {
             // All fields are valid, send registration data to backend
             console.log("All fields are valid. Sending registration data to backend...");
+            const avatar_image = 'https://static.vecteezy.com/system/resources/previews/019/494/983/original/muscle-man-boy-avatar-user-person-people-cartoon-cute-colored-outline-sticker-retro-style-vector.jpg';
+
             const userData = {
                 name: name,
                 email: email,
                 phone_number: phone_number,
-                password: password
+                password: password,
+                avatar_image: avatar_image
             };
+            
             console.log("Registration data:", userData);
             axios.post('http://appchodocu.ddns.net:3000/user/register', userData)
             .then(res => {

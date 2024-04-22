@@ -5,7 +5,6 @@ const bodyParSer = require("body-parser");
 
 const authMiddleware = require('./middlewares/authMiddleware');
 
-
 const productRoutes = require("./routes/productRoutes");
 const adminRoutes = require('./routes/adminRoutes');
 const userRoutes = require('./routes/userRoutes'); 
@@ -17,10 +16,8 @@ require("./models/User");
 
 server.user = express.json();
 
-
 const mongURI = "mongodb+srv://appchocu:Gcd191140@appchodocu.qbquqzj.mongodb.net/?retryWrites=true&w=majority&appName=appchodocu";
 mongoose.connect(mongURI, { 
-
 });
 
 mongoose.connection.on("connected", () => {
@@ -33,9 +30,9 @@ mongoose.connection.on("error", (err) => {
 
 server.use(bodyParSer.json());
 
-server.use('/product', productRoutes); // Sử dụng route handler sản phẩm
-server.use('/admin', adminRoutes); // Sử dụng route handler auth
-server.use("/user", userRoutes); //
+server.use('/product', productRoutes); 
+server.use('/admin', adminRoutes); 
+server.use("/user", userRoutes); 
 
 server.use(authMiddleware);
 

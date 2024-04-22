@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet ,Button} from 'react-native';
+import { View, Text, StyleSheet ,Button,Image, TouchableOpacity} from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
 
@@ -60,25 +60,94 @@ function UserProfileScreen({ navigation }) {
   }
 
   return (
+    
     <View style={styles.container}>
-      <Text style={styles.heading}>User Profile</Text>
-      <Text>Name: {userData.name}</Text>
-      <Text>Email: {userData.email}</Text>
-      <Text>Phone Number: {userData.phone_number}</Text>
-      <Button title="Logout" onPress={handleLogout} /> 
+        <Image
+        source={{ uri: 'https://www.bootdey.com/image/900x400/FF7F50/000000' }}
+        style={styles.coverImage}
+      />
+      <View style={styles.avatarContainer}>
+        <Image
+          source={{ uri: userData.avatar_image }}
+          style={styles.avatar}
+        />
+        <Text style={[styles.name, styles.textWithShadow]}>{userData.name}</Text>
+      </View>
+      
+      <View style={styles.content}>
+        <View style={styles.infoContainer}>
+          <Text style={styles.infoLabel}>Email:</Text>
+          <Text style={styles.infoValue}> {userData.email}</Text>
+        </View>
+        <View style={styles.infoContainer}>
+          <Text style={styles.infoLabel}>Phone Number:</Text>
+          <Text style={styles.infoValue}>{userData.phone_number}</Text>
+        </View>
+        <View style={styles.infoContainer}>
+          <Text style={styles.infoLabel}>Cái gì đó chưa nghĩ ra có thể là hiển thị cái qq gì đó:</Text>
+          <Text style={styles.infoValue}>Đẹp trai có gì sai.</Text>
+        </View>
+      </View>
+
+      <TouchableOpacity style={styles.button}  >
+        <Text style={styles.buttonText}>Edit Profile</Text>
+      </TouchableOpacity>
+      <Button title="Logout" onPress={handleLogout} />
+    
     </View>
+   
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: '#fff',
+    padding: 20,
   },
-  heading: {
-    fontSize: 24,
-    marginBottom: 20,
+  coverImage: {
+    height: 200,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+  },
+  avatarContainer: {
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  avatar: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+  },
+  name: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginTop: 10,
+    color:'white'
+  },
+  content: {
+    marginTop: 20,
+  },
+  infoContainer: {
+    marginTop: 20,
+  },
+  infoLabel: {
+    fontWeight: 'bold',
+  },
+  infoValue: {
+    marginTop: 5,
+  },
+  button: {
+    backgroundColor: '#0066cc',
+    borderRadius: 5,
+    padding: 10,
+    marginHorizontal: 20,
+  },
+  buttonText: {
+    fontSize: 16,
+    color: '#fff',
+    textAlign: 'center',
   },
 });
 
