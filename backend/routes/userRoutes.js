@@ -13,7 +13,7 @@ router.use(authMiddleware);
 
 router.get('/getid', authMiddleware, userController.getUserId);
 
-router.put('/update',authMiddleware, userController.updateUser); // xây dựng chức năng update pass cũ để update pass mới, xác minh otp nếu cần
+router.put('/updatepass',authMiddleware, userController.updateUserPassword); // xây dựng chức năng update pass cũ để update pass mới, xác minh otp nếu cần
 
 router.get('/profile',  authMiddleware, userController.getUserProfile);
 

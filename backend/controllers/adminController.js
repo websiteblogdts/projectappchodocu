@@ -30,8 +30,11 @@ exports.updateApprovedStatus = (req, res) => {
         });
 };
 
-exports.getProductFalse = (req, res) => {
-    Product.find({ admin_approved: false })
+exports.getProductsByApprovalStatus = (req, res) => {
+    // Lấy trạng thái phê duyệt từ query parameters, mặc định là true
+    const approved = req.query.approved === 'true';
+
+    Product.find({ admin_approved: approved })
         .then(products => {
             if (products.length === 0) {
                 return res.status(404).json({ message: 'Không có sản phẩm.' });
@@ -39,24 +42,39 @@ exports.getProductFalse = (req, res) => {
             res.send(products);
         })
         .catch(error => {
-            console.error('Lỗi khi lấy danh sách sản phẩm chưa được phê duyệt:', error);
+            console.error(`Lỗi khi lấy danh sách sản phẩm có trạng thái phê duyệt là ${approved}:`, error);
             res.status(500).json({ error: 'Lỗi máy chủ nội bộ.' });
         });
 };
 
-exports.getProductTrue = (req, res) => {
-    Product.find({ admin_approved: true })
-        .then(products => {
-            if (products.length === 0) {
-                return res.status(404).json({ message: 'Không có sản phẩm.' });
-            }
-            res.send(products);
-        })
-        .catch(error => {
-            console.error('Lỗi khi lấy danh sách sản phẩm chưa được phê duyệt:', error);
-            res.status(500).json({ error: 'Lỗi máy chủ nội bộ.' });
-        });
-};
+
+// exports.getProductFalse = (req, res) => {
+//     Product.find({ admin_approved: false })
+//         .then(products => {
+//             if (products.length === 0) {
+//                 return res.status(404).json({ message: 'Không có sản phẩm.' });
+//             }
+//             res.send(products);
+//         })
+//         .catch(error => {
+//             console.error('Lỗi khi lấy danh sách sản phẩm chưa được phê duyệt:', error);
+//             res.status(500).json({ error: 'Lỗi máy chủ nội bộ.' });
+//         });
+// };
+
+// exports.getProductTrue = (req, res) => {
+//     Product.find({ admin_approved: true })
+//         .then(products => {
+//             if (products.length === 0) {
+//                 return res.status(404).json({ message: 'Không có sản phẩm.' });
+//             }
+//             res.send(products);
+//         })
+//         .catch(error => {
+//             console.error('Lỗi khi lấy danh sách sản phẩm chưa được phê duyệt:', error);
+//             res.status(500).json({ error: 'Lỗi máy chủ nội bộ.' });
+//         });
+// };
 
 exports.getAllUsers = async (req, res) => {
     try {

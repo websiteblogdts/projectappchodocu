@@ -107,12 +107,15 @@ exports.register = async (req, res) => {
     }
 };
 
-exports.updateUser = async (req, res) => {
-    const { email, oldPassword, newPassword } = req.body;
-
+exports.updateUserPassword = async (req, res) => {
     try {
+        // Xác định người dùng từ token
+        const userId = req.user.id; // Giả sử 'req.user' là đối tượng người dùng đã được thiết lập bởi middleware xác thực
+
+        const { oldPassword, newPassword } = req.body;
+
         // Tìm người dùng trong cơ sở dữ liệu
-        const user = await User.findOne({ email });
+        const user = await User.findById(userId);
 
         if (!user) {
             return res.status(404).json({ error: "User not found" });
@@ -127,15 +130,15 @@ exports.updateUser = async (req, res) => {
 
         // Mã hóa mật khẩu mới trước khi cập nhật
         const hashedNewPassword = await bcrypt.hash(newPassword, 10);
-
         user.password = hashedNewPassword;
 
         // Lưu người dùng đã cập nhật vào cơ sở dữ liệu
         await user.save();
 
-        res.status(200).json({ message: "User updated Password successfully", user });
+        res.status(200).json({ message: "Password updated successfully" });
     } catch (error) {
-        console.error("Error updating user:", error);
+        console.error("Error updating user password:", error);
         res.status(500).json({ error: "Internal Server Error" });
     }
 };
+

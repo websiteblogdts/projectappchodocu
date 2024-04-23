@@ -31,6 +31,10 @@ const handleLogin = async () => {
   }
 };
 
+const handleForgotPassword = () => {
+  navigation.navigate('RegisterUser')
+  console.log('Forgot password pressed');
+};
 
 
   return (
@@ -55,19 +59,19 @@ const handleLogin = async () => {
         </Text>
 
         <View style={styles.inputContainer}>
-  <MaterialIcons
-    name="alternate-email"
-    size={20}
-    color="#666"
-    style={styles.icon}
-  />
-  <TextInput
-    style={styles.input}
-    placeholder="Email or SDT"
-    value={identifier}
-    onChangeText={text => setEmailOrPhone(text)}
-  />
-</View>
+        <MaterialIcons
+          name="alternate-email"
+          size={20}
+          color="#666"
+          style={styles.icon}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Email or SDT"
+          value={identifier}
+          onChangeText={text => setEmailOrPhone(text)}
+        />
+         </View>   
 
 
 <View style={styles.inputContainer}>
@@ -84,15 +88,14 @@ const handleLogin = async () => {
     onChangeText={text => setPassword(text)}
     secureTextEntry={true}
   />
+  <TouchableOpacity onPress={() => navigation.navigate('RegisterUser')}>
+        <Text style={styles.forgotPassword}>Forgot?</Text>
+  </TouchableOpacity>
 </View>
-     
+
 
  <CustomButton label={"Login"} onPress={handleLogin} />
 
-
-      <TouchableOpacity onPress={() => navigation.navigate('RegisterUser')}>
-        <Text style={styles.registerText}>Forgot Password, Reset Password</Text>
-      </TouchableOpacity>
 
      
       <Text style={{textAlign: 'center', color: '#666', marginBottom: 30}}>
@@ -221,5 +224,11 @@ const styles = StyleSheet.create({
   icon: {
     marginRight: 5, // Điều chỉnh khoảng cách giữa icon và TextInput
   },
+  forgotPassword: {
+    color: '#AD40AF',
+    marginTop: 10,
+    fontSize: 16,
+    fontWeight: '700',
+  }
 });
 export default LoginScreen;

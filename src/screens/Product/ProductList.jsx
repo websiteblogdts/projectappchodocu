@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, RefreshControl, Dimensions } from 'react-native';
+import { View, Text, FlatList, StyleSheet, Image,Button, TouchableOpacity, RefreshControl, Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 const ProductListScreen = () => {
@@ -69,6 +69,7 @@ const ProductListScreen = () => {
   };
 
   return (
+    
     <View style={styles.container}>
       {products.length === 0 ? (
         <Text style={styles.emptyText}>Danh sách trống</Text>
