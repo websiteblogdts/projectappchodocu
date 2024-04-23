@@ -2,6 +2,7 @@ const User = require('../models/User');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = "Gcd191140";
+const { isValidPassword } = require('../middlewares/validator');
 
 //chỉ lấy id của user đã login
 exports.getUserId = async (req, res) => {
@@ -106,26 +107,28 @@ exports.register = async (req, res) => {
         res.status(500).json({ error: "Internal Server Error, thông tin trùng lặp" });
     }
 };
-
 exports.updateUserPassword = async (req, res) => {
     try {
         // Xác định người dùng từ token
-        const userId = req.user.id; // Giả sử 'req.user' là đối tượng người dùng đã được thiết lập bởi middleware xác thực
+        const userId = req.user.id;
 
         const { oldPassword, newPassword } = req.body;
 
         // Tìm người dùng trong cơ sở dữ liệu
         const user = await User.findById(userId);
-
         if (!user) {
             return res.status(404).json({ error: "User not found" });
         }
 
         // Kiểm tra xác minh mật khẩu cũ
         const isPasswordValid = await bcrypt.compare(oldPassword, user.password);
-
         if (!isPasswordValid) {
             return res.status(401).json({ error: "Incorrect old password" });
+        }
+
+        // Validate new password
+        if (!isValidPassword(newPassword)) {
+            return res.status(400).json({ error: "Password must be at least 6 characters long, Do not contain whitespace and leave blank" });
         }
 
         // Mã hóa mật khẩu mới trước khi cập nhật
@@ -141,4 +144,5 @@ exports.updateUserPassword = async (req, res) => {
         res.status(500).json({ error: "Internal Server Error" });
     }
 };
+
 

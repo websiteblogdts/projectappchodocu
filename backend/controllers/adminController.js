@@ -9,6 +9,7 @@ const Product = require('../models/Product');
 const Category = require('../models/Category');
 const { isValidEmail, isValidPassword, isValidPhoneNumber } = require('../middlewares/validator');
 
+//xử lý phê duyệt sản phẩm bằng cách đảo ngược giá trị.
 exports.updateApprovedStatus = (req, res) => {
     const productId = req.params.productId;
     Product.findById(productId)
@@ -30,6 +31,8 @@ exports.updateApprovedStatus = (req, res) => {
         });
 };
 
+
+//lấy tất cả sản phẩm theo trạng thái phê duyệt (true hoặc false)
 exports.getProductsByApprovalStatus = (req, res) => {
     // Lấy trạng thái phê duyệt từ query parameters, mặc định là true
     const approved = req.query.approved === 'true';
@@ -76,6 +79,7 @@ exports.getProductsByApprovalStatus = (req, res) => {
 //         });
 // };
 
+//lấy tất cả user cho trang admin
 exports.getAllUsers = async (req, res) => {
     try {
         // Lấy tất cả người dùng từ cơ sở dữ liệu
@@ -94,6 +98,7 @@ exports.getAllUsers = async (req, res) => {
     }
 };
 
+//xử lý lấy thông tin user theo id cho trang detail user của admin
 exports.getUserById = async (req, res) => {
     const userId = req.params.userId;
     try {
@@ -151,6 +156,7 @@ exports.getUserById = async (req, res) => {
 //     }
 // };
 
+//khóa và mở khóa account user, đảo ngược giá trị.
 exports.changeStatusAccount = async (req, res) => {
     try {
         // Kiểm tra vai trò của người dùng (chỉ admin mới được phép thực hiện hành động này)
@@ -176,7 +182,7 @@ exports.changeStatusAccount = async (req, res) => {
         res.status(500).json({ error: 'Lỗi máy chủ nội bộ.' });
     }
 };
-
+//edit thông tin user chỉ dành cho admin 
 exports.updateUserByIdForAdmin = async (req, res) => {
     const userId = req.params.userId;
     const updateData = req.body;

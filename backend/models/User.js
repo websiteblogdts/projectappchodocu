@@ -9,7 +9,7 @@ const userSchema = new mongoose.Schema
         avatar_image: { type: String, default: 'https://static.vecteezy.com/system/resources/previews/019/494/983/original/muscle-man-boy-avatar-user-person-people-cartoon-cute-colored-outline-sticker-retro-style-vector.jpg'  },
         reward_points: { type: Number, default: '10000'},
         otp_verified: { type: Boolean },
-        password: { type: String, required: true },
+        password: { type: String, required: true , minlength: 6},
         role: { type: String, enum: ['user', 'moderator', 'admin'], default: 'user' },
         account_status: { type: String, enum: ['active', 'locked'], default: 'active' }}, 
         { timestamps: true 

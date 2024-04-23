@@ -17,7 +17,13 @@ function isValidEmail(email) {
 
 // Hàm kiểm tra định dạng password
 function isValidPassword(password) {
-    return password.length >= 10;
+    if (password.trim() === '') {
+        return false;
+    }
+    if (password.indexOf(' ') !== -1) {
+        return false;
+    }
+    return password.length >= 6;
 }
 
 // Hàm kiểm tra định dạng số điện thoại

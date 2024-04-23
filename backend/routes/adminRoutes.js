@@ -10,9 +10,10 @@ const authMiddleware = require('../middlewares/authMiddleware');
 //http://localhost:3000/admin/products?approved=false sử dụng mẫu api này để xem product chưa được duyệt
 router.put('/product/:productId/approved', adminController.updateApprovedStatus);
 
+//lấy tất cả user cho trang list hiển thị ở admin
 router.get('/getalluser', adminController.getAllUsers); // token user vẫn dùng được, cần fix.
 
-//lay thong tin user theo id
+//lay thong tin user theo id cho trang detail user của admin
 router.get('/userbyid/:userId', adminController.getUserById);
 
 router.use(authMiddleware);
