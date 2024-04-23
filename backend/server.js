@@ -11,7 +11,6 @@ const userRoutes = require('./routes/userRoutes');
 
 
 require("./models/Product");
-require("./models/Admin");
 require("./models/User"); 
 
 server.user = express.json();

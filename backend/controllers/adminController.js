@@ -1,12 +1,6 @@
-const Admin = require('../models/Admin');
-const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const JWT_SECRET = "Gcd191140";
-// const isAdmin = require('../middlewares/isAdmin');
 const User = require('../models/User');
 const Product = require('../models/Product');
-const Category = require('../models/Category');
 const { isValidEmail, isValidPassword, isValidPhoneNumber } = require('../middlewares/validator');
 
 //xử lý phê duyệt sản phẩm bằng cách đảo ngược giá trị.

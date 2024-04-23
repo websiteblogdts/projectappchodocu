@@ -1,26 +1,32 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, RefreshControl, Dimensions } from 'react-native';
+import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, RefreshControl, Dimensions, Button } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
-const ViewPosts = () => {
+const ViewPostsMain = () => {
   const navigation = useNavigation();
   const [products, setProducts] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
-  const numColumns = 2; // Số cột bạn muốn hiển thị
+  const [approved, setApproved] = useState(false); // false means unapproved, true means approved
+  const numColumns = 2;
+
+  useEffect(() => {
+    fetchProducts(approved);
+  }, [approved]);
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
-        fetchProducts('true');
+      fetchProducts(approved);
     });
     return unsubscribe;
-  }, [navigation]);
+  }, [navigation, approved]);
 
-  const fetchProducts = async () => {
+  const fetchProducts = async (approved) => {
     try {
-      const response = await fetch('http://appchodocu.ddns.net:3000/admin/products');
+      const endpoint = approved ? 'approved=true' : 'approved=false';
+      const response = await fetch(`http://appchodocu.ddns.net:3000/admin/products/?${endpoint}`);
       const data = await response.json();
       setProducts(data);
-      console.log("Fetched products:", data); // Logging the fetched products
+      console.log("Fetched products:", data);
     } catch (error) {
       console.error('Error fetching products:', error);
     }
@@ -28,20 +34,21 @@ const ViewPosts = () => {
 
   const onRefresh = () => {
     setRefreshing(true);
-    fetchProducts().then(() => setRefreshing(false));
+    fetchProducts(approved).then(() => setRefreshing(false));
   };
 
   const navigateToProductDetail = (productId) => {
     navigation.navigate('ProductDetail', { productId });
   };
 
-  const reloadProducts = async () => {
-    fetchProducts();
+  const toggleApproved = () => {
+
+    setApproved(!approved);
   };
 
   const renderProduct = ({ item }) => {
     const screenWidth = Dimensions.get('window').width;
-    const itemWidth = (screenWidth - 32 - 16) / numColumns; // 16 là tổng padding và margin của container, 8 là khoảng cách giữa các cột
+    const itemWidth = (screenWidth - 32 - 16) / numColumns;
     return (
       <TouchableOpacity onPress={() => navigateToProductDetail(item._id)}>
         <View style={[styles.productContainer, { width: itemWidth }]}>
@@ -61,13 +68,14 @@ const ViewPosts = () => {
 
   return (
     <View style={styles.container}>
+      <Button title={approved ? "Show Unapproved" : "Show Approved"} onPress={toggleApproved} />
       {products.length === 0 ? (
         <Text style={styles.emptyText}>Danh sách trống</Text>
       ) : (
         <FlatList
           data={products}
           renderItem={renderProduct}
-          keyExtractor={(item) => item._id}
+          keyExtractor={(item) => item._id.toString()}
           numColumns={numColumns}
           contentContainerStyle={styles.flatListContent}
           refreshControl={
@@ -87,7 +95,6 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
     backgroundColor: '#E6E6E6',
-
   },
   productContainer: {
     backgroundColor: '#FFF',
@@ -127,4 +134,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ViewPosts;
+export default ViewPostsMain;

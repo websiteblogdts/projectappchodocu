@@ -9,6 +9,7 @@ import ProductDetailUser from './src/screens/Product/ProductDetailUser';
 import ListUser from './src/screens/Admin/ListUser';
 import UserDetail from './src/screens/Admin/UserDetail';
 import ViewPosts from './src/screens/Admin/ViewPosts';
+import ViewPostsMain from './src/screens/Admin/ViewPostsMain';
 import ProductDetail from './src/screens/Product/ProductDetail';
 import ProductList from './src/screens/Product/ProductList';
 import EditProduct from './src/screens/Product/EditProduct';
@@ -16,7 +17,7 @@ import AddProduct from './src/screens/Product/AddProduct';
 import UserProfileScreen from './src/screens/User/UserProfileScreen';
 import RegisterUser from './src/screens/Register/RegisterUser';
 import ProductListByUser from './src/screens/Product/ProductListByUser';
-
+import CategoryManager from './src/screens/Admin/CategoryManager';
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -74,15 +75,14 @@ function BottomTabsForUser() {
 function HomeStackAdmin() {
   return (
     <Stack.Navigator>
-      <Stack.Screen name="ViewPosts" component={ViewPosts} options={{ headerShown: false }} />
+      <Stack.Screen name="ViewPostsMain" component={ViewPostsMain} options={{ headerShown: true }} />
       <Stack.Screen name="ListUser" component={ListUser} />
       <Stack.Screen name="UserDetail" component={UserDetail} />
-      <Stack.Screen name="ProductDetailUser" component={ProductDetailUser} />
+      <Stack.Screen name="ProductDetail" component={ProductDetail} />
     </Stack.Navigator>
   );
 }
 
-// tạo thêm BottomTabs cho admin nếu đăng nhập check là admin 
 function BottomTabsForAdmin() {
   return (
     <Tab.Navigator
@@ -92,7 +92,11 @@ function BottomTabsForAdmin() {
 
           if (route.name === 'Home') {
             iconName = focused ? 'house' : 'house';
-          } else if (route.name === 'ListUser') {
+          }
+          if (route.name === 'CategoryManager') {
+            iconName = focused ? 'list' : 'list';
+          }
+          else if (route.name === 'ListUser') {
             iconName = focused ? 'user-pen' : 'user-pen';
           } else if (route.name === 'Chat') {
             iconName = focused ? 'Chat' : 'chatbubble-ellipses-outline';
@@ -109,6 +113,7 @@ function BottomTabsForAdmin() {
       })}
     >
       <Tab.Screen name="Home" component={HomeStackAdmin} options={{ headerShown: false,  title: 'Quản Lý Bài Đăng' }}/>
+      <Tab.Screen name="CategoryManager" component={CategoryManager} options={{ headerShown: true ,title: 'View Category List'}} />
       <Tab.Screen name="ListUser" component={ListUser} options={{ title: 'View User List' }} /> 
       <Tab.Screen name="RegisterUser" component={RegisterUser} />
       <Tab.Screen name="UserProfileScreen" component={UserProfileScreen} />

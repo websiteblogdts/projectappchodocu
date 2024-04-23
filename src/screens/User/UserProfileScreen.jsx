@@ -66,8 +66,8 @@ function UserProfileScreen({ navigation }) {
       Alert.alert('Success', 'Password successfully changed');
       setModalVisible(false);
     } catch (error) {
-      // setOldPassword('');
-      // setNewPassword('');
+      setOldPassword('');
+      setNewPassword('');
       if (error.response) {
         // Error message from server
         Alert.alert('Error', error.response.data.error);

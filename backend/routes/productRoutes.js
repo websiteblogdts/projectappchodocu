@@ -1,14 +1,17 @@
 const express = require('express');
 const router = express.Router();
+const categoryController = require('../controllers/categoryController');
 const productController = require('../controllers/productController');
 const authMiddleware = require('../middlewares/authMiddleware'); 
+
+router.get('/category/:id', categoryController.getCategoryById);
+router.get('/category', categoryController.getAllCategories);
 
 router.get('/productlistbyuser', authMiddleware,  productController.getAllProductsByUser);
 
 router.get('/',  productController.getAllProducts);
 
 router.get('/:productId', productController.getProductById);
-
 
 router.get('/helloson', productController.getRoutes);
 

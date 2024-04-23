@@ -56,38 +56,45 @@ exports.getAllProducts = (req, res) => {
         });
 };
 
-
 exports.createProduct = async (req, res) => {
     try {
+        const { name, price, description, image, category, address } = req.body;
+        const { province, district, ward } = address || {};
 
-      // Kiểm tra dữ liệu đầu vào
-      if (!req.body.name || !req.body.price || !req.body.description || !req.body.image || !req.body.category || !req.body.address.province || !req.body.address.district || !req.body.address.ward) {
-        return res.status(400).json({ error: "Kiểm tra xem bạn có để trống cái gì chưa điền không nhé sơn <3" });
-      }
-      const userId = req.user.id;
+        // Validate input data
+        if (!name || !price || !description || !image || !category || !province || !district || !ward) {
+            return res.status(400).json({ error: "Kiểm tra xem bạn có để trống cái gì chưa điền không nhé sơn <3" });
+        }
 
-      const product = new Product({
-        name: req.body.name,
-        price: req.body.price,
-        description: req.body.description,
-        image: req.body.image,
-        category: req.body.category,
-        address: {
-          province: req.body.address.province,
-          district: req.body.address.district,
-          ward: req.body.address.ward
-        },
-        author: userId
-    });
-  
-      // Lưu sản phẩm vào cơ sở dữ liệu
-      const savedProduct = await product.save();
-      res.status(201).json(savedProduct);
+        // Ensure price is a non-negative number
+        if (typeof price !== 'number' || price < 0) {
+            return res.status(400).json({ error: "Giá sản phẩm phải là một số không âm." });
+        }
+
+        const userId = req.user.id;
+
+        const product = new Product({
+            name,
+            price,
+            description,
+            image,
+            category,
+            address: {
+                province,
+                district,
+                ward
+            },
+            author: userId
+        });
+
+        // Save product to the database
+        const savedProduct = await product.save();
+        res.status(201).json(savedProduct);
     } catch (error) {
         console.error("Error creating product:", error);
         return res.status(500).json({ error: "Sai định dạng nội dung điền, kiểm tra lại có thể là bạn điền chữ vào giá cả" });
     }
-  };
+};
 
   exports.updateProductById = async (req, res) => {
     try {

@@ -13,6 +13,8 @@ const AddProduct = () => {
   const [loading, setLoading] = useState(false);
   const [image, setImage] = useState('');
   const [category, setCategory] = useState('');
+  const [categories, setCategories] = useState([]);
+
   // const [image, setImage] = useState([]);
   const [uploadedImage, setUploadedImage] = useState(null);
   const [message, setMessage] = useState('');
@@ -26,9 +28,19 @@ const AddProduct = () => {
   const [selectedWard, setSelectedWard] = useState('');
  
   React.useEffect(() => {
+    fetchCategories();
     fetchProvinces();
   }, []);
 
+  const fetchCategories = async () => {
+    try {
+        const response = await fetch('http://appchodocu.ddns.net:3000/product/category');
+        const data = await response.json();
+        setCategories(data);
+    } catch (error) {
+        console.error('Error fetching categories:', error);
+    }
+};
   const fetchProvinces = async () => {
     try {
       const response = await fetch('https://raw.githubusercontent.com/kenzouno1/DiaGioiHanhChinhVN/master/data.json');
@@ -43,19 +55,11 @@ const AddProduct = () => {
     try {
 
       console.log("Sending product data:", {
-        name,
-        price,
-        description,
-        image,
-        category,
-        address: {
-          province: selectedProvince,
-          district: selectedDistrict,
-          ward: selectedWard
-        }
+        name, price, description, image, category, address: { province: selectedProvince, district: selectedDistrict, ward: selectedWard }
       });
       const userToken = await AsyncStorage.getItem('userToken');
       if (!userToken) {
+        Alert.alert('Error', 'No user token found. Please login again.');
         navigation.navigate('Login');
         return;
       }
@@ -78,16 +82,15 @@ const AddProduct = () => {
           }
         })
       });
+      const data = await response.json(); 
       if (!response.ok) {
-        throw new Error(`HTTP error ${response.status}`);
-      }
-      const data = await response.json();
+        throw new Error(data.error || `HTTP error ${response.status}`);
+       }
       console.log(data);
       Alert.alert('Success', 'Product added successfully!');
       } catch (error) {
         console.error('Error adding product:', error);
-        // Hiển thị thông báo lỗi dạng Alert
-        Alert.alert('Error', error.message || 'Failed to add product');
+        Alert.alert('Error', error.message || 'Failed to add product');  // Sử dụng thông điệp lỗi từ server
     }
   };
   
@@ -229,8 +232,9 @@ const _takePhoto = () => {
       <TextInput
         style={styles.inputtext}
         placeholder="Price"
-        value={price}
-        onChangeText={text => setPrice(text)}
+        keyboardType="number"  // Suggests a numeric keypad
+        value={price.toString()}  // Ensure the value is a string for the text input      
+        onChangeText={text => setPrice(parseFloat(text) || 0)}
       />
       <TextInput
         style={styles.inputtext}
@@ -238,12 +242,18 @@ const _takePhoto = () => {
         value={description}
         onChangeText={text => setDescription(text)}
       />
-      <TextInput
-        style={styles.inputtext}
-        placeholder="category"
-        value={category}
-        onChangeText={text => setCategory(text)}
-      />
+    
+      <Picker
+          selectedValue={category}
+          onValueChange={(itemValue, itemIndex) => setCategory(itemValue)}
+          style={{ height: 50, width: 200 }}
+      >
+          <Picker.Item label="Select Category" value="" />
+          {categories.map((category) => (
+              <Picker.Item key={category._id} label={category.name} value={category._id} /> //value={cat._id} nếu muốn lấy id của category
+          ))}
+      </Picker>
+
     <Picker
       selectedValue={selectedProvince}
       onValueChange={handleProvinceChange}

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Image, Button, Alert, ScrollView  } from 'react-native';
+import { Text, StyleSheet, Image, ScrollView  } from 'react-native';
 
 
-const ProductDetail = ({ route, navigation }) => {
+const ProductDetail = ({ route }) => {
   const [product, setProduct] = useState(null);
-  const { reloadProducts } = route.params;
+  const [categoryName, setCategoryName] = useState('');
 
   useEffect(() => {
     // Lấy ID của sản phẩm từ tham số định tuyến
@@ -12,16 +12,25 @@ const ProductDetail = ({ route, navigation }) => {
     fetchProduct(productId);
   }, [route.params.productId]);
 
+  const fetchCategoryName = async (categoryId) => {
+    try {
+      const response = await fetch(`http://appchodocu.ddns.net:3000/product/category/${categoryId}`);
+      const data = await response.json();
+      setCategoryName(data.name); // Assuming the API response has a 'name' field
+    } catch (error) {
+      console.error('Error fetching category:', error);
+    }
+  };
   const fetchProduct = async (productId) => {
     try {
       const response = await fetch(`http://appchodocu.ddns.net:3000/product/${productId}`);
       const data = await response.json();
       setProduct(data);
+      fetchCategoryName(data.category);
     } catch (error) {
       console.error('Error fetching product:', error);
     }
   };
-
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -33,8 +42,8 @@ const ProductDetail = ({ route, navigation }) => {
             <Text style={styles.description}>{product.description}</Text>
           </ScrollView>
           {product.image && <Image source={{ uri: product.image }} style={styles.image} />}
-          <Text style={styles.category}>Category: {product.category}</Text> 
-
+          {/* <Text style={styles.category}>Category: {product.category}</Text>  */}
+          <Text style={styles.category}>Category: {categoryName}</Text> 
           <Text style={styles.address}>Address: {product.address.province}, {product.address.district}, {product.address.ward}</Text>
         
         </>

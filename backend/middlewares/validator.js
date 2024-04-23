@@ -41,7 +41,7 @@ function isValidPhoneNumber(phoneNumber) {
 }
 
 
-
+//tạo function để add product giá cả phải là số dương
 module.exports = {
     isValidEmail,
     isValidPassword,
