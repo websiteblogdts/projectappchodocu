@@ -1,14 +1,15 @@
 import React from 'react';
+import { useNavigation } from '@react-navigation/native';
+import { TouchableOpacity } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-
+import Home from './src/screens/Home/Home';
 import LoginScreen from './src/screens/Login/Login';
 import ProductDetailUser from './src/screens/Product/ProductDetailUser';
 import ListUser from './src/screens/Admin/ListUser';
 import UserDetail from './src/screens/Admin/UserDetail';
-import ViewPosts from './src/screens/Admin/ViewPosts';
 import ViewPostsMain from './src/screens/Admin/ViewPostsMain';
 import ProductDetail from './src/screens/Product/ProductDetail';
 import ProductList from './src/screens/Product/ProductList';
@@ -73,16 +74,31 @@ function BottomTabsForUser() {
 }
 
 function HomeStackAdmin() {
+  const navigation = useNavigation();
   return (
     <Stack.Navigator>
-      <Stack.Screen name="ViewPostsMain" component={ViewPostsMain} options={{ headerShown: true }} />
-      <Stack.Screen name="ListUser" component={ListUser} />
-      <Stack.Screen name="UserDetail" component={UserDetail} />
-      <Stack.Screen name="ProductDetail" component={ProductDetail} />
-    </Stack.Navigator>
+    <Stack.Screen name="Home" component={Home}  />
+  </Stack.Navigator>
   );
 }
 
+function Quanlyuser() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen name="ListUser" component={ListUser} options={{ headerShown: true, title: 'View User List' }} />
+      <Stack.Screen name="UserDetail" component={UserDetail} options={{ headerShown: true, title: 'User Details' }}/>
+    </Stack.Navigator>
+  );
+} 
+function QuanlyPost()
+{
+  return (
+    <Stack.Navigator>
+      <Tab.Screen name="ViewPostsMain" component={ViewPostsMain} options={{ headerShown: true }} />
+      <Stack.Screen name="ProductDetail" component={ProductDetail} options={{ headerShown: true }} />
+      </Stack.Navigator>
+  )
+}
 function BottomTabsForAdmin() {
   return (
     <Tab.Navigator
@@ -90,33 +106,32 @@ function BottomTabsForAdmin() {
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
 
-          if (route.name === 'Home') {
+          if (route.name === 'HomeStack') {
             iconName = focused ? 'house' : 'house';
           }
           if (route.name === 'CategoryManager') {
             iconName = focused ? 'list' : 'list';
           }
-          else if (route.name === 'ListUser') {
+          else if (route.name === 'Quanlyuser') {
             iconName = focused ? 'user-pen' : 'user-pen';
-          } else if (route.name === 'Chat') {
-            iconName = focused ? 'Chat' : 'chatbubble-ellipses-outline';
+          } else if (route.name === 'QuanlyPost') {
+            iconName = focused ? 'list-check' : 'list-check';
           } else if (route.name === 'UserProfileScreen') {
-            iconName = focused ? '' : '';
+            iconName = focused ? 'user' : 'user';
           }else if (route.name === 'RegisterUser') {
             iconName = focused ? '' : '';
           }
-
           return <FontAwesome6 name={iconName} size={size} color={color} />;
         },
         tabBarActiveTintColor: 'tomato',
         tabBarInactiveTintColor: 'gray',
       })}
     >
-      <Tab.Screen name="Home" component={HomeStackAdmin} options={{ headerShown: false,  title: 'Quản Lý Bài Đăng' }}/>
-      <Tab.Screen name="CategoryManager" component={CategoryManager} options={{ headerShown: true ,title: 'View Category List'}} />
-      <Tab.Screen name="ListUser" component={ListUser} options={{ title: 'View User List' }} /> 
-      <Tab.Screen name="RegisterUser" component={RegisterUser} />
-      <Tab.Screen name="UserProfileScreen" component={UserProfileScreen} />
+      <Tab.Screen name="HomeStack" component={HomeStackAdmin} options={{ headerShown: false, title: 'Home' }}/>
+      <Tab.Screen name="QuanlyPost" component={QuanlyPost} options={{ headerShown: false, title: 'View Posts' }} />
+      <Tab.Screen name="Quanlyuser" component={Quanlyuser} options={{ headerShown: false, title: 'Users' }} />
+      <Tab.Screen name="CategoryManager" component={CategoryManager} options={{ headerShown: true, title: 'View Category List' }} />
+      <Tab.Screen name="UserProfileScreen" component={UserProfileScreen} options={{ title: 'View Trang Ca Nhan Account' }} />   
     </Tab.Navigator>
   );
 }
