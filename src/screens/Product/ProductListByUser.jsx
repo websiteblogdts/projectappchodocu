@@ -53,7 +53,6 @@ const ProductListByUser = () => {
 
   const navigateToProductDetail = (productId) => {
     navigation.navigate('ProductDetailUser', { productId: productId, reloadProducts: reloadProducts });
-    // navigation.navigate('ProductDetail', { productId });
   };
 
   const reloadProducts = async () => {
@@ -63,15 +62,20 @@ const ProductListByUser = () => {
   const renderProduct = ({ item }) => {
     const screenWidth = Dimensions.get('window').width;
     const itemWidth = (screenWidth - 32 - 16) / numColumns;
+
+    const backgroundColor = item.admin_approved ? '#C1FFC1' : '#BFEFFF'; // Màu xám nếu chưa được duyệt
+
+
     return (
       <TouchableOpacity onPress={() => navigateToProductDetail(item._id)}>
-        <View style={[styles.productContainer, { width: itemWidth }]}>
+        <View style={[styles.productContainer, { width: itemWidth, backgroundColor: backgroundColor }]}>
+        <Text style={styles.status}>{item.admin_approved ? 'Đã duyệt' : 'Đang chờ duyệt'}</Text>
           <Image
             source={{ uri: item.image }}
             style={styles.image}
             resizeMode="cover"
           />
-                    <Text style={styles.name}>{item.name}</Text>
+          <Text style={styles.name}>{item.name}</Text>
           <Text style={styles.price}>${item.price}</Text>
         </View>
       </TouchableOpacity>
@@ -83,6 +87,7 @@ const ProductListByUser = () => {
       {products.length === 0 ? (
         <Text style={styles.emptyText}>Không có sản phẩm nào</Text>
       ) : (
+        
         <FlatList
           data={products}
           renderItem={renderProduct}
@@ -95,6 +100,7 @@ const ProductListByUser = () => {
               onRefresh={onRefresh}
             />
           }
+          
         />
       )}
     </View>
@@ -105,14 +111,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: '#E6E6E6',
   },
   productContainer: {
     width: 160, // chiều rộng cố định
-    height: 250, // chiều cao cố định
-    // flex: 1,  // Cho phép container mở rộng để lấp đầy không gian khả dụng
-    // minHeight: 250, // Đặt chiều cao tối thiểu để đảm bảo tính nhất quán
-    backgroundColor: '#FFE4C4',
+    height: 260, // chiều cao cố định
     borderRadius: 6,
     marginBottom: 15,
     marginHorizontal: 2,
@@ -131,10 +133,20 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginTop: 8,
     textAlign: 'center',
+    height: 36, // Cố định chiều cao, đủ cho 2 dòng text
+    overflow: 'hidden' // Ngăn text vượt quá chiều cao đã định
   },
   price: {
     fontSize: 14,
     textAlign: 'center',
+    marginTop: 4, // Đảm bảo cách đều từ text tên sản phẩm
+  },
+  status: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    color: '#888', // Màu cho text trạng thái
+    marginTop: 5,
   },
   image: {
     width: '100%',
@@ -152,6 +164,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: 'center',
   },
+
 });
 
 export default ProductListByUser;

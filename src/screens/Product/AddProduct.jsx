@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text,StyleSheet,Modal,TextInput, Button, Alert,ActivityIndicator,Image } from 'react-native';
+import { View, Text,StyleSheet,Modal,TextInput, Button,TouchableOpacity , Alert,ActivityIndicator,Image } from 'react-native';
 import { IconButton } from 'react-native-paper';
-import * as ImagePicker from 'react-native-image-picker';
+import * as ImagePicker from 'expo-image-picker';
+import * as Camera from 'expo-camera';
 import { Picker } from '@react-native-picker/picker';
 import AsyncStorage from '@react-native-async-storage/async-storage'; 
+import axios from 'axios';
 
 const AddProduct = () => {
 
@@ -15,9 +17,7 @@ const AddProduct = () => {
   const [category, setCategory] = useState('');
   const [categories, setCategories] = useState([]);
 
-  // const [image, setImage] = useState([]);
   const [uploadedImage, setUploadedImage] = useState(null);
-  const [message, setMessage] = useState('');
   const [modal, setModal] = useState(false);
 
   const [provinces, setProvinces] = useState([]);
@@ -41,6 +41,7 @@ const AddProduct = () => {
         console.error('Error fetching categories:', error);
     }
 };
+
   const fetchProvinces = async () => {
     try {
       const response = await fetch('https://raw.githubusercontent.com/kenzouno1/DiaGioiHanhChinhVN/master/data.json');
@@ -94,6 +95,13 @@ const AddProduct = () => {
     }
   };
   
+  const increasePrice = () => {
+    setPrice(prevPrice => prevPrice + 1);
+  };
+
+  const decreasePrice = () => {
+    setPrice(prevPrice => Math.max(0, prevPrice - 1));
+  };
 
 const handleProvinceChange = (province) => {
   setSelectedProvince(province);
@@ -122,96 +130,78 @@ const handleDistrictChange = (district) => {
 const handleWardChange = (ward) => {
   setSelectedWard(ward);
 };
-  const _uploadImage = async () => {
-    const isPermissionGranted = await requestExternalWritePermission();
-    if (isPermissionGranted) {
-      // setLoading(true);
-      const options = {
-        title: 'Select Image',
-        storageOptions: {
-          skipBackup: true,
-          path: 'Image',
-        },
-      };
-     
-      ImagePicker.launchImageLibrary(options,(response) =>{
-        console.log('Response=',response);
-        if(response.didCancel){
-          console.log("User cancelled image picker");
-          setLoading(false);
-        } else if(response.error){
-          console.log("Image Picker Error",response.error);
-          setloading(false);
-        } else {
-          const { assets } = response;
-          if (assets && assets.length > 0) {
-            const { fileName, uri, type } = assets[0];
-            const source = { name: fileName, uri, type };
-            console.log(source);
-            handleUpdata(source);
-          } else {
-            console.log("Error: No assets found in response");
-            setLoading(false);
-          }        
-        }
-      })
-    }
-  }
-  
-  const handleUpdata = (photo) => {
-    const data = new FormData()
-    setLoading(true);
-    data.append('file',photo)
-    data.append("upload_preset","ackgbz0m")
-    data.append("cloud_name","dvm8fnczy")
-    fetch("https://api.cloudinary.com/v1_1/dvm8fnczy/image/upload",{
-        method:'POST',
-        body:data,
-        headers:{
-            'Accept':'application/json',
-            'Content-Type':'multipart/form-data'
-        }
-    }).then(res => res.json())
-    .then(data => {
-      setImage(data.url)
-      setUploadedImage(data.url);
-        setModal(false)
-        console.log(data) 
-        setLoading (false)
-    }).catch(err => {
-        Alert.alert("Error While Uploading")
-    })
-  }
-  
-const _takePhoto = () => {
-    const options ={
-        title : 'Select Image',
-        storageOptions: {
-            skipBackup: true,
-            path:'Image'
-        }
-    }
-    ImagePicker.launchCamera(options,(response) =>{
-        console.log('Response=',response);
-        if(response.didCancel){
-            console.log("User cancelled image picker");
-        }else if(response.error){
-            console.log("Image Picker Error",response.error);
-        }else{
-          const { assets } = response;
-          if (assets && assets.length > 0) {
-            const { fileName, uri, type } = assets[0];
-            const source = { name: fileName, uri, type };
-            console.log(source);
-            handleUpdata(source);
-          } else {
-            console.log("Error: No assets found in response");
-            setLoading(false);
-          }        
-        }
-    })
-}
 
+
+const handleUpload = async (image) => {
+  // Tạo một đối tượng FormData để gửi dữ liệu
+  let formData = new FormData();
+  // Thêm dữ liệu ảnh và các thông tin cần thiết cho Cloudinary vào formData
+  formData.append('file', {
+    uri: image.uri, // đường dẫn tới file ảnh
+    type: 'image/jpeg', // loại của file
+    name: 'upload.jpg' // tên file
+  });
+  formData.append('upload_preset', 'ackgbz0m'); // Preset bạn đã tạo trong Cloudinary
+  formData.append('cloud_name', 'dvm8fnczy'); // Tên Cloud của bạn
+
+  try {
+    // Gửi yêu cầu POST tới Cloudinary với dữ liệu trong formData
+    const response = await axios.post("https://api.cloudinary.com/v1_1/dvm8fnczy/image/upload", formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data', // Thông báo định dạng dữ liệu gửi đi là form data
+      }
+    });
+
+    if (response.status === 200) {
+      console.log("Upload successful: ", response.data);
+      // Cập nhật state nếu cần
+      setImage(response.data.secure_url); // Lưu URL của ảnh được lưu trên Cloudinary
+      setUploadedImage(response.data.secure_url);
+      Alert.alert('Upload Successful', 'Your image has been uploaded successfully!');
+    } else {
+      throw new Error("Failed to upload image");
+    }
+  } catch (error) {
+    console.error("Error uploading image: ", error);
+    Alert.alert('Upload Failed', 'Failed to upload image.');
+  }
+};
+
+const _uploadImage = async () => {
+  const result = await ImagePicker.launchImageLibraryAsync({
+    mediaTypes: ImagePicker.MediaTypeOptions.Images,
+    allowsEditing: true,
+    aspect: [4, 3],
+    quality: 1,
+  });
+
+  if (!result.cancelled) {
+    handleUpload(result.assets[0]); // Gọi hàm handleUpload với đối tượng ảnh thu được
+  } else {
+    console.log("Image selection was cancelled");
+  }
+};
+const _takePhoto = async () => {
+  // Same here for camera permissions
+  const { status } = await Camera.requestCameraPermissionsAsync();
+  if (status !== 'granted') {
+      alert('Sorry, we need camera permissions to make this work!');
+      return;
+  }
+  const result = await ImagePicker.launchCameraAsync({
+     mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+  });
+
+  if (!result.cancelled) {
+      setImage(result.uri);
+      handleUpload(result.assets[0]);
+    } else {
+      console.log("Image selection was cancelled");
+    }
+  };
   return (
     <View style={styles.container}>
       
@@ -219,9 +209,9 @@ const _takePhoto = () => {
     
       <Text>Create Product</Text>
 
-      {uploadedImage && (
+      {/* {uploadedImage && (
         <Image source={{ uri: uploadedImage }} style={{ width: 200, height: 200 }} />
-      )}
+      )} */}
 
       <TextInput
         style={styles.inputtext}
@@ -229,18 +219,29 @@ const _takePhoto = () => {
         value={name}
         onChangeText={text => setName(text)}
       />
-      <TextInput
-        style={styles.inputtext}
-        placeholder="Price"
-        keyboardType="number"  // Suggests a numeric keypad
-        value={price.toString()}  // Ensure the value is a string for the text input      
-        onChangeText={text => setPrice(parseFloat(text) || 0)}
+
+      <View style={styles.containerprice}>
+      <TouchableOpacity onPress={decreasePrice} style={styles.button}>
+        <Text style={styles.buttonText}>-</Text>
+      </TouchableOpacity>
+      <TextInput 
+        style={styles.inputprice}
+        onChangeText={text => setPrice(Number(text.replace(/[^0-9]/g, '')))}
+        value={price.toString()}
+        keyboardType="numeric"
       />
-      <TextInput
-        style={styles.inputtext}
-        placeholder="Description"
+      <TouchableOpacity onPress={increasePrice} style={styles.button}>
+        <Text style={styles.buttonText}>+</Text>
+      </TouchableOpacity>
+      </View>
+    
+       <TextInput
+        style={styles.textInput}
+        onChangeText={setDescription}
         value={description}
-        onChangeText={text => setDescription(text)}
+        multiline
+        placeholder="Nhập mô tả sản phẩm..."
+        textAlignVertical="top" // Đảm bảo text bắt đầu từ đầu trong Android
       />
     
       <Picker
@@ -253,11 +254,11 @@ const _takePhoto = () => {
               <Picker.Item key={category._id} label={category.name} value={category._id} /> //value={cat._id} nếu muốn lấy id của category
           ))}
       </Picker>
-
-    <Picker
+<View style={styles.containerprice}>
+<Picker
       selectedValue={selectedProvince}
       onValueChange={handleProvinceChange}
-      style={{ height: 50, width: 200 }}
+      style={{ height: 50, width: 100 }}
     >
       <Picker.Item label="Select Province" value="" />
       {provinces.map((province) => (
@@ -269,7 +270,7 @@ const _takePhoto = () => {
       <Picker
         selectedValue={selectedDistrict}
         onValueChange={handleDistrictChange}
-        style={{ height: 50, width: 200 }}
+        style={{ height: 50, width: 100 }}
       >
     <Picker.Item label="Select District" value="" />
     {districts && districts.map((district) => (
@@ -280,13 +281,15 @@ const _takePhoto = () => {
     <Picker
       selectedValue={selectedWard}
       onValueChange={handleWardChange}
-      style={{ height: 50, width: 200 }}
+      style={{ height: 50, width: 100 }}
     >
       <Picker.Item label="Select Ward" value="" />
       {wards && wards.map((ward) => (
   <Picker.Item key={ward.id} label={ward.Name} value={ward.Name} />
 ))}
     </Picker>
+
+</View>
 
       <TextInput
         style={styles.inputtext}
@@ -321,6 +324,21 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    marginVertical: 10,
+
+},
+containerprice: {
+  flexDirection: 'row',
+  justifyContent: 'center',
+  alignItems: 'center',
+  marginVertical: 10,
+
+},
+textInput: {
+  height: 100, // Chiều cao ban đầu
+  borderWidth: 1,
+  borderColor: '#ccc',
+  padding: 10,
 },
   inputtext: {
     height: 40,
@@ -331,10 +349,25 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     paddingHorizontal: 10,
 },
-  input:{
-      margin:6
-  },
-  buttonModalView:{
+inputprice: {
+  borderRadius: 5,
+  padding: 10,
+  marginHorizontal: 5,
+  textAlign: 'center',
+  borderColor: '#ccc',
+},
+button: {
+  padding: 8,
+  backgroundColor: '#ddd',
+  minWidth: 40,
+  alignItems: 'center',
+  justifyContent: 'center'
+},
+buttonText: {
+  fontSize: 18,
+  color: '#333',
+},
+buttonModalView:{
       flexDirection:'row',
       padding:10,
       justifyContent:'space-around',
