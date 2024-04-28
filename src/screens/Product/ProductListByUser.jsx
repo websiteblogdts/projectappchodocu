@@ -53,6 +53,7 @@ const ProductListByUser = () => {
 
   const navigateToProductDetail = (productId) => {
     navigation.navigate('ProductDetailUser', { productId: productId, reloadProducts: reloadProducts });
+    // navigation.navigate('ProductDetail', { productId });
   };
 
   const reloadProducts = async () => {
@@ -65,13 +66,14 @@ const ProductListByUser = () => {
     return (
       <TouchableOpacity onPress={() => navigateToProductDetail(item._id)}>
         <View style={[styles.productContainer, { width: itemWidth }]}>
+           <Text style={styles.name}>{item.name}</Text>
+          <Text style={styles.price}>${item.price}</Text>
           <Image
             source={{ uri: item.image }}
             style={styles.image}
             resizeMode="cover"
           />
-          <Text style={styles.name}>{item.name}</Text>
-          <Text style={styles.price}>${item.price}</Text>
+         
         </View>
       </TouchableOpacity>
     );

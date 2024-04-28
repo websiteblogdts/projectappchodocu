@@ -77,8 +77,9 @@ exports.getProductsByApprovalStatus = (req, res) => {
 exports.getAllUsers = async (req, res) => {
     try {
         // Lấy tất cả người dùng từ cơ sở dữ liệu
-        const users = await User.find({});
-        
+        // const users = await User.find({});
+        const users = await User.find({ role: 'user' });
+
         // Kiểm tra xem có người dùng nào không
         if (users.length === 0) {
             return res.status(404).json({ error: "No users found" });
@@ -233,9 +234,9 @@ exports.updateUserByIdForAdmin = async (req, res) => {
 
 
 exports.deleteUserById = async (req, res) => {
-    const userId = req.params.userId;
 
     try {
+        const userId = req.params.userId;
         // Xóa người dùng từ cơ sở dữ liệu dựa trên ID
         const deletedUser = await User.findByIdAndDelete(userId);
 

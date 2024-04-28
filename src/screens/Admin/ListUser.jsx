@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, RefreshControl, Dimensions } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, RefreshControl, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
 
 const ListUser = () => {
   const navigation = useNavigation();
@@ -33,6 +35,33 @@ const ListUser = () => {
     navigation.navigate('UserDetail', { userId });
   };
 
+  const deleteUser = async (id, token) => { // Include `token` as an argument if it's not globally available
+    Alert.alert(
+      "Confirm Deletion",
+      "Are you sure you want to delete this user?",
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "Delete", onPress: async () => {
+          try {
+            const userToken = await AsyncStorage.getItem('userToken');
+            console.log('Token from AsyncStorage:', userToken);
+            // Make the delete request with Authorization header
+            await axios.delete(`http://appchodocu.ddns.net:3000/admin/user/delete/${id}`, {
+              headers: {
+                'Authorization': `${userToken}` // Correct way to include the token
+              }
+            });
+            fetchUsers();
+            Alert.alert("Success", "User deleted successfully");
+          } catch (error) {
+            console.error('Failed to delete user:', error);
+            Alert.alert('Error', 'Failed to delete user');
+          }
+        }}
+      ]
+    );
+  };
+
   const renderUser = ({ item }) => {
     return (
       <TouchableOpacity onPress={() => navigateToUserDetail(item._id)}>
@@ -40,6 +69,9 @@ const ListUser = () => {
           <Text style={styles.name}>Name:{item.name}</Text>
           <Text style={styles.email}>Mail:{item.email}</Text>
           <Text>Phone:{item.phone_number}</Text>
+          <TouchableOpacity onPress={() => deleteUser(item._id)} style={styles.deleteButton}>
+          <Text>Delete</Text>
+        </TouchableOpacity>
         </View>
       </TouchableOpacity>
     );
@@ -104,6 +136,12 @@ const styles = StyleSheet.create({
   },
   flatListContent: {
     flexGrow: 1,
+  },
+  deleteButton: {
+    marginTop: 10,
+    backgroundColor: 'red',
+    padding: 8,
+    borderRadius: 5,
   },
 });
 

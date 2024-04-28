@@ -24,7 +24,7 @@ router.get('/getalluser', adminController.getAllUsers); // token user vẫn dùn
 router.get('/userbyid/:userId', adminController.getUserById);
 
 router.use(authMiddleware);
-router.delete('/delete/:userId', authMiddleware,adminController.deleteUserById);
+router.delete('/user/delete/:userId', adminController.deleteUserById);
 router.put('/changstatusaccount/:userId', authMiddleware,adminController.changeStatusAccount); // lock or unlock account 
 router.put('/usersforadmin/:userId', authMiddleware,adminController.updateUserByIdForAdmin);//update user by admin 
 // router.post('/users/:userId/unlock',authMiddleware, adminController.unlockUserAccount);

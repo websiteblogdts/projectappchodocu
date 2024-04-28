@@ -23,14 +23,23 @@ const CategoryManager = () => {
   };
 
   const deleteCategory = async (id) => {
-    try {
+    Alert.alert(
+      "Confirm Deletion",
+      "Are you sure you want to delete this user?",
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "Delete", onPress: async () => {
+          try {
       await axios.delete(`http://appchodocu.ddns.net:3000/admin/categories/${id}`);
       fetchCategories(); // Refresh the list after deletion
-    } catch (error) {
-      console.error('Failed to delete category:', error);
-      Alert.alert('Error', 'Failed to delete category');
-    }
-  };
+      } catch (error) {
+        console.error('Failed to delete category:', error);
+        Alert.alert('Error', 'Failed to delete category');
+      }
+    }}
+  ]
+ );
+};
 
   const addCategory = async () => {
     try {

@@ -34,7 +34,7 @@ function HomeStack() {
 function CreateProduct(){
     return(
       <Stack.Navigator>
-        <Stack.Screen name="AddProduct" component={AddProduct}/>
+        <Stack.Screen name="AddProduct" component={AddProduct} options={{ headerShown: false }} />
       </Stack.Navigator>
     );
 }
@@ -79,9 +79,9 @@ function BottomTabsForUser() {
       })}
     >
       <Tab.Screen name="HomeStack" component={HomeStack} options={{ headerShown: false }} />
-      <Tab.Screen name="CreateProduct" component={CreateProduct} />
+      <Tab.Screen name="CreateProduct" component={CreateProduct}  />
       <Tab.Screen name="UserProfileScreen" component={UserProfileScreen} />
-      <Tab.Screen name="ViewPostProduct" component={ViewPostProduct} />
+      <Tab.Screen name="ViewPostProduct" component={ViewPostProduct} options={{ headerShown: false }} />
     </Tab.Navigator>
   );
 }

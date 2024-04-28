@@ -44,9 +44,6 @@ const ProductListScreen = () => {
     navigation.navigate('ProductDetail', { productId });
   };
 
-  // const reloadProducts = async () => {
-  //   fetchProducts();
-  // };
 
   const renderProduct = ({ item }) => {
     const screenWidth = Dimensions.get('window').width;
