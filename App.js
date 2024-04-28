@@ -1,6 +1,5 @@
 import React from 'react';
-import { useNavigation } from '@react-navigation/native';
-import { TouchableOpacity } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
@@ -29,12 +28,25 @@ function HomeStack() {
     <Stack.Navigator>
       <Stack.Screen name="ProductList" component={ProductList} options={{ headerShown: true ,title: 'View Product List'}} />
       <Stack.Screen name="ProductDetail" component={ProductDetail} options={{ headerShown: true ,title: 'View Product List'}}/>
-      <Stack.Screen name="EditProduct" component={EditProduct} />
-      <Stack.Screen name="ProductDetailUser" component={ProductDetailUser} />
     </Stack.Navigator>
   );
 }
-
+function CreateProduct(){
+    return(
+      <Stack.Navigator>
+        <Stack.Screen name="AddProduct" component={AddProduct}/>
+      </Stack.Navigator>
+    );
+}
+function ViewPostProduct() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen name="ProductListByUser" component={ProductListByUser}  options={{ title: 'View Product By User'}} />
+      <Stack.Screen name="ProductDetailUser" component={ProductDetailUser} />
+      <Stack.Screen name="EditProduct" component={EditProduct} />
+    </Stack.Navigator>
+  );
+}
 // Bottom Tab Navigator cho user
 function BottomTabsForUser() {
   return (
@@ -48,37 +60,37 @@ function BottomTabsForUser() {
           }
           if (route.name === 'ProductList') {
             iconName = focused ? 'basket-shopping' : 'basket-shopping';
-          } else if (route.name === 'AddProduct') {
-            iconName = focused ? 'plus' : 'plus';
+          } else if (route.name === 'CreateProduct') {
+            iconName = focused ? 'circle-plus' : 'circle-plus';
           } else if (route.name === 'Chat') {
             iconName = focused ? 'Chat' : 'chatbubble-ellipses-outline';
           } else if (route.name === 'UserProfileScreen') {
-            iconName = focused ? 'circle-user' : 'circle-user';
-          }else if (route.name === 'ProductListByUser') {
-            iconName = focused ? 'user' : 'user';
+            iconName = focused ? 'user-tie' : 'user-tie';
+          }else if (route.name === 'ViewPostProduct') {
+            iconName = focused ? 'list-check' : 'list-check';
           }
-
           return <FontAwesome6 name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: 'tomato',
-        tabBarInactiveTintColor: 'gray',
+        tabBarActiveTintColor: '#FF3399',
+        tabBarInactiveTintColor: 'black',
+        tabBarStyle: {
+          backgroundColor: '#FFFFCC',
+        }
       })}
     >
-    
       <Tab.Screen name="HomeStack" component={HomeStack} options={{ headerShown: false }} />
-      <Tab.Screen name="AddProduct" component={AddProduct} />
+      <Tab.Screen name="CreateProduct" component={CreateProduct} />
       <Tab.Screen name="UserProfileScreen" component={UserProfileScreen} />
-      <Tab.Screen name="ProductListByUser" component={ProductListByUser}  options={{ title: 'View Product By User'}} />
+      <Tab.Screen name="ViewPostProduct" component={ViewPostProduct} />
     </Tab.Navigator>
   );
 }
 
 function HomeStackAdmin() {
-  const navigation = useNavigation();
   return (
     <Stack.Navigator>
-    <Stack.Screen name="Home" component={Home}  />
-  </Stack.Navigator>
+    <Stack.Screen name="Home" component={Home}/> 
+    </Stack.Navigator>
   );
 }
 
@@ -99,6 +111,13 @@ function QuanlyPost()
       </Stack.Navigator>
   )
 }
+function Category() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen name="CategoryManager" component={CategoryManager} options={{ headerShown: true, title: 'View Category List' }} />
+    </Stack.Navigator>
+  );
+}
 function BottomTabsForAdmin() {
   return (
     <Tab.Navigator
@@ -109,28 +128,36 @@ function BottomTabsForAdmin() {
           if (route.name === 'HomeStack') {
             iconName = focused ? 'house' : 'house';
           }
-          if (route.name === 'CategoryManager') {
+          if (route.name === 'Category') {
             iconName = focused ? 'list' : 'list';
           }
           else if (route.name === 'Quanlyuser') {
-            iconName = focused ? 'user-pen' : 'user-pen';
+            iconName = focused ? 'user-lock' : 'user-lock';
           } else if (route.name === 'QuanlyPost') {
             iconName = focused ? 'list-check' : 'list-check';
           } else if (route.name === 'UserProfileScreen') {
-            iconName = focused ? 'user' : 'user';
+            iconName = focused ? 'user-secret' : 'user-secret';
           }else if (route.name === 'RegisterUser') {
             iconName = focused ? '' : '';
           }
-          return <FontAwesome6 name={iconName} size={size} color={color} />;
+          return (
+            <View style={styles.iconContainer}>
+              <FontAwesome6 name={iconName} size={size} color={color} />
+            </View>
+          );
         },
-        tabBarActiveTintColor: 'tomato',
-        tabBarInactiveTintColor: 'gray',
+        tabBarActiveTintColor: '#FF3399',
+        tabBarInactiveTintColor: 'black',
+        tabBarStyle: {
+         
+          backgroundColor: '#FFFFCC',
+        }
       })}
     >
       <Tab.Screen name="HomeStack" component={HomeStackAdmin} options={{ headerShown: false, title: 'Home' }}/>
       <Tab.Screen name="QuanlyPost" component={QuanlyPost} options={{ headerShown: false, title: 'View Posts' }} />
       <Tab.Screen name="Quanlyuser" component={Quanlyuser} options={{ headerShown: false, title: 'Users' }} />
-      <Tab.Screen name="CategoryManager" component={CategoryManager} options={{ headerShown: true, title: 'View Category List' }} />
+      <Tab.Screen name="Category" component={Category} options={{ headerShown: false, title: 'View Category List' }} />
       <Tab.Screen name="UserProfileScreen" component={UserProfileScreen} options={{ title: 'View Trang Ca Nhan Account' }} />   
     </Tab.Navigator>
   );
@@ -148,5 +175,17 @@ function App() {
     </NavigationContainer>
   );
 }
+
+
+const styles = StyleSheet.create({
+  iconContainer: {
+    width: 70, // Set the width and height as desired
+    height: 70,
+    borderRadius: 15, // Adjust the border radius to get the desired roundness
+    // backgroundColor: 'white', // Change the background color as needed
+    justifyContent: 'center',
+    alignItems: 'center',
+  }
+});
 
 export default App;
