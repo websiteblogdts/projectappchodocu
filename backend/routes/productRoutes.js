@@ -8,17 +8,13 @@ router.get('/category/:id', categoryController.getCategoryById);
 router.get('/category', categoryController.getAllCategories);
 
 
-router.get('/',  productController.getAllProducts);
-
-// router.get('/:productId', productController.getProductById);
-
 router.get('/helloson', productController.getRoutes);
 
 router.use(authMiddleware);
 
-router.get('/productlistbyuser', authMiddleware,  productController.getAllProductsByUser);
+router.get('/productlistbyuser', authMiddleware,  productController.getAllProductsByUser);// hiển trị trang status
 
-router.get('/productdaduyet', authMiddleware,  productController.getAllProductsByUserApproved);
+router.get('/productdaduyet', authMiddleware,  productController.getproductdaduyet);
 
 router.get('/:productId', authMiddleware, productController.getProductById);
 

@@ -31,18 +31,63 @@ const ViewPostsMain = () => {
         }
       });
       const data = await response.json();
-      setProducts(data);
-      console.log("Fetched products:", data);
-      // Kiểm tra nếu danh sách sản phẩm trống
-      if (data.length === 0) {
-        Alert.alert("Thông báo", "Không tìm thấy sản phẩm nào.");
+      
+      // Kiểm tra nếu không có sản phẩm hoặc dữ liệu không tồn tại
+      if (!data || data.length === 0) {
+        showAlert("Thông báo", "Không tìm thấy sản phẩm nào.");
+      } else {
+        setProducts(data);
+        console.log("Fetched products:", data);
       }
     } catch (error) {
       console.error('Error fetching products:', error);
-      Alert.alert("Lỗi", "Không thể tải sản phẩm. Vui lòng thử lại.");
+      showAlert("Lỗi", "Không thể tải sản phẩm. Vui lòng thử lại.");
+    }
+  };
+  
+  const showAlert = (title, message) => {
+    Alert.alert(title, message);
+  };
+  
+  const toggleProductApproval = async (productId) => {
+    try {
+      const userToken = await AsyncStorage.getItem('userToken');
+      
+      // Hiển thị cảnh báo xác nhận
+      Alert.alert(
+        'Xác nhận',
+        'Bạn có chắc chắn muốn cập nhật trạng thái sản phẩm này?',
+        [
+          {
+            text: 'Hủy',
+            style: 'cancel',
+          },
+          {
+            text: 'Đồng ý',
+            onPress: async () => {
+              await fetch(`http://appchodocu.ddns.net:3000/admin/product/${productId}/approved`, {
+                method: 'PUT',
+                headers: {
+                  'Authorization': `${userToken}`,
+                  'Content-Type': 'application/json'
+                }
+              });
+  
+              // Tải lại danh sách sản phẩm sau khi cập nhật
+              fetchProducts(approved);
+            },
+          },
+        ],
+        { cancelable: false }
+      );
+
+    } catch (error) {
+      console.error('Error updating product approval status:', error);
+      Alert.alert("Lỗi", "Không thể cập nhật trạng thái sản phẩm. Vui lòng thử lại.");
     }
   };
 
+  
   const onRefresh = () => {
     setRefreshing(true);
     fetchProducts(approved).then(() => setRefreshing(false));
@@ -53,7 +98,6 @@ const ViewPostsMain = () => {
   };
 
   const toggleApproved = () => {
-
     setApproved(!approved);
   };
 
@@ -73,7 +117,11 @@ const ViewPostsMain = () => {
           }
           <Text style={styles.name}>{item.name}</Text>
           <Text style={styles.price}>${item.price}</Text>
+          
         </View>
+        <TouchableOpacity style={styles.approvalButton} onPress={() => toggleProductApproval(item._id)} >
+            <Text style={styles.buttonText}>{item.admin_approved ? "Unapprove" : "Approve"}</Text>
+          </TouchableOpacity>
       </TouchableOpacity>
     );
   };
@@ -151,6 +199,16 @@ const styles = StyleSheet.create({
   flatListContent: {
     flexGrow: 1,
   },
+  approvalButton:  {
+    padding: 10,
+    backgroundColor: '#4CAF50',
+    borderRadius: 5,
+    marginTop: 10,
+  },
+  buttonText: {
+    color: 'white',
+    textAlign: 'center',
+  }
 });
 
 export default ViewPostsMain;

@@ -44,10 +44,27 @@ exports.getAllProductsByUser = (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 };
-// Hàm xử lý hiển thị tất cả các sản phẩm
+
+exports.getproductdaduyet = (req, res) => {
+    try {
+        Product.find({  admin_approved: true })
+            .then(products => {
+                // Trả về danh sách các sản phẩm
+                res.json(products);
+            })
+            .catch(error => {
+                console.error('Error fetching products:', error);
+                res.status(500).json({ error: 'Internal server error' });
+            });
+    } catch (error) {
+        console.error('Error fetching products:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+// Hàm xử lý hiển thị tất cả các sản phẩm giá trị true cho trang listproduct
 exports.getAllProducts = (req, res) => {
-    Product.find({})
-        .then(products => {
+    Product.find({  admin_approved: true })
+            .then(products => {
             res.send(products);
         })
         .catch(error => {

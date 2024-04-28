@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, StyleSheet, Image,Button, TouchableOpacity, RefreshControl, Dimensions } from 'react-native';
+import { View, Text, FlatList, StyleSheet, Alert,Image,Button, TouchableOpacity, RefreshControl, Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ProductListScreen = () => {
   const navigation = useNavigation();
@@ -8,25 +9,10 @@ const ProductListScreen = () => {
   const [refreshing, setRefreshing] = useState(false);
   const numColumns = 2; 
 
-  const refreshData = () => {
-    // Gọi hàm làm mới dữ liệu ở đây
-    console.log('Refreshing data...');
-  };
 
   useEffect(() => {
-    // Gọi hàm làm mới dữ liệu khi màn hình được hiển thị
-    refreshData();
-  }, [])
-
-  const fetchProducts = async () => {
-    try {
-      const response = await fetch('http://appchodocu.ddns.net:3000/product');
-      const data = await response.json();
-      setProducts(data);
-    } catch (error) {
-      console.error('Error fetching products:', error);
-    }
-  };
+    fetchProducts();
+  }, []);
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
@@ -35,6 +21,49 @@ const ProductListScreen = () => {
     return unsubscribe;
   }, [navigation]);
 
+  // const refreshData = () => {
+  //   // Gọi hàm làm mới dữ liệu ở đây
+  //   console.log('Refreshing data...');
+  // };
+
+  // useEffect(() => {
+  //   // Gọi hàm làm mới dữ liệu khi màn hình được hiển thị
+  //   refreshData();
+  // }, [])
+
+// lấy toàn bộ product
+  // const fetchProducts = async () => {
+  //   try {
+  //     const response = await fetch('http://appchodocu.ddns.net:3000/product/');
+  //     const data = await response.json();
+  //     setProducts(data);
+  //   } catch (error) {
+  //     console.error('Error fetching products:', error);
+  //   }
+  // };
+
+  const fetchProducts = async () => {
+    try {
+      const userToken = await AsyncStorage.getItem('userToken');
+      console.log('Token from AsyncStorage:', userToken);
+      // Đảm bảo rằng tham số truy vấn approved được thiết lập là true
+      const response = await fetch(`http://appchodocu.ddns.net:3000/product/productdaduyet`, {
+        headers: {
+          'Authorization': `${userToken}`
+        }
+      });
+      const data = await response.json();
+      setProducts(data);
+      console.log("Fetched products:", data);
+      if (data.length === 0) {
+        Alert.alert("Thông báo", "Không tìm thấy sản phẩm nào.");
+      }
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      Alert.alert("Lỗi", "Không thể tải sản phẩm. Vui lòng thử lại.");
+    }
+  };
+  
   const onRefresh = () => {
     setRefreshing(true);
     fetchProducts().then(() => setRefreshing(false));

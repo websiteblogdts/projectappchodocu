@@ -41,7 +41,7 @@ function CreateProduct(){
 function ViewPostProduct() {
   return (
     <Stack.Navigator>
-      <Stack.Screen name="ProductListByUser" component={ProductListByUser}  options={{ title: 'View Product By User'}} />
+      <Stack.Screen name="ProductListByUser" component={ProductListByUser}  options={{ title: 'Status Post'}} />
       <Stack.Screen name="ProductDetailUser" component={ProductDetailUser} />
       <Stack.Screen name="EditProduct" component={EditProduct} />
     </Stack.Navigator>

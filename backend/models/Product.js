@@ -11,11 +11,10 @@ const ProductSchema = new mongoose.Schema({
     name: String,
     price: Number,
     description: String,
-    image: String,
-    // category: String,
+    image: String, // Sử dụng mảng các chuỗi để lưu trữ nhiều URL hình ảnh
     category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true }, // Tham chiếu tới Category
     address: AddressSchema,
-    admin_approved: { type: Boolean, default: true }
+    admin_approved: { type: Boolean, default: false }
 }, { timestamps: true
 
 });
