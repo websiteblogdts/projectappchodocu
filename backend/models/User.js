@@ -3,6 +3,9 @@ const mongoose = require('mongoose');
 const userSchema = new mongoose.Schema
 (
     {
+       // required: true ( là trường này bắt buộc phải có giá trị thì mới được lưu)
+       // unique: true ( là trường này không được trùng giá trị với các document khác)
+       
         email: { type: String, unique: true, required: true, match: /.+\@.+\..+/ },
         phone_number: { type: String, unique: true },
         name: { type: String, default: 'No Name' },

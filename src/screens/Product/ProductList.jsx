@@ -96,7 +96,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: '#E6E6E6',
+    backgroundColor: '#CAE1FF',
 
   },
   productContainer: {
