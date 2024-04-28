@@ -7,13 +7,19 @@ const ProductDetailUser = ({ route, navigation }) => {
   const { reloadProducts } = route.params;
   const [categoryName, setCategoryName] = useState('');
 
-  useEffect(() => {
+
+  // React.useEffect(() => {
+  //   fetchCategories();
+  //   fetchProvinces();
+  // }, []);
+
+  React.useEffect(() => {
     // Lấy ID của sản phẩm từ tham số định tuyến
     const productId = route.params.productId;
     fetchProduct(productId);
   }, [route.params.productId]);
 
-  const fetchCategoryName = async (categoryId) => {
+const fetchCategoryName = async (categoryId) => {
     try {
       const response = await fetch(`http://appchodocu.ddns.net:3000/product/category/${categoryId}`);
       const data = await response.json();
@@ -23,9 +29,15 @@ const ProductDetailUser = ({ route, navigation }) => {
     }
   };
 
-  const fetchProduct = async (productId) => {
+const fetchProduct = async (productId) => {
     try {
-      const response = await fetch(`http://appchodocu.ddns.net:3000/product/${productId}`);
+      const userToken = await AsyncStorage.getItem('userToken');
+      console.log('userToken', userToken);
+      const response = await fetch(`http://appchodocu.ddns.net:3000/product/${productId}`,{
+        headers: {
+          'Authorization': `${userToken}`
+        }
+      });
       const data = await response.json();
       setProduct(data);
       fetchCategoryName(data.category);
@@ -33,7 +45,6 @@ const ProductDetailUser = ({ route, navigation }) => {
       console.error('Error fetching product:', error);
     }
   };
-
   const handleUpdateProduct = (productId) => {
     // Chuyển hướng đến trang cập nhật sản phẩm và truyền ID sản phẩm
     navigation.navigate('EditProduct', { productId: product._id , reloadProducts: reloadProducts
@@ -64,10 +75,9 @@ const confirmDeleteProduct = async () => {
     return false;
   }
 };
-
   
-  const deleteProduct = async (productId) => {
-    try {
+const deleteProduct = async (productId) => {
+  try {
       const userToken = await AsyncStorage.getItem('userToken');
   
       const response = await fetch(`http://appchodocu.ddns.net:3000/product/deleteproduct/${productId}`, {
@@ -89,12 +99,14 @@ const confirmDeleteProduct = async () => {
     }
   };
   
-
-  
   return (
     <ScrollView contentContainerStyle={styles.container}>
       {product ? (
         <>
+        <View style={styles.buttonContainer}>
+            <Button title="Cập nhật" onPress={handleUpdateProduct} style={styles.updateButton} />
+            <Button title="Xóa" onPress={handleDeleteProduct} />
+          </View>
           <Text style={styles.name}>{product.name}</Text>
           <Text style={styles.price}>${product.price}</Text>
           <ScrollView style={styles.descriptionContainer}>
@@ -103,18 +115,12 @@ const confirmDeleteProduct = async () => {
           {product.image && <Image source={{ uri: product.image }} style={styles.image} />}
           <Text style={styles.category}>Category: {categoryName}</Text> 
           <Text style={styles.address}>Address: {product.address.province}, {product.address.district}, {product.address.ward}</Text>
-        
-          <View style={styles.buttonContainer}>
-            <Button title="Cập nhật" onPress={handleUpdateProduct} style={styles.updateButton} />
-            <Button title="Xóa" onPress={handleDeleteProduct} />
-          </View>
         </>
       ) : (
         <Text>Loading...</Text>
       )}
     </ScrollView>
   );
-  
 };
 
 const styles = StyleSheet.create({

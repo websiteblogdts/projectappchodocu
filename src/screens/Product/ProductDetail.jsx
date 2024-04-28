@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Text, StyleSheet, Image, ScrollView  } from 'react-native';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ProductDetail = ({ route }) => {
   const [product, setProduct] = useState(null);
@@ -21,9 +21,16 @@ const ProductDetail = ({ route }) => {
       console.error('Error fetching category:', error);
     }
   };
+
   const fetchProduct = async (productId) => {
     try {
-      const response = await fetch(`http://appchodocu.ddns.net:3000/product/${productId}`);
+      const userToken = await AsyncStorage.getItem('userToken');
+      console.log('userToken', userToken);
+      const response = await fetch(`http://appchodocu.ddns.net:3000/product/${productId}`,{
+        headers: {
+          'Authorization': `${userToken}`
+        }
+      });
       const data = await response.json();
       setProduct(data);
       fetchCategoryName(data.category);

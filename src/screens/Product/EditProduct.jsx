@@ -15,7 +15,6 @@ const EditProduct = ({ route, navigation }) => {
   const [uploadedImage, setUploadedImage] = useState(null);
   const [message, setMessage] = useState('');
   const [modal, setModal] = useState(false);
-  const [category, setCategory] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [provinces, setProvinces] = useState([]);
   const [districts, setDistricts] = useState([]);
@@ -23,6 +22,69 @@ const EditProduct = ({ route, navigation }) => {
   const [selectedProvince, setSelectedProvince] = useState('');
   const [selectedDistrict, setSelectedDistrict] = useState('');
   const [selectedWard, setSelectedWard] = useState('');
+  const [category, setCategory] = useState('');
+  const [categories, setCategories] = useState([]);
+
+  React.useEffect(() => {
+    fetchCategories();
+    fetchProvinces();
+    fetchDistricts();
+    fetchWards();
+  }, []);
+
+  const fetchCategories = async () => {
+    try {
+        const response = await fetch('http://appchodocu.ddns.net:3000/product/category');
+        const data = await response.json();
+        setCategories(data);
+    } catch (error) {
+        console.error('Error fetching categories:', error);
+    }
+};
+  const fetchProvinces = async () => {
+    try {
+      const response = await fetch('https://raw.githubusercontent.com/kenzouno1/DiaGioiHanhChinhVN/master/data.json');
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error fetching provinces:', error);
+      return [];
+    }
+  };
+const fetchDistricts = async (provinceName) => {
+  try {
+    const selectedProvince = provinces.find((p) => p.Name === provinceName);
+    if (selectedProvince) {
+      return selectedProvince.Districts;
+    }
+    return [];
+  } catch (error) {
+    console.error('Error fetching districts:', error);
+    return [];
+  }
+};
+
+const fetchWards = async (districtName) => {
+  try {
+    const selectedDistrict = districts.find((d) => d.Name === districtName);
+    if (selectedDistrict) {
+      return selectedDistrict.Wards;
+    }
+    return [];
+  } catch (error) {
+    console.error('Error fetching wards:', error);
+    return [];
+  }
+};
+// const fetchProvinces = async () => {
+//   try {
+//     const response = await fetch('https://raw.githubusercontent.com/kenzouno1/DiaGioiHanhChinhVN/master/data.json');
+//     const data = await response.json();
+//     setProvinces(data);
+//   } catch (error) {
+//     console.error('Error fetching provinces:', error);
+//   }
+// };
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -98,42 +160,17 @@ const EditProduct = ({ route, navigation }) => {
     }
   };
 
-  const fetchProvinces = async () => {
-    try {
-      const response = await fetch('https://raw.githubusercontent.com/kenzouno1/DiaGioiHanhChinhVN/master/data.json');
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      console.error('Error fetching provinces:', error);
-      return [];
-    }
-  };
+  // const fetchProvinces = async () => {
+  //   try {
+  //     const response = await fetch('https://raw.githubusercontent.com/kenzouno1/DiaGioiHanhChinhVN/master/data.json');
+  //     const data = await response.json();
+  //     return data;
+  //   } catch (error) {
+  //     console.error('Error fetching provinces:', error);
+  //     return [];
+  //   }
+  // };
 
-  const fetchDistricts = async (provinceName) => {
-    try {
-      const selectedProvince = provinces.find((p) => p.Name === provinceName);
-      if (selectedProvince) {
-        return selectedProvince.Districts;
-      }
-      return [];
-    } catch (error) {
-      console.error('Error fetching districts:', error);
-      return [];
-    }
-  };
-
-  const fetchWards = async (districtName) => {
-    try {
-      const selectedDistrict = districts.find((d) => d.Name === districtName);
-      if (selectedDistrict) {
-        return selectedDistrict.Wards;
-      }
-      return [];
-    } catch (error) {
-      console.error('Error fetching wards:', error);
-      return [];
-    }
-  };
   const requestExternalWritePermission = async () => {
     try {
       const granted = await PermissionsAndroid.request(
