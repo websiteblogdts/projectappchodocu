@@ -11,11 +11,22 @@ const ListUser = () => {
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch('http://appchodocu.ddns.net:3000/admin/getalluser');
-      const data = await response.json();
-      setUsers(data);
+      // Retrieve the token from AsyncStorage
+      const userToken = await AsyncStorage.getItem('userToken');
+      console.log('Token from AsyncStorage:', userToken);
+  
+      // Use axios to make the HTTP request with the Authorization header
+      const response = await axios.get('http://appchodocu.ddns.net:3000/admin/getalluser', {
+        headers: {
+          'Authorization': `${userToken}` // Ensure you're using Bearer token if required by your backend
+        }
+      });
+  
+      // Set the users data using the response data
+      setUsers(response.data);
     } catch (error) {
       console.error('Error fetching users:', error);
+      Alert.alert('Error', 'Failed to fetch users');
     }
   };
 
