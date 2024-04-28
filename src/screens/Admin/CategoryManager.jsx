@@ -6,6 +6,7 @@ const CategoryManager = () => {
   const [categories, setCategories] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');
+  const [isCategoryNameValid, setIsCategoryNameValid] = useState(false);
 
   useEffect(() => {
     fetchCategories();
@@ -42,7 +43,12 @@ const CategoryManager = () => {
       Alert.alert('Error', 'Failed to add category');
     }
   };
-
+  
+  const handleCategoryNameChange = (text) => {
+    setNewCategoryName(text);
+    setIsCategoryNameValid(text.trim().length > 0);
+  };
+  
   return (
     <View style={styles.container}>
       <Button title="Add Category" onPress={() => setModalVisible(true)} />
@@ -57,17 +63,23 @@ const CategoryManager = () => {
       >
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
-            <TextInput
-              style={styles.input}
-              placeholder="Category Name"
-              value={newCategoryName}
-              onChangeText={setNewCategoryName}
-            />
-            <Button title="Save" onPress={addCategory} />
+          <TextInput
+            style={styles.input}
+            placeholder="Category Name"
+            value={newCategoryName}
+            onChangeText={handleCategoryNameChange}
+          />
+
+            <Button title="Save" onPress={addCategory} disabled={!isCategoryNameValid} />
+
             <Button title="Close" onPress={() => setModalVisible(false)} />
           </View>
         </View>
       </Modal>
+      <View style={styles.containercategory}>
+      {categories.length === 0 ? (
+        <Text style={styles.emptyText}>Danh sách trống</Text>
+      ) : (
       <FlatList
         data={categories}
         keyExtractor={(item) => item._id}
@@ -78,6 +90,8 @@ const CategoryManager = () => {
           </View>
         )}
       />
+      )}
+      </View>
     </View>
   );
 };
@@ -86,6 +100,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     marginTop: 50,
+  },
+  containercategory: {
+    flex: 1,
+    padding: 16,
+    backgroundColor: '#CAE1FF',
+
   },
   listItem: {
     flexDirection: 'row',

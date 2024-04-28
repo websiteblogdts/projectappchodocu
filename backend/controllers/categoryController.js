@@ -4,10 +4,15 @@ const Category = require('../models/Category');
 exports.createCategory = async (req, res) => {
     try {
         const { name } = req.body; // Lấy tên category từ request body
-        if (!name) {
-            return res.status(400).json({ error: "Tên danh mục không được để trống" });
+       
+        if (!name.trim()) { // Dùng phương thức trim() để loại bỏ khoảng trắng thừa
+            return res.status(400).json({ error: "Tên danh mục không được để trống hoặc chỉ chứa khoảng trắng" });
         }
-        
+         // Kiểm tra xem danh mục đã tồn tại chưa trước khi thực hiện lưu
+         const existingCategory = await Category.findOne({ name: name.trim() });
+         if (existingCategory) {
+             return res.status(409).json({ error: "Danh mục đã tồn tại" });
+         }
         const newCategory = new Category({ name });
         const savedCategory = await newCategory.save(); // Lưu category vào database
         res.status(201).json(savedCategory); // Gửi response với thông tin category đã lưu
