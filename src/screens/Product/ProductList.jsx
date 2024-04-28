@@ -51,8 +51,6 @@ const ProductListScreen = () => {
     return (
       <TouchableOpacity onPress={() => navigateToProductDetail(item._id)}>
         <View style={[styles.productContainer, { width: itemWidth }]}>
-          <Text style={styles.name}>{item.name}</Text>
-          <Text style={styles.price}>${item.price}</Text>
           {item.image && 
             <Image
               source={{ uri: item.image }}
@@ -60,6 +58,8 @@ const ProductListScreen = () => {
               resizeMode="contain"
             />
           }
+                    <Text style={styles.name}>{item.name}</Text>
+          <Text style={styles.price}>${item.price}</Text>
         </View>
       </TouchableOpacity>
     );
@@ -97,7 +97,11 @@ const styles = StyleSheet.create({
 
   },
   productContainer: {
-    backgroundColor: '#FFF',
+    width: 160, // chiều rộng cố định
+    height: 250, // chiều cao cố định
+    // flex: 1,  // Cho phép container mở rộng để lấp đầy không gian khả dụng
+    // minHeight: 250, // Đặt chiều cao tối thiểu để đảm bảo tính nhất quán
+    backgroundColor: '#FFE4C4',
     borderRadius: 6,
     marginBottom: 15,
     marginHorizontal: 2,
@@ -115,14 +119,21 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 8,
+    textAlign: 'center',
+
   },
   price: {
     fontSize: 16,
     marginBottom: 8,
+    textAlign: 'center',
+
   },
   image: {
     width: '100%',
     aspectRatio: 1,
+    borderRadius: 10, // Bo góc cho hình ảnh
+    borderWidth: 2, // Độ dày của viền
+    borderColor: '#EED5B7' // Màu sắc của viền
   },
   emptyText: {
     fontSize: 16,

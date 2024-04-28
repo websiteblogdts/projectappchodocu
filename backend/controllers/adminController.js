@@ -76,10 +76,14 @@ exports.getProductsByApprovalStatus = (req, res) => {
 //lấy tất cả user cho trang admin
 exports.getAllUsers = async (req, res) => {
     try {
-        // Lấy tất cả người dùng từ cơ sở dữ liệu
-        // const users = await User.find({});
-        const users = await User.find({ role: 'user' });
 
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({ error: "You are not authorized to perform this action" });
+        }
+
+        // Lấy tất cả người dùng từ cơ sở dữ liệu
+        // const users = await User.find({}); // Lấy tất cả người dùng
+        const users = await User.find({ role: 'user' });
         // Kiểm tra xem có người dùng nào không
         if (users.length === 0) {
             return res.status(404).json({ error: "No users found" });
@@ -95,8 +99,12 @@ exports.getAllUsers = async (req, res) => {
 
 //xử lý lấy thông tin user theo id cho trang detail user của admin
 exports.getUserById = async (req, res) => {
-    const userId = req.params.userId;
     try {
+        const userId = req.params.userId;
+
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({ error: "You are not authorized to perform this action" });
+        }
         // Tìm người dùng trong cơ sở dữ liệu bằng ID
         const user = await User.findById(userId);
 
@@ -185,7 +193,7 @@ exports.updateUserByIdForAdmin = async (req, res) => {
     try {
       //  Kiểm tra vai trò của người dùng (chỉ admin mới được phép cập nhật thông tin này)
         if (req.user.role !== 'admin') {
-            return res.status(403).json({ error: "You are not authorized to perform this action" });
+            return res.status(403).json({ error: "You are not authorized to perform this action, ADMIN mới được nhé by SONDZ" });
         }
         const existingUser = await User.findById(userId);
             // Kiểm tra xem người dùng có tồn tại không
@@ -236,6 +244,9 @@ exports.updateUserByIdForAdmin = async (req, res) => {
 exports.deleteUserById = async (req, res) => {
 
     try {
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({ error: "You are not authorized to perform this action" });
+        }
         const userId = req.params.userId;
         // Xóa người dùng từ cơ sở dữ liệu dựa trên ID
         const deletedUser = await User.findByIdAndDelete(userId);

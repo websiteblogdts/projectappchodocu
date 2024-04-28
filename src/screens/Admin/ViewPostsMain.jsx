@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, RefreshControl, Dimensions, Button } from 'react-native';
+import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, RefreshControl, Dimensions,Alert, Button } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const ViewPostsMain = () => {
   const navigation = useNavigation();
   const [products, setProducts] = useState([]);
@@ -21,14 +21,25 @@ const ViewPostsMain = () => {
   }, [navigation, approved]);
 
   const fetchProducts = async (approved) => {
-    try {
+    try {            
+      const userToken = await AsyncStorage.getItem('userToken');
+      console.log('Token from AsyncStorage:', userToken);
       const endpoint = approved ? 'approved=true' : 'approved=false';
-      const response = await fetch(`http://appchodocu.ddns.net:3000/admin/products/?${endpoint}`);
+      const response = await fetch(`http://appchodocu.ddns.net:3000/admin/products/?${endpoint}`,{
+        headers: {
+          'Authorization': `${userToken}`
+        }
+      });
       const data = await response.json();
       setProducts(data);
       console.log("Fetched products:", data);
+      // Kiểm tra nếu danh sách sản phẩm trống
+      if (data.length === 0) {
+        Alert.alert("Thông báo", "Không tìm thấy sản phẩm nào.");
+      }
     } catch (error) {
       console.error('Error fetching products:', error);
+      Alert.alert("Lỗi", "Không thể tải sản phẩm. Vui lòng thử lại.");
     }
   };
 
@@ -52,8 +63,7 @@ const ViewPostsMain = () => {
     return (
       <TouchableOpacity onPress={() => navigateToProductDetail(item._id)}>
         <View style={[styles.productContainer, { width: itemWidth }]}>
-          <Text style={styles.name}>{item.name}</Text>
-          <Text style={styles.price}>${item.price}</Text>
+          
           {item.image && 
             <Image
               source={{ uri: item.image }}
@@ -61,6 +71,8 @@ const ViewPostsMain = () => {
               resizeMode="contain"
             />
           }
+          <Text style={styles.name}>{item.name}</Text>
+          <Text style={styles.price}>${item.price}</Text>
         </View>
       </TouchableOpacity>
     );
@@ -94,10 +106,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: '#E6E6E6',
+    backgroundColor: '#FFFACD',
   },
   productContainer: {
-    backgroundColor: '#FFF',
+    width: 160, // chiều rộng cố định
+    height: 250, // chiều cao cố định
+    // flex: 1,  // Cho phép container mở rộng để lấp đầy không gian khả dụng
+    // minHeight: 250, // Đặt chiều cao tối thiểu để đảm bảo tính nhất quán
+    backgroundColor: '#FFE4C4',
     borderRadius: 6,
     marginBottom: 15,
     marginHorizontal: 2,
@@ -123,6 +139,9 @@ const styles = StyleSheet.create({
   image: {
     width: '100%',
     aspectRatio: 1,
+    borderRadius: 10, // Bo góc cho hình ảnh
+    borderWidth: 2, // Độ dày của viền
+    borderColor: '#EED5B7' // Màu sắc của viền
   },
   emptyText: {
     fontSize: 16,

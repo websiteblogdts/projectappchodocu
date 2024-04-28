@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, FlatList, Modal, StyleSheet, Alert } from 'react-native';
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const CategoryManager = () => {
   const [categories, setCategories] = useState([]);
@@ -14,7 +15,14 @@ const CategoryManager = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await axios.get('http://appchodocu.ddns.net:3000/admin/allcategory');
+      const userToken = await AsyncStorage.getItem('userToken');
+      console.log('Token from AsyncStorage:', userToken);
+  
+      const response = await axios.get('http://appchodocu.ddns.net:3000/admin/allcategory',{
+        headers: {
+          'Authorization': `${userToken}` // Ensure you're using Bearer token if required by your backend
+        }
+      });
       setCategories(response.data);
     } catch (error) {
       console.error('Failed to fetch categories:', error);
@@ -30,7 +38,13 @@ const CategoryManager = () => {
         { text: "Cancel", style: "cancel" },
         { text: "Delete", onPress: async () => {
           try {
-      await axios.delete(`http://appchodocu.ddns.net:3000/admin/categories/${id}`);
+            const userToken = await AsyncStorage.getItem('userToken');
+            console.log('Token from AsyncStorage:', userToken);
+      await axios.delete(`http://appchodocu.ddns.net:3000/admin/categories/${id}`, {
+        headers: {
+          'Authorization': `${userToken}` // Correct way to include the token
+        }
+      });
       fetchCategories(); // Refresh the list after deletion
       } catch (error) {
         console.error('Failed to delete category:', error);
@@ -41,17 +55,28 @@ const CategoryManager = () => {
  );
 };
 
-  const addCategory = async () => {
-    try {
-      await axios.post('http://appchodocu.ddns.net:3000/admin/createcategory', { name: newCategoryName });
-      setModalVisible(false);
-      setNewCategoryName('');
-      fetchCategories();
-    } catch (error) {
-      console.error('Failed to add category:', error);
-      Alert.alert('Error', 'Failed to add category');
-    }
-  };
+const addCategory = async () => {
+  try {
+    // Retrieve the token from AsyncStorage
+    const userToken = await AsyncStorage.getItem('userToken');
+    console.log('Token from AsyncStorage:', userToken);
+
+    // Make the POST request to add a new category
+    await axios.post('http://appchodocu.ddns.net:3000/admin/createcategory', { name: newCategoryName }, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `${userToken}`  // Properly formatted Authorization header with Bearer token
+      }
+    });
+    // Close the modal and reset state only if the request is successful
+    setModalVisible(false);
+    setNewCategoryName('');
+    fetchCategories();  // Refresh the categories list
+  } catch (error) {
+    console.error('Failed to add category:', error);
+    Alert.alert('Error', 'Failed to add category');
+  }
+};
   
   const handleCategoryNameChange = (text) => {
     setNewCategoryName(text);

@@ -3,6 +3,10 @@ const Category = require('../models/Category');
 //tạo category
 exports.createCategory = async (req, res) => {
     try {
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({ error: "You are not authorized to perform this action" });
+        }
+
         const { name } = req.body; // Lấy tên category từ request body
        
         if (!name.trim()) { // Dùng phương thức trim() để loại bỏ khoảng trắng thừa
@@ -51,6 +55,10 @@ exports.getCategoryById = async (req, res) => {
 
 exports.deleteCategory = async (req, res) => {
     try {
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({ error: "You are not authorized to perform this action" });
+        }
+
         const categoryId = req.params.id;
         const deletedCategory = await Category.findByIdAndDelete(categoryId);
 
