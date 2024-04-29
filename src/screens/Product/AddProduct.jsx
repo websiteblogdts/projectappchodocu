@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text,StyleSheet,Modal,TextInput, Button,TouchableOpacity , Alert,ActivityIndicator,Image } from 'react-native';
+import { View, Text,StyleSheet,Modal,TextInput, Button,TouchableOpacity ,ScrollView, Alert,ActivityIndicator,Image } from 'react-native';
 import { IconButton } from 'react-native-paper';
 import * as ImagePicker from 'expo-image-picker';
 import * as Camera from 'expo-camera';
@@ -95,14 +95,28 @@ const AddProduct = () => {
     }
   };
   
+  // const increasePrice = () => {
+  //   setPrice(prevPrice => Number(prevPrice) + 1); // Chuyển prevPrice thành số trước khi cộng
+  // };
   const increasePrice = () => {
-    setPrice(prevPrice => prevPrice + 1);
+    if (price === '' || price === '1') {
+      setPrice('2'); // Nếu price đang là rỗng hoặc là '1', thiết lập giá trị mới là '2'
+    } else {
+      setPrice(prevPrice => Number(prevPrice) + 1); // Ngược lại, thực hiện cộng thêm 1 như bình thường
+    }
   };
-
+  
+  // const decreasePrice = () => {
+  //   setPrice(prevPrice => Math.max(0, prevPrice - 1));
+  // };
   const decreasePrice = () => {
-    setPrice(prevPrice => Math.max(0, prevPrice - 1));
+    if (price === '' || price === '1') {
+      setPrice('0'); // Nếu price là rỗng hoặc là '1', thiết lập giá trị mới là '0'
+    } else {
+      setPrice(prevPrice => Math.max(1, prevPrice - 1)); // Ngược lại, giảm giá trị đi 1 như bình thường
+    }
   };
-
+  
 const handleProvinceChange = (province) => {
   setSelectedProvince(province);
   const selectedProvince = provinces.find((p) => p.Name === province);
@@ -158,7 +172,9 @@ const handleUpload = async (image) => {
       setImage(response.data.secure_url); // Lưu URL của ảnh được lưu trên Cloudinary
       setUploadedImage(response.data.secure_url);
       Alert.alert('Upload Successful', 'Your image has been uploaded successfully!');
+      setModal(false)
     } else {
+      setModal(false)
       throw new Error("Failed to upload image");
     }
   } catch (error) {
@@ -181,6 +197,7 @@ const _uploadImage = async () => {
     console.log("Image selection was cancelled");
   }
 };
+
 const _takePhoto = async () => {
   // Same here for camera permissions
   const { status } = await Camera.requestCameraPermissionsAsync();
@@ -202,63 +219,79 @@ const _takePhoto = async () => {
       console.log("Image selection was cancelled");
     }
   };
-  return (
-    <View style={styles.container}>
-      
-      <ActivityIndicator animating={loading} size="large" color="#0000ff" />
-    
-      <Text>Create Product</Text>
 
-      {/* {uploadedImage && (
-        <Image source={{ uri: uploadedImage }} style={{ width: 200, height: 200 }} />
-      )} */}
+return (
+  
+<View style={styles.container}>
 
-      <TextInput
-        style={styles.inputtext}
-        placeholder="Name"
-        value={name}
-        onChangeText={text => setName(text)}
-      />
+  <View style={styles.header}>
+    <View style={styles.header2}>
+     <View style={styles.imageandprice}>
+        <TouchableOpacity onPress={() => setModal(true)} >
+                <Image source={{ uri: uploadedImage }} style={styles.image} />
+                <IconButton icon="upload" style={styles.uploadIcon} onPress={() => setModal(true)} />
+            </TouchableOpacity>
+      <View style={styles.priceContainer}>
+        <TouchableOpacity onPress={decreasePrice} style={styles.button}>
+          <Text style={styles.buttonText}>-</Text>
+        </TouchableOpacity>
+        <TextInput 
+          style={styles.inputprice}
+          onChangeText={text => setPrice(Number(text.replace(/[^0-9]/g, '')))}
+          // value={price.toString()}
+          value={'$' + price}
 
-      <View style={styles.containerprice}>
-      <TouchableOpacity onPress={decreasePrice} style={styles.button}>
-        <Text style={styles.buttonText}>-</Text>
-      </TouchableOpacity>
-      <TextInput 
-        style={styles.inputprice}
-        onChangeText={text => setPrice(Number(text.replace(/[^0-9]/g, '')))}
-        value={price.toString()}
-        keyboardType="numeric"
-      />
-      <TouchableOpacity onPress={increasePrice} style={styles.button}>
-        <Text style={styles.buttonText}>+</Text>
-      </TouchableOpacity>
+          keyboardType="numeric"
+        />
+        <TouchableOpacity onPress={increasePrice} style={styles.button}>
+          <Text style={styles.buttonText}>+</Text>
+        </TouchableOpacity>
       </View>
-    
-       <TextInput
-        style={styles.textInput}
-        onChangeText={setDescription}
-        value={description}
-        multiline
-        placeholder="Nhập mô tả sản phẩm..."
-        textAlignVertical="top" // Đảm bảo text bắt đầu từ đầu trong Android
-      />
-    
-      <Picker
-          selectedValue={category}
-          onValueChange={(itemValue, itemIndex) => setCategory(itemValue)}
-          style={{ height: 50, width: 200 }}
-      >
-          <Picker.Item label="Select Category" value="" />
-          {categories.map((category) => (
+      <IconButton 
+  icon="content-save"
+  style={styles.saveIcon} 
+  onPress={() => handleSubmit()} title="Save" />
+
+      </View>
+</View>
+    <View style={styles.details}>
+        <TextInput
+          style={styles.inputtext}
+          placeholder="Name"
+          placeholderTextColor="white" 
+          value={name}
+          onChangeText={text => setName(text)}
+        />
+        <View style={styles.category}>
+          <Picker
+            selectedValue={category}
+            onValueChange={(itemValue) => setCategory(itemValue)}
+            style={styles.categoryPicker}
+          >
+             <Picker.Item label="Select Category" value="" />
+           {categories.map((category) => (
               <Picker.Item key={category._id} label={category.name} value={category._id} /> //value={cat._id} nếu muốn lấy id của category
-          ))}
-      </Picker>
-<View style={styles.containerprice}>
-<Picker
+           ))}
+          </Picker>
+        </View>
+
+        <TextInput
+          style={styles.textInput}
+          onChangeText={setDescription}
+          value={description}
+          multiline
+          placeholder="Nhập mô tả sản phẩm..."
+          placeholderTextColor="white" 
+          textAlignVertical="top"
+        />
+        
+     <View style={styles.containeraddress}>
+      
+     <Text style={styles.addressLabel}>Address</Text>
+    <Picker
       selectedValue={selectedProvince}
       onValueChange={handleProvinceChange}
-      style={{ height: 50, width: 100 }}
+      style={styles.addressSelect}
     >
       <Picker.Item label="Select Province" value="" />
       {provinces.map((province) => (
@@ -266,11 +299,11 @@ const _takePhoto = async () => {
       ))}
 
     </Picker>
-
       <Picker
         selectedValue={selectedDistrict}
         onValueChange={handleDistrictChange}
-        style={{ height: 50, width: 100 }}
+        style={styles.addressSelect}
+
       >
     <Picker.Item label="Select District" value="" />
     {districts && districts.map((district) => (
@@ -281,26 +314,18 @@ const _takePhoto = async () => {
     <Picker
       selectedValue={selectedWard}
       onValueChange={handleWardChange}
-      style={{ height: 50, width: 100 }}
+      style={styles.addressSelect}
+
     >
       <Picker.Item label="Select Ward" value="" />
       {wards && wards.map((ward) => (
   <Picker.Item key={ward.id} label={ward.Name} value={ward.Name} />
 ))}
     </Picker>
-
-</View>
-
-      <TextInput
-        style={styles.inputtext}
-        placeholder="Image URL"
-        value={image}
-        onChangeText={text => setImage(text)}
-      />
-        <Button icon="upload" style={styles.input} mode="contained" onPress={() => setModal(true)} title="Upload Image" />
-        <Button icon="content-save" style={styles.input} mode="contained" onPress={() => handleSubmit()} title="Save" />
-  
-            <Modal
+    </View>
+    </View>
+    </View>
+           <Modal
              animationType='slide'
              transparent={true}
              visible={modal}
@@ -310,75 +335,161 @@ const _takePhoto = async () => {
                     <View style={styles.buttonModalView}>
                       
                         <IconButton icon="camera" onPress={_takePhoto} />
+                    
                         <IconButton icon="folder-image" onPress={_uploadImage} />
                                            
                     </View>
-                   <IconButton icon="cancel" style={styles.input} mode="contained" onPress={() => setModal(false)} />
+                   <IconButton icon="cancel" style={styles.cancelupload} mode="contained" onPress={() => setModal(false)} />
                 </View>
             </Modal>
-    </View>
-  );
+  </View>
+);
 };
+
+
 const styles = StyleSheet.create({
-  container: {
+container: {
     flex: 1,
-    justifyContent: 'center',
+    alignItems: 'center',
+
+    backgroundColor: '#707070',
+  },
+  saveIcon: {
+    top: 30,
+    left: 25,
+  },
+  containeraddress: {
+    backgroundColor: '#898989',
+    borderRadius: 5,
     alignItems: 'center',
     marginVertical: 10,
-
-},
-containerprice: {
-  flexDirection: 'row',
-  justifyContent: 'center',
-  alignItems: 'center',
-  marginVertical: 10,
-
-},
-textInput: {
-  height: 100, // Chiều cao ban đầu
-  borderWidth: 1,
-  borderColor: '#ccc',
-  padding: 10,
-},
-  inputtext: {
-    height: 40,
-    width: 300,
-    borderColor: 'gray',
-    borderWidth: 1,
-    borderRadius: 5,
-    marginBottom: 10,
     paddingHorizontal: 10,
-},
+    width: '90%',
+    paddingHorizontal: 10,
+    color:"white",
+
+  },
+  addressLabel: {
+    fontWeight: 'bold',
+    fontSize: 16,
+    marginBottom: 5,
+    color:"white",
+  },
+  addressSelect: {
+    width: 200,
+    height:50,
+    color:"white",
+  },
+header: {
+    flexDirection: 'row',
+    borderRadius: 10,
+    backgroundColor: 'gray',
+  },
+  header2: {
+    flexDirection: 'row',
+  },
+details: {
+    flex: 1,
+  },
+category: {
+    flexDirection: 'row',
+  },
+priceContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    // marginBottom: 10,
+  },
+inputtext: {
+    fontWeight: 'bold',
+    height: 40,
+    borderColor: 'gray',
+    marginBottom: 10,
+    color:"white",
+  },
+  imageandprice:{
+    width: '40%',
+    left: 10,
+    top: 30,
+    resizeMode: "contain",
+    paddingBottom: 100,
+  },
+  uploadIcon: {
+    position: 'absolute',
+    left: 25,
+    top: 20,
+    margin: 15,
+   },
+image: {
+    // borderColor: 'black',
+    width: '200%',
+    aspectRatio: 1,
+    borderRadius: 15,
+    borderWidth: 2,
+  },
+
+categoryPicker: {
+    flex: 1,
+    color:"white",
+    fontWeight: 'bold',
+  },
+
+//bản mô tả
+textInput: {
+    height: 100,
+    borderWidth: 1,
+    borderRadius:5,
+    borderColor: 'gray',
+    width: '100%',
+    color:"white",
+  },
+
 inputprice: {
+  left: 10,
+  padding: 10,
+  textAlign: 'center',
+  color: 'white',
   borderRadius: 5,
   padding: 10,
-  marginHorizontal: 5,
-  textAlign: 'center',
-  borderColor: '#ccc',
-},
+  fontWeight: 'bold',
+  },
 button: {
-  padding: 8,
-  backgroundColor: '#ddd',
-  minWidth: 40,
+  left: 10,
+  width: 30,
+  height: 30,
+  borderWidth: 1,
+  borderRadius: 10,
+  borderColor: 'white',
+  // backgroundColor: '#ddd',
   alignItems: 'center',
   justifyContent: 'center'
 },
 buttonText: {
-  fontSize: 18,
-  color: '#333',
+  fontSize: 15,
+  color: 'white',
 },
 buttonModalView:{
+      borderRadius: 30,
       flexDirection:'row',
+      // justifyContent: 'center',
+      // alignItems: 'center',
       padding:10,
       justifyContent:'space-around',
-      backgroundColor:'white',
-      
+      backgroundColor:'pink',
   },
-  modalView:{
+modalView:{
+
       position:'absolute',
-      bottom:2,
+      bottom:1,
       width:'100%',
-      height:120,
+      height:200,
+  },
+  cancelupload:{
+      position:'absolute',
+      bottom:50,
+      left:100,
+      width:'50%',
+      height:60,
+      backgroundColor:'#778899',
   }
 });
 
