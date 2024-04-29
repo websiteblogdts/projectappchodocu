@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Modal, TextInput, Button, ActivityIndicator, Image, ScrollView,Alert } from 'react-native';
+import { View, Text, StyleSheet,TouchableOpacity, Modal, TextInput, Button, ActivityIndicator, Image, ScrollView, Alert } from 'react-native';
 import { PermissionsAndroid } from 'react-native';
 import { IconButton } from 'react-native-paper';
 import * as ImagePicker from 'react-native-image-picker';
 import { Picker } from '@react-native-picker/picker';
-import AsyncStorage from '@react-native-async-storage/async-storage'; 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import styles from '../../components/ProductStyles';
 
 const EditProduct = ({ route, navigation }) => {
   const [name, setName] = useState('');
@@ -12,89 +13,39 @@ const EditProduct = ({ route, navigation }) => {
   const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(false);
   const [image, setImage] = useState('');
+  const [images, setImages] = useState([]);
+
   const [uploadedImage, setUploadedImage] = useState(null);
   const [message, setMessage] = useState('');
   const [modal, setModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [provinces, setProvinces] = useState([]);
-  const [districts, setDistricts] = useState([]);
-  const [wards, setWards] = useState([]);
+  const [province, setProvince] = useState([]);
+  const [district, setDistrict] = useState([]);
+  const [ward, setWards] = useState([]);
   const [selectedProvince, setSelectedProvince] = useState('');
   const [selectedDistrict, setSelectedDistrict] = useState('');
   const [selectedWard, setSelectedWard] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('');
   const [category, setCategory] = useState('');
   const [categories, setCategories] = useState([]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     fetchCategories();
-    fetchProvinces();
-    fetchDistricts();
-    fetchWards();
+    // fetchProvince();
+    // fetchDistrict();
+    // fetchWard();
   }, []);
 
-  const fetchCategories = async () => {
-    try {
-        const response = await fetch('http://appchodocu.ddns.net:3000/product/category');
-        const data = await response.json();
-        setCategories(data);
-    } catch (error) {
-        console.error('Error fetching categories:', error);
-    }
-};
-  const fetchProvinces = async () => {
-    try {
-      const response = await fetch('https://raw.githubusercontent.com/kenzouno1/DiaGioiHanhChinhVN/master/data.json');
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      console.error('Error fetching provinces:', error);
-      return [];
-    }
-  };
-const fetchDistricts = async (provinceName) => {
-  try {
-    const selectedProvince = provinces.find((p) => p.Name === provinceName);
-    if (selectedProvince) {
-      return selectedProvince.Districts;
-    }
-    return [];
-  } catch (error) {
-    console.error('Error fetching districts:', error);
-    return [];
-  }
-};
-
-const fetchWards = async (districtName) => {
-  try {
-    const selectedDistrict = districts.find((d) => d.Name === districtName);
-    if (selectedDistrict) {
-      return selectedDistrict.Wards;
-    }
-    return [];
-  } catch (error) {
-    console.error('Error fetching wards:', error);
-    return [];
-  }
-};
-// const fetchProvinces = async () => {
-//   try {
-//     const response = await fetch('https://raw.githubusercontent.com/kenzouno1/DiaGioiHanhChinhVN/master/data.json');
-//     const data = await response.json();
-//     setProvinces(data);
-//   } catch (error) {
-//     console.error('Error fetching provinces:', error);
-//   }
-// };
-
   useEffect(() => {
-    const fetchProduct = async () => {
-      try {
-        const productId = route.params.productId;
-        const response = await fetch(`http://appchodocu.ddns.net:3000/product/${productId}`);
-        const data = await response.json();
-        const provincesData = await fetchProvinces();
-        const districtsData = await fetchDistricts(data.address.province);
-        const wardsData = await fetchWards(data.address.district);
+const fetchProduct = async () => {
+  try {
+    const productId = route.params.productId;
+    const response = await fetch(`http://appchodocu.ddns.net:3000/product/${productId}`);
+    const data = await response.json();
+
+    const provinceData = await fetchProvince();
+    const districtData = await fetchDistrict(data.address.province);
+    const wardData = await fetchWard(data.address.district);
 
         setName(data.name);
         setPrice(data.price);
@@ -103,25 +54,36 @@ const fetchWards = async (districtName) => {
         setUploadedImage(data.image);
         setCategory(data.category);
         // Lấy danh sách tỉnh/thành
-        setProvinces(provincesData);
+        setProvince(provinceData);
+  
         // Lấy danh sách quận/huyện dựa trên tỉnh/thành đã chọn
-        setDistricts(districtsData);
+        setDistrict(districtData);
   
         // Lấy danh sách phường/xã dựa trên quận/huyện đã chọn
-        setWards(wardsData);
+        setWard(wardData);
 
         setSelectedProvince(data.address.province);
         setSelectedDistrict(data.address.district);
         setSelectedWard(data.address.ward);
         setIsLoading(false);
-      } catch (error) {
-        console.error('Error fetching product:', error);
-        setIsLoading(false);
-      }
-    };
-    fetchProduct();    
-  }, [route.params.productId]);
+  } catch (error) {
+    console.error('Error fetching product:', error);
+    setIsLoading(false);
+  }
+};
+fetchProduct();    
+}, [route.params.productId]);
 
+
+const fetchCategories = async () => {
+  try {
+      const response = await fetch('http://appchodocu.ddns.net:3000/product/category');
+      const data = await response.json();
+      setCategories(data);
+  } catch (error) {
+      console.error('Error fetching categories:', error);
+  }
+};
   const updateData = async () => {
     try {
       const userToken = await AsyncStorage.getItem('userToken');
@@ -136,7 +98,7 @@ const fetchWards = async (districtName) => {
           name,
           price,
           description,
-          image,
+          images,
           category,
           address: {
             province: selectedProvince,
@@ -160,88 +122,81 @@ const fetchWards = async (districtName) => {
     }
   };
 
-  // const fetchProvinces = async () => {
-  //   try {
-  //     const response = await fetch('https://raw.githubusercontent.com/kenzouno1/DiaGioiHanhChinhVN/master/data.json');
-  //     const data = await response.json();
-  //     return data;
-  //   } catch (error) {
-  //     console.error('Error fetching provinces:', error);
-  //     return [];
-  //   }
-  // };
 
-  const requestExternalWritePermission = async () => {
-    try {
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-        {
-          title: 'External Storage Write Permission',
-          message: 'App needs access to external storage to save images',
-          buttonPositive: 'OK',
-          buttonNegative: 'Cancel',
-          buttonNeutral: 'Ask Me Later',
-        },
-      );
-      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        console.log('External Write Permission Granted');
-        return true;
-      } else {
-        console.log('External Write Permission Denied');
-        return false;
-      }
-    } catch (err) {
-      console.warn(err);
-      return false;
+  
+
+const fetchProvince = async () => {
+  try {
+    const response = await fetch('https://raw.githubusercontent.com/kenzouno1/DiaGioiHanhChinhVN/master/data.json');
+    const data = await response.json();
+    // setProvince(data);
+    // fetchProduct();
+    return data;
+  } catch (error) {
+    console.error('Error fetching provinces:', error);
+    return [];
+  }
+};
+const fetchDistrict = async (provinceName) => {
+try {
+  const selectedProvince = province.find((p) => p.Name === provinceName);
+  if (selectedProvince) {
+    return selectedProvince.district;
+  }
+  return [];
+} catch (error) {
+  console.error('Error fetching district:', error);
+  return [];
+}
+};
+
+const fetchWard = async (districtName) => {
+try {
+  const selectedDistrict = district.find((d) => d.Name === districtName);
+  if (selectedDistrict) {
+    // const ward = selectedDistrict.ward;
+    // setWards(ward);
+    // return ward;
+    return selectedDistrict.Wards;
+  }
+  return [];
+} catch (error) {
+  console.error('Error fetching wards:', error);
+  return [];
+}
+};
+  // const increasePrice = () => {
+  //   setPrice(prevPrice => Number(prevPrice) + 1); // Chuyển prevPrice thành số trước khi cộng
+  // };
+  const increasePrice = () => {
+    if (price === '' || price === '1') {
+      setPrice('2'); // Nếu price đang là rỗng hoặc là '1', thiết lập giá trị mới là '2'
+    } else {
+      setPrice(prevPrice => Number(prevPrice) + 1); // Ngược lại, thực hiện cộng thêm 1 như bình thường
     }
   };
-
-  const _uploadImage = async () => {
-    const isPermissionGranted = await requestExternalWritePermission();
-    if (isPermissionGranted) {
-      const options = {
-        title: 'Select Image',
-        storageOptions: {
-          skipBackup: true,
-          path: 'Image',
-        },
-      };
-
-      ImagePicker.launchImageLibrary(options, (response) => {
-        console.log('Response=', response);
-        if (response.didCancel) {
-          console.log("User cancelled image picker");
-          setLoading(false);
-        } else if (response.error) {
-          console.log("Image Picker Error", response.error);
-          setLoading(false);
-        } else {
-          const { assets } = response;
-          if (assets && assets.length > 0) {
-            const { fileName, uri, type } = assets[0];
-            const source = { name: fileName, uri, type };
-            console.log(source);
-            handleUpdata(source);
-          } else {
-            console.log("Error: No assets found in response");
-            setLoading(false);
-          }        
-        }
-      })
+  
+  // const decreasePrice = () => {
+  //   setPrice(prevPrice => Math.max(0, prevPrice - 1));
+  // };
+  const decreasePrice = () => {
+    if (price === '' || price === '1') {
+      setPrice('0'); // Nếu price là rỗng hoặc là '1', thiết lập giá trị mới là '0'
+    } else {
+      setPrice(prevPrice => Math.max(1, prevPrice - 1)); // Ngược lại, giảm giá trị đi 1 như bình thường
     }
-  }
-
+  };
   const handleProvinceChange = async (province) => {
     setSelectedProvince(province);
-    setDistricts(await fetchDistricts(province));
-    setWards([]);
+    setDistrict(await fetchDistrict(province));
+    setWard([]);
     setSelectedDistrict('');
     setSelectedWard('');
   };
   
   const handleDistrictChange = async (district) => {
     setSelectedDistrict(district);
-    setWards(await fetchWards(district));
+    setWard(await fetchWard(district));
     setSelectedWard('');
   };
   
@@ -249,217 +204,222 @@ const fetchWards = async (districtName) => {
     setSelectedWard(ward);
   };
 
-  const handleUpdata = (photo) => {
-    const data = new FormData()
-    setLoading(true);
-    data.append('file',photo)
-    data.append("upload_preset","ackgbz0m")
-    data.append("cloud_name","dvm8fnczy")
-    fetch("https://api.cloudinary.com/v1_1/dvm8fnczy/image/upload",{
-        method:'POST',
-        body:data,
-        headers:{
-            'Accept':'application/json',
-            'Content-Type':'multipart/form-data'
-        }
-    }).then(res => res.json())
-    .then(data => {
-      setImage(data.url)
-      setUploadedImage(data.url);
-        setModal(false)
-        console.log(data)
-        setLoading (false)
-    }).catch(err => {
-        Alert.alert("Error While Uploading")
-    })
-  }
- 
-  const _takePhoto = () => {
-    const options ={
-        title : 'Select Image',
-        storageOptions: {
-            skipBackup: true,
-            path:'Image'
-        }
-    }
-    ImagePicker.launchCamera(options,(response) =>{
-        console.log('Response=',response);
-        if(response.didCancel){
-            console.log("User cancelled image picker");
-        }else if(response.error){
-            console.log("Image Picker Error",response.error);
-        }else{
-          const { assets } = response;
-          if (assets && assets.length > 0) {
-            const { fileName, uri, type } = assets[0];
-            const source = { name: fileName, uri, type };
-            console.log(source);
-            handleUpdata(source);
-          } else {
-            console.log("Error: No assets found in response");
-            setLoading(false);
-          }        
-        }
-    })
-  }
 
-  return (
-    <ScrollView contentContainerStyle={styles.container}>
-      {isLoading ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#0000ff" />
-          <Text style={styles.loadingText}>Loading...</Text>
-        </View>
-      ) : (
-        <>
-          <Text style={styles.title}>Update Product</Text>
-          <ActivityIndicator animating={loading} size="large" color="#0000ff" />
-          {uploadedImage && (
-            <Image source={{ uri: uploadedImage }} style={styles.image} />
-          )}
+  const handleUploadNhieuAnh = async (image) => {
+    let formData = new FormData();
+    formData.append('file', {
+      uri: image.uri,
+      type: 'image/jpeg',
+      name: 'upload.jpg'
+    });
+    formData.append('upload_preset', 'ackgbz0m');
+    formData.append('cloud_name', 'dvm8fnczy');
   
-          <TextInput
-            style={styles.input}
-            placeholder="Name"
-            value={name}
-            onChangeText={text => setName(text)}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Price"
-            value={price.toString()}
-            onChangeText={text => setPrice(text)}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Description"
-            value={description}
-            onChangeText={text => setDescription(text)}
-            multiline
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Category"
-            value={category}
-            onChangeText={text => setCategory(text)}
-          />
+    try {
+      const response = await axios.post("https://api.cloudinary.com/v1_1/dvm8fnczy/image/upload", formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        }
+      });
   
-          <Picker
-            selectedValue={selectedProvince}
-            onValueChange={handleProvinceChange}
-            style={styles.picker}
-          >
-            <Picker.Item label="Select Province" value="" />
-            {provinces.map((province) => (
-              <Picker.Item key={province.id} label={province.Name} value={province.Name} />
-            ))}
-          </Picker>
-          <Picker
-            selectedValue={selectedDistrict}
-            onValueChange={handleDistrictChange}
-            style={styles.picker}
-          >
-            <Picker.Item label="Select District" value="" />
-            {districts.map((district) => (
-              <Picker.Item key={district.id} label={district.Name} value={district.Name} />
-            ))}
-          </Picker>
-          <Picker
-            selectedValue={selectedWard}
-            onValueChange={handleWardChange}
-            style={styles.picker}
-          >
-            <Picker.Item label="Select Ward" value="" />
-            {wards.map((ward) => (
-              <Picker.Item key={ward.id} label={ward.Name} value={ward.Name} />
-            ))}
-          </Picker>
-  
-          <Button icon="upload" style={styles.button} mode="contained" onPress={() => setModal(true)} title="Upload Image" />
-          <Button
-            icon="content-save"
-            style={styles.button}
-            mode="contained"
-            onPress={() => updateData()}
-            title="Update Product"
-          />
-  
-          <Modal
-            animationType='slide'
-            transparent={true}
-            visible={modal}
-            onRequestClose={() => { setModal(false) }}
-          >
-            <View style={styles.modalView}>
-              <View style={styles.buttonModalView}>
-                <IconButton icon="camera" onPress={_takePhoto} />
-                <IconButton icon="folder-image" onPress={_uploadImage} />
-              </View>
-              <IconButton icon="cancel" style={styles.modalButton} mode="contained" onPress={() => setModal(false)} />
-            </View>
-          </Modal>
-        </>
-      )}
-    </ScrollView>
-  );
+      if (response.status === 200) {
+        console.log("Upload successful: ", response.data);
+        setImages(prevImages => [...prevImages, response.data.secure_url]);
+        setUploadedImage(response.data.secure_url);
+        Alert.alert('Upload Successful', 'Your image has been uploaded successfully!');
+        setModal(false)
+      } else {
+        setModal(false)
+        throw new Error("Failed to upload image");
+      }
+    } catch (error) {
+      console.error("Error uploading image: ", error);
+      Alert.alert('Upload Failed', 'Failed to upload image.');
+    }
+  };
+
+  const handleRemoveImage = (indexToRemove) => {
+    // Xóa hình ảnh khỏi mảng images
+    setImages(prevImages => prevImages.filter((_, index) => index !== indexToRemove));
   };
   
-  const styles = StyleSheet.create({
-    container: {
-      flexGrow: 1,
-      alignItems: 'center',
-      paddingVertical: 20,
-    },
-    title: {
-      fontSize: 24,
-      fontWeight: 'bold',
-      marginBottom: 20,
-    },
-    image: {
-      width: 200,
-      height: 200,
-      marginBottom: 20,
-    },
-    input: {
-      height: 40,
-      width: '80%',
-      borderColor: 'gray',
-      borderWidth: 1,
-      marginBottom: 10,
-      paddingHorizontal: 10,
-    },
-    picker: {
-      height: 50,
-      width: '80%',
-      marginBottom: 10,
-    },
-    button: {
-      marginTop: 10,
-    },
-    modalView: {
-      backgroundColor: 'white',
-      borderRadius: 10,
-      padding: 20,
-      alignItems: 'center',
-      marginTop: 200,
-    },
-    buttonModalView: {
-      flexDirection: 'row',
-      justifyContent: 'space-around',
-      width: '100%',
-      marginBottom: 20,
-    },
-    modalButton: {
-      width: '100%',
-    },
-    loadingContainer: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    loadingText: {
-      marginTop: 10,
-      fontSize: 18,
-    },
-  });
+  const _uploadImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+  
+    if (!result.cancelled) {
+      // handleUpload(result.assets[0]);
+      handleUploadNhieuAnh(result.assets[0]); // Gọi hàm handleUpload với đối tượng ảnh thu được
+    } else {
+      console.log("Image selection was cancelled");
+    }
+  };
+  
+  const _takePhoto = async () => {
+    // Same here for camera permissions
+    const { status } = await Camera.requestCameraPermissionsAsync();
+    if (status !== 'granted') {
+        alert('Sorry, we need camera permissions to make this work!');
+        return;
+    }
+    const result = await ImagePicker.launchCameraAsync({
+       mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+    });
+  
+    if (!result.cancelled) {
+        setImage(result.uri);
+        // handleUpload(result.assets[0]);
+        handleUploadNhieuAnh(result.assets[0]);
+      } else {
+        console.log("Image selection was cancelled");
+      }
+    };
+  
+
+  return (
+<View style={styles.container}>
+<View style={styles.header2}>
+    <View style={styles.header}>
+
+      <View style={styles.imageandprice}>
+        <TouchableOpacity onPress={() => setModal(true)} >
+          <Image source={{ uri: uploadedImage }} style={styles.image} />
+          <IconButton icon="upload" style={styles.uploadIcon} onPress={() => setModal(true)} />
+        </TouchableOpacity>
+
+        <View style={styles.priceContainer}>
+          <TouchableOpacity onPress={decreasePrice} style={styles.button}>
+            <Text style={styles.buttonText}>-</Text>
+          </TouchableOpacity>
+
+          <TextInput 
+            style={styles.inputprice}
+            onChangeText={text => setPrice(Number(text.replace(/[^0-9]/g, '')))}
+            value={'$' + price}
+            keyboardType="numeric"
+          />
+
+          <TouchableOpacity onPress={increasePrice} style={styles.button}>
+            <Text style={styles.buttonText}>+</Text>
+          </TouchableOpacity>
+
+        </View>
+
+        <IconButton 
+          icon="content-save"
+          style={styles.saveIcon} 
+          onPress={() => updateData()} 
+        />
+
+      </View>
+
+</View>
+    
+    <View style={styles.details}>
+      
+      <TextInput
+        style={styles.inputtext}
+        placeholder="Name"
+        value={name}
+        onChangeText={text => setName(text)}
+      />
+
+      <View style={styles.category}>
+
+        <Picker
+          selectedValue={selectedCategory}
+          onValueChange={(itemValue) => setSelectedCategory(itemValue)}
+          style={styles.categoryPicker}
+        >
+          <Picker.Item label="Select Category" value="" />
+          {categories.map((category) => (
+            <Picker.Item key={category._id} label={category.name} value={category._id} />
+          ))}
+        </Picker>
+      </View>
+
+      <TextInput
+        style={styles.textInput}
+        onChangeText={setDescription}
+        value={description}
+        multiline
+        placeholder="Nhập mô tả sản phẩm..."
+        textAlignVertical="top"
+      />
+      <View style={styles.containeraddress}>
+
+        <Text style={styles.addressLabel}>Address</Text>
+        <Picker
+          selectedValue={selectedProvince}
+          onValueChange={(itemValue) => setSelectedProvince(itemValue)}
+          style={styles.addressSelect}
+        >
+          <Picker.Item label="Select Province" value="" />
+          {province.map((province) => (
+            <Picker.Item key={province.id} label={province.Name} value={province.Name} />
+          ))}
+        </Picker>
+
+        <Picker
+          selectedValue={selectedDistrict}
+          onValueChange={(itemValue) => setSelectedDistrict(itemValue)}
+          style={styles.addressSelect}
+        >
+          <Picker.Item label="Select District" value="" />
+          {district.map((district) => (
+            <Picker.Item key={district.id} label={district.Name} value={district.Name} />
+          ))}
+        </Picker>
+
+        <Picker
+          selectedValue={selectedWard}
+          onValueChange={(itemValue) => setSelectedWard(itemValue)}
+          style={styles.addressSelect}
+        >
+          <Picker.Item label="Select Ward" value="" />
+          {ward.map((ward) => (
+            <Picker.Item key={ward.id} label={ward.Name} value={ward.Name} />
+          ))}
+        </Picker>
+      </View>
+    </View>
+  </View>
+    <View style={styles.imageContainer}>
+    {images.map((imageUri, index) => (
+    <View key={index} style={{ flexDirection: 'row', alignItems: 'center' }}>
+      <Image source={{ uri: imageUri }} style={styles.uploadedImage} />
+      <TouchableOpacity onPress={() => handleRemoveImage(index)}>
+        <IconButton icon="delete" />
+      </TouchableOpacity>
+    </View>
+  ))}
+</View>
+    <Modal
+      animationType='slide'
+      transparent={true}
+      visible={modal}
+      onRequestClose={() => setModal(false)}
+    >
+       <View style={styles.modalView}>
+                    <View style={styles.buttonModalView}>
+                      
+                        <IconButton icon="camera" onPress={_takePhoto} />
+                    
+                        <IconButton icon="folder-image" onPress={_uploadImage} />
+                                           
+                    </View>
+                   <IconButton icon="cancel" style={styles.cancelupload} mode="contained" onPress={() => setModal(false)} />
+                </View>
+            </Modal>
+  </View>
+  );
+};
+
 export default EditProduct;
