@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Text, StyleSheet, Image, ScrollView  } from 'react-native';
+import { Text, StyleSheet, Image, ScrollView ,View  } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ProductDetail = ({ route }) => {
   const [product, setProduct] = useState(null);
   const [categoryName, setCategoryName] = useState('');
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   useEffect(() => {
     // Lấy ID của sản phẩm từ tham số định tuyến
@@ -38,6 +39,11 @@ const ProductDetail = ({ route }) => {
       console.error('Error fetching product:', error);
     }
   };
+  const handleImageSwipe = (event) => {
+    const offsetX = event.nativeEvent.contentOffset.x;
+    const imageIndex = Math.round(offsetX / 350); // Assuming each image has a fixed width of 300
+    setCurrentImageIndex(imageIndex);
+  };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -48,8 +54,21 @@ const ProductDetail = ({ route }) => {
           <ScrollView style={styles.descriptionContainer}>
             <Text style={styles.description}>{product.description}</Text>
           </ScrollView>
-          {product.image && <Image source={{ uri: product.image }} style={styles.image} />}
-          {/* <Text style={styles.category}>Category: {product.category}</Text>  */}
+            <ScrollView
+            contentContainerStyle={styles.container}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            onScroll={handleImageSwipe}
+          >
+            {product && product.images.map((image, index) => (
+              <View key={index} style={styles.imageContainer}>
+                <Image source={{ uri: image }} style={styles.image} />
+                <Text style={styles.imageIndex}>{index + 1}/{product.images.length}</Text>
+              </View>
+            ))}
+          </ScrollView>
+          {/* {product.image && <Image source={{ uri: product.image }} style={styles.image} />} */}
           <Text style={styles.category}>Category: {categoryName}</Text> 
           <Text style={styles.address}>Address: {product.address.province}, {product.address.district}, {product.address.ward}</Text>
         
@@ -67,6 +86,25 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     padding: 16,
   },
+  imageContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 350,
+    height: 250,
+  },
+  image: {
+    width: '100%',
+    height: '100%',
+    aspectRatio: 4 / 3,
+  },
+  imageIndex: {
+    position: 'absolute',
+    bottom: 8,
+    right: 8,
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
   name: {
     fontSize: 18,
     fontWeight: 'bold',
@@ -83,12 +121,7 @@ const styles = StyleSheet.create({
   description: {
     fontSize: 14,
   },
-  image: {
-    width: '90%',
-    height: 'auto',
-    aspectRatio: 1,
-    marginTop: 8,
-  },
+
   category: {
     fontSize: 16,
     fontWeight: 'bold',

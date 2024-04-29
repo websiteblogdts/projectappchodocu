@@ -62,25 +62,35 @@ const ProductListByUser = () => {
   const renderProduct = ({ item }) => {
     const screenWidth = Dimensions.get('window').width;
     const itemWidth = (screenWidth - 32 - 16) / numColumns;
+    const firstImageUri = item.images.length > 0 ? item.images[0] : null;
 
     const backgroundColor = item.admin_approved ? '#C1FFC1' : '#BFEFFF'; // Màu xám nếu chưa được duyệt
-
 
     return (
       <TouchableOpacity onPress={() => navigateToProductDetail(item._id)}>
         <View style={[styles.productContainer, { width: itemWidth, backgroundColor: backgroundColor }]}>
         <Text style={styles.status}>{item.admin_approved ? 'Đã duyệt' : 'Đang chờ duyệt'}</Text>
+        {firstImageUri && (
           <Image
-            source={{ uri: item.image }}
+            source={{ uri: firstImageUri }}
             style={styles.image}
-            resizeMode="cover"
+            resizeMode="convert"
           />
+        )}
           <Text style={styles.name}>{item.name}</Text>
           <Text style={styles.price}>${item.price}</Text>
         </View>
       </TouchableOpacity>
     );
   };
+
+  const ProductImage = ({ imageUri }) => (
+    <Image
+      source={{ uri: imageUri }}
+      style={styles.image}
+      resizeMode="convert"
+    />
+  );
 
   return (
     <View style={styles.container}>
@@ -111,6 +121,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
+    // backgroundColor: '#CAE1FF',
   },
   productContainer: {
     width: 160, // chiều rộng cố định
@@ -162,9 +173,8 @@ const styles = StyleSheet.create({
   },
   flatListContent: {
     flexGrow: 1,
-    justifyContent: 'center',
+    // justifyContent: 'center',
   },
-
 });
 
 export default ProductListByUser;

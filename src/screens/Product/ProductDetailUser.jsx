@@ -6,6 +6,7 @@ const ProductDetailUser = ({ route, navigation }) => {
   const [product, setProduct] = useState(null);
   const { reloadProducts } = route.params;
   const [categoryName, setCategoryName] = useState('');
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
 
   // React.useEffect(() => {
@@ -98,7 +99,13 @@ const deleteProduct = async (productId) => {
       throw new Error('Error deleting product');
     }
   };
-  
+
+  const handleImageSwipe = (event) => {
+    const offsetX = event.nativeEvent.contentOffset.x;
+    const imageIndex = Math.round(offsetX / 350); // Assuming each image has a fixed width of 300
+    setCurrentImageIndex(imageIndex);
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       {product ? (
@@ -112,7 +119,20 @@ const deleteProduct = async (productId) => {
           <ScrollView style={styles.descriptionContainer}>
             <Text style={styles.description}>{product.description}</Text>
           </ScrollView>
-          {product.image && <Image source={{ uri: product.image }} style={styles.image} />}
+             <ScrollView
+            contentContainerStyle={styles.container}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            onScroll={handleImageSwipe}
+          >
+            {product && product.images.map((image, index) => (
+              <View key={index} style={styles.imageContainer}>
+                <Image source={{ uri: image }} style={styles.image} />
+                <Text style={styles.imageIndex}>{index + 1}/{product.images.length}</Text>
+              </View>
+            ))}
+          </ScrollView>
           <Text style={styles.category}>Category: {categoryName}</Text> 
           <Text style={styles.address}>Address: {product.address.province}, {product.address.district}, {product.address.ward}</Text>
         </>
@@ -144,11 +164,24 @@ const styles = StyleSheet.create({
   description: {
     fontSize: 14,
   },
+  imageContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 350,
+    height: 250,
+  },
   image: {
-    width: '77%',
-    height: 'auto',
-    aspectRatio: 1,
-    marginTop: 8,
+    width: '100%',
+    height: '100%',
+    aspectRatio: 4 / 3,
+  },
+  imageIndex: {
+    position: 'absolute',
+    bottom: 8,
+    right: 8,
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   category: {
     fontSize: 16,

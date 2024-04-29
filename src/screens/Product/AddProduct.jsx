@@ -6,6 +6,7 @@ import * as Camera from 'expo-camera';
 import { Picker } from '@react-native-picker/picker';
 import AsyncStorage from '@react-native-async-storage/async-storage'; 
 import axios from 'axios';
+import styles from '../../components/ProductStyles';
 
 const AddProduct = () => {
 
@@ -17,6 +18,8 @@ const AddProduct = () => {
   const [category, setCategory] = useState('');
   const [categories, setCategories] = useState([]);
 
+  const [images, setImages] = useState([]);
+
   const [uploadedImage, setUploadedImage] = useState(null);
   const [modal, setModal] = useState(false);
 
@@ -26,7 +29,8 @@ const AddProduct = () => {
   const [selectedProvince, setSelectedProvince] = useState('');
   const [selectedDistrict, setSelectedDistrict] = useState('');
   const [selectedWard, setSelectedWard] = useState('');
- 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   React.useEffect(() => {
     fetchCategories();
     fetchProvinces();
@@ -54,7 +58,6 @@ const AddProduct = () => {
 
   const handleSubmit = async () => {
     try {
-
       console.log("Sending product data:", {
         name, price, description, image, category, address: { province: selectedProvince, district: selectedDistrict, ward: selectedWard }
       });
@@ -64,6 +67,11 @@ const AddProduct = () => {
         navigation.navigate('Login');
         return;
       }
+      if (isSubmitting) {
+        console.log("Submitting data, please wait...");
+        return; 
+      }
+        setIsSubmitting(true);
       const response = await fetch('http://appchodocu.ddns.net:3000/product/create', {
         method: 'POST',
         headers: {
@@ -74,7 +82,7 @@ const AddProduct = () => {
           name,
           price,
           description,
-          image,
+          images,
           category,
           address: {
             province: selectedProvince,
@@ -87,14 +95,66 @@ const AddProduct = () => {
       if (!response.ok) {
         throw new Error(data.error || `HTTP error ${response.status}`);
        }
+      console.log("Data submitted successfully!");
       console.log(data);
       Alert.alert('Success', 'Product added successfully!');
       } catch (error) {
         console.error('Error adding product:', error);
-        Alert.alert('Error', error.message || 'Failed to add product');  // Sử dụng thông điệp lỗi từ server
+        Alert.alert('Error', error.message || 'Failed to add product');
+    }
+    finally {
+      setIsSubmitting(false);
     }
   };
-  
+// const handleSubmit = async () => {
+//   try {
+//     const productData = {
+//       name,
+//       price,
+//       description,
+//       images,
+//       category,
+//       address: {
+//         province: selectedProvince,
+//         district: selectedDistrict,
+//         ward: selectedWard
+//       }
+//     };
+//     console.log("Sending product data:", productData);
+//     const userToken = await AsyncStorage.getItem('userToken');
+//     if (!userToken) {
+//       Alert.alert('Error', 'No user token found. Please login again.');
+//       navigation.navigate('Login');
+//       return;
+//     }
+//     if (isSubmitting) {
+//       console.log("Submitting data, please wait...");
+//       return;
+//     }
+//     setIsSubmitting(true);
+//     const response = await axios.post('http://appchodocu.ddns.net:3000/product/create', productData, {
+//       headers: {
+//         'Content-Type': 'application/json',
+//         'Authorization': `${userToken}`
+//       }
+//     });
+//     const data = await response.json(); 
+//       if (!response.ok) {
+//         throw new Error(data.error || `HTTP error ${response.status}`);
+//        }
+//       console.log("Data submitted successfully!");
+//       console.log(data);
+//       Alert.alert('Success', 'Product added successfully!');
+//       } catch (error) {
+//         console.error('Error adding product:', error);
+//         Alert.alert('Error', error.message || 'Failed to add product');
+//     }
+//     finally {
+//       setIsSubmitting(false);
+//     }
+//   };
+
+
   // const increasePrice = () => {
   //   setPrice(prevPrice => Number(prevPrice) + 1); // Chuyển prevPrice thành số trước khi cộng
   // };
@@ -146,30 +206,62 @@ const handleWardChange = (ward) => {
 };
 
 
-const handleUpload = async (image) => {
-  // Tạo một đối tượng FormData để gửi dữ liệu
+// const handleUpload = async (image) => {
+//   // Tạo một đối tượng FormData để gửi dữ liệu
+//   let formData = new FormData();
+//   // Thêm dữ liệu ảnh và các thông tin cần thiết cho Cloudinary vào formData
+//   formData.append('file', {
+//     uri: image.uri, // đường dẫn tới file ảnh
+//     type: 'image/jpeg', // loại của file
+//     name: 'upload.jpg' // tên file
+//   });
+//   formData.append('upload_preset', 'ackgbz0m'); // Preset bạn đã tạo trong Cloudinary
+//   formData.append('cloud_name', 'dvm8fnczy'); // Tên Cloud của bạn
+
+//   try {
+//     // Gửi yêu cầu POST tới Cloudinary với dữ liệu trong formData
+//     const response = await axios.post("https://api.cloudinary.com/v1_1/dvm8fnczy/image/upload", formData, {
+//       headers: {
+//         'Content-Type': 'multipart/form-data', // Thông báo định dạng dữ liệu gửi đi là form data
+//       }
+//     });
+
+//     if (response.status === 200) {
+//       console.log("Upload successful: ", response.data);
+//       // Cập nhật state nếu cần
+//       setImage(response.data.secure_url); // Lưu URL của ảnh được lưu trên Cloudinary
+//       setUploadedImage(response.data.secure_url);
+//       Alert.alert('Upload Successful', 'Your image has been uploaded successfully!');
+//       setModal(false)
+//     } else {
+//       setModal(false)
+//       throw new Error("Failed to upload image");
+//     }
+//   } catch (error) {
+//     console.error("Error uploading image: ", error);
+//     Alert.alert('Upload Failed', 'Failed to upload image.');
+//   }
+// };
+const handleUploadNhieuAnh = async (image) => {
   let formData = new FormData();
-  // Thêm dữ liệu ảnh và các thông tin cần thiết cho Cloudinary vào formData
   formData.append('file', {
-    uri: image.uri, // đường dẫn tới file ảnh
-    type: 'image/jpeg', // loại của file
-    name: 'upload.jpg' // tên file
+    uri: image.uri,
+    type: 'image/jpeg',
+    name: 'upload.jpg'
   });
-  formData.append('upload_preset', 'ackgbz0m'); // Preset bạn đã tạo trong Cloudinary
-  formData.append('cloud_name', 'dvm8fnczy'); // Tên Cloud của bạn
+  formData.append('upload_preset', 'ackgbz0m');
+  formData.append('cloud_name', 'dvm8fnczy');
 
   try {
-    // Gửi yêu cầu POST tới Cloudinary với dữ liệu trong formData
     const response = await axios.post("https://api.cloudinary.com/v1_1/dvm8fnczy/image/upload", formData, {
       headers: {
-        'Content-Type': 'multipart/form-data', // Thông báo định dạng dữ liệu gửi đi là form data
+        'Content-Type': 'multipart/form-data',
       }
     });
 
     if (response.status === 200) {
       console.log("Upload successful: ", response.data);
-      // Cập nhật state nếu cần
-      setImage(response.data.secure_url); // Lưu URL của ảnh được lưu trên Cloudinary
+      setImages(prevImages => [...prevImages, response.data.secure_url]);
       setUploadedImage(response.data.secure_url);
       Alert.alert('Upload Successful', 'Your image has been uploaded successfully!');
       setModal(false)
@@ -183,6 +275,11 @@ const handleUpload = async (image) => {
   }
 };
 
+const handleRemoveImage = (indexToRemove) => {
+  // Xóa hình ảnh khỏi mảng images
+  setImages(prevImages => prevImages.filter((_, index) => index !== indexToRemove));
+};
+
 const _uploadImage = async () => {
   const result = await ImagePicker.launchImageLibraryAsync({
     mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -192,7 +289,8 @@ const _uploadImage = async () => {
   });
 
   if (!result.cancelled) {
-    handleUpload(result.assets[0]); // Gọi hàm handleUpload với đối tượng ảnh thu được
+    // handleUpload(result.assets[0]);
+    handleUploadNhieuAnh(result.assets[0]); // Gọi hàm handleUpload với đối tượng ảnh thu được
   } else {
     console.log("Image selection was cancelled");
   }
@@ -214,7 +312,8 @@ const _takePhoto = async () => {
 
   if (!result.cancelled) {
       setImage(result.uri);
-      handleUpload(result.assets[0]);
+      // handleUpload(result.assets[0]);
+      handleUploadNhieuAnh(result.assets[0]);
     } else {
       console.log("Image selection was cancelled");
     }
@@ -223,38 +322,44 @@ const _takePhoto = async () => {
 return (
   
 <View style={styles.container}>
-
   <View style={styles.header}>
     <View style={styles.header2}>
      <View style={styles.imageandprice}>
+
         <TouchableOpacity onPress={() => setModal(true)} >
                 <Image source={{ uri: uploadedImage }} style={styles.image} />
                 <IconButton icon="upload" style={styles.uploadIcon} onPress={() => setModal(true)} />
-            </TouchableOpacity>
+        </TouchableOpacity>
+
       <View style={styles.priceContainer}>
         <TouchableOpacity onPress={decreasePrice} style={styles.button}>
           <Text style={styles.buttonText}>-</Text>
         </TouchableOpacity>
+
         <TextInput 
           style={styles.inputprice}
           onChangeText={text => setPrice(Number(text.replace(/[^0-9]/g, '')))}
           // value={price.toString()}
           value={'$' + price}
-
           keyboardType="numeric"
         />
+
         <TouchableOpacity onPress={increasePrice} style={styles.button}>
           <Text style={styles.buttonText}>+</Text>
         </TouchableOpacity>
+
       </View>
+
       <IconButton 
-  icon="content-save"
-  style={styles.saveIcon} 
-  onPress={() => handleSubmit()} title="Save" />
+        icon="content-save"
+        style={styles.saveIcon} 
+        onPress={() => handleSubmit()} title="Save" />
 
       </View>
 </View>
+
     <View style={styles.details}>
+       
         <TextInput
           style={styles.inputtext}
           placeholder="Name"
@@ -262,7 +367,9 @@ return (
           value={name}
           onChangeText={text => setName(text)}
         />
+
         <View style={styles.category}>
+
           <Picker
             selectedValue={category}
             onValueChange={(itemValue) => setCategory(itemValue)}
@@ -270,7 +377,7 @@ return (
           >
              <Picker.Item label="Select Category" value="" />
            {categories.map((category) => (
-              <Picker.Item key={category._id} label={category.name} value={category._id} /> //value={cat._id} nếu muốn lấy id của category
+              <Picker.Item key={category._id} label={category.name} value={category._id} />
            ))}
           </Picker>
         </View>
@@ -297,8 +404,8 @@ return (
       {provinces.map((province) => (
         <Picker.Item key={province.id} label={province.Name} value={province.Name} />
       ))}
-
     </Picker>
+
       <Picker
         selectedValue={selectedDistrict}
         onValueChange={handleDistrictChange}
@@ -315,7 +422,6 @@ return (
       selectedValue={selectedWard}
       onValueChange={handleWardChange}
       style={styles.addressSelect}
-
     >
       <Picker.Item label="Select Ward" value="" />
       {wards && wards.map((ward) => (
@@ -323,8 +429,18 @@ return (
 ))}
     </Picker>
     </View>
+  </View>
+</View>
+    <View style={styles.imageContainer}>
+  {images.map((imageUri, index) => (
+    <View key={index} style={{ flexDirection: 'row', alignItems: 'center' }}>
+      <Image source={{ uri: imageUri }} style={styles.uploadedImage} />
+      <TouchableOpacity onPress={() => handleRemoveImage(index)}>
+        <IconButton icon="delete" />
+      </TouchableOpacity>
     </View>
-    </View>
+  ))}
+</View>
            <Modal
              animationType='slide'
              transparent={true}
@@ -343,154 +459,7 @@ return (
                 </View>
             </Modal>
   </View>
-);
+  );
 };
-
-
-const styles = StyleSheet.create({
-container: {
-    flex: 1,
-    alignItems: 'center',
-
-    backgroundColor: '#707070',
-  },
-  saveIcon: {
-    top: 30,
-    left: 25,
-  },
-  containeraddress: {
-    backgroundColor: '#898989',
-    borderRadius: 5,
-    alignItems: 'center',
-    marginVertical: 10,
-    paddingHorizontal: 10,
-    width: '90%',
-    paddingHorizontal: 10,
-    color:"white",
-
-  },
-  addressLabel: {
-    fontWeight: 'bold',
-    fontSize: 16,
-    marginBottom: 5,
-    color:"white",
-  },
-  addressSelect: {
-    width: 200,
-    height:50,
-    color:"white",
-  },
-header: {
-    flexDirection: 'row',
-    borderRadius: 10,
-    backgroundColor: 'gray',
-  },
-  header2: {
-    flexDirection: 'row',
-  },
-details: {
-    flex: 1,
-  },
-category: {
-    flexDirection: 'row',
-  },
-priceContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    // marginBottom: 10,
-  },
-inputtext: {
-    fontWeight: 'bold',
-    height: 40,
-    borderColor: 'gray',
-    marginBottom: 10,
-    color:"white",
-  },
-  imageandprice:{
-    width: '40%',
-    left: 10,
-    top: 30,
-    resizeMode: "contain",
-    paddingBottom: 100,
-  },
-  uploadIcon: {
-    position: 'absolute',
-    left: 25,
-    top: 20,
-    margin: 15,
-   },
-image: {
-    // borderColor: 'black',
-    width: '200%',
-    aspectRatio: 1,
-    borderRadius: 15,
-    borderWidth: 2,
-  },
-
-categoryPicker: {
-    flex: 1,
-    color:"white",
-    fontWeight: 'bold',
-  },
-
-//bản mô tả
-textInput: {
-    height: 100,
-    borderWidth: 1,
-    borderRadius:5,
-    borderColor: 'gray',
-    width: '100%',
-    color:"white",
-  },
-
-inputprice: {
-  left: 10,
-  padding: 10,
-  textAlign: 'center',
-  color: 'white',
-  borderRadius: 5,
-  padding: 10,
-  fontWeight: 'bold',
-  },
-button: {
-  left: 10,
-  width: 30,
-  height: 30,
-  borderWidth: 1,
-  borderRadius: 10,
-  borderColor: 'white',
-  // backgroundColor: '#ddd',
-  alignItems: 'center',
-  justifyContent: 'center'
-},
-buttonText: {
-  fontSize: 15,
-  color: 'white',
-},
-buttonModalView:{
-      borderRadius: 30,
-      flexDirection:'row',
-      // justifyContent: 'center',
-      // alignItems: 'center',
-      padding:10,
-      justifyContent:'space-around',
-      backgroundColor:'pink',
-  },
-modalView:{
-
-      position:'absolute',
-      bottom:1,
-      width:'100%',
-      height:200,
-  },
-  cancelupload:{
-      position:'absolute',
-      bottom:50,
-      left:100,
-      width:'50%',
-      height:60,
-      backgroundColor:'#778899',
-  }
-});
 
 export default AddProduct;

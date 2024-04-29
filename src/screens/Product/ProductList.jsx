@@ -21,26 +21,6 @@ const ProductListScreen = () => {
     return unsubscribe;
   }, [navigation]);
 
-  // const refreshData = () => {
-  //   // Gọi hàm làm mới dữ liệu ở đây
-  //   console.log('Refreshing data...');
-  // };
-
-  // useEffect(() => {
-  //   // Gọi hàm làm mới dữ liệu khi màn hình được hiển thị
-  //   refreshData();
-  // }, [])
-
-// lấy toàn bộ product
-  // const fetchProducts = async () => {
-  //   try {
-  //     const response = await fetch('http://appchodocu.ddns.net:3000/product/');
-  //     const data = await response.json();
-  //     setProducts(data);
-  //   } catch (error) {
-  //     console.error('Error fetching products:', error);
-  //   }
-  // };
 
   const fetchProducts = async () => {
     try {
@@ -77,16 +57,18 @@ const ProductListScreen = () => {
   const renderProduct = ({ item }) => {
     const screenWidth = Dimensions.get('window').width;
     const itemWidth = (screenWidth - 32 - 16) / numColumns; // 16 là tổng padding và margin của container, 8 là khoảng cách giữa các cột
+    const firstImageUri = item.images.length > 0 ? item.images[0] : null;
+
     return (
       <TouchableOpacity onPress={() => navigateToProductDetail(item._id)}>
         <View style={[styles.productContainer, { width: itemWidth }]}>
-          {item.image && 
-            <Image
-              source={{ uri: item.image }}
-              style={styles.image}
-              resizeMode="contain"
-            />
-          }
+        {firstImageUri && (
+          <Image
+            source={{ uri: firstImageUri }}
+            style={styles.image}
+            resizeMode="convert"
+          />
+        )}
                     <Text style={styles.name}>{item.name}</Text>
           <Text style={styles.price}>${item.price}</Text>
         </View>

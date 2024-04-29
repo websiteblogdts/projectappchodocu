@@ -104,24 +104,32 @@ const ViewPostsMain = () => {
   const renderProduct = ({ item }) => {
     const screenWidth = Dimensions.get('window').width;
     const itemWidth = (screenWidth - 32 - 16) / numColumns;
+    const firstImageUri = item.images.length > 0 ? item.images[0] : null;
+    const backgroundColor = item.admin_approved ? '#C1FFC1' : '#BFEFFF';
+
     return (
       <TouchableOpacity onPress={() => navigateToProductDetail(item._id)}>
-        <View style={[styles.productContainer, { width: itemWidth }]}>
-          
-          {item.image && 
-            <Image
-              source={{ uri: item.image }}
-              style={styles.image}
-              resizeMode="contain"
-            />
-          }
+        <View style={[styles.productContainer, { width: itemWidth, backgroundColor: backgroundColor } ]}>
+        <Text style={styles.status}>{item.admin_approved ? 'Đã duyệt' : 'Đang chờ duyệt'}</Text>
+
+        {firstImageUri && (
+          <Image
+            source={{ uri: firstImageUri }}
+            style={styles.image}
+            resizeMode="convert"
+          />
+        )}
           <Text style={styles.name}>{item.name}</Text>
           <Text style={styles.price}>${item.price}</Text>
           
         </View>
-        <TouchableOpacity style={styles.approvalButton} onPress={() => toggleProductApproval(item._id)} >
-            <Text style={styles.buttonText}>{item.admin_approved ? "Unapprove" : "Approve"}</Text>
-          </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.approvalButton, item.admin_approved ? styles.unapproveButtonText : styles.approveButtonText]}
+          onPress={() => toggleProductApproval(item._id)}
+        >
+          <Text style={styles.buttonText}>{item.admin_approved ? "Unapprove" : "Approve"}</Text>
+        </TouchableOpacity>
+
       </TouchableOpacity>
     );
   };
@@ -175,6 +183,13 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5,
   },
+  status: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    color: '#888', 
+    marginTop: 5,
+  },
   name: {
     fontSize: 18,
     fontWeight: 'bold',
@@ -204,6 +219,16 @@ const styles = StyleSheet.create({
     backgroundColor: '#4CAF50',
     borderRadius: 5,
     marginTop: 10,
+  },
+  approveButtonText: {
+    backgroundColor: '#4CAF50',
+    color: 'white',
+    textAlign: 'center',
+  },
+  unapproveButtonText: {
+    backgroundColor: '#FF5733',
+    color: 'white',
+    textAlign: 'center',
   },
   buttonText: {
     color: 'white',
