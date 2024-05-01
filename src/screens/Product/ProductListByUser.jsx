@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, RefreshControl, Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import config from '../../config/config';
 
 const ProductListByUser = () => {
   const navigation = useNavigation();
@@ -15,7 +16,7 @@ const ProductListByUser = () => {
       // Lấy token từ AsyncStorage
       const userToken = await AsyncStorage.getItem('userToken');
   
-      const response = await fetch('http://appchodocu.ddns.net:3000/product/productlistbyuser', {
+      const response = await fetch(`${config.apiBaseURL}/product/productlistbyuser`, {
         headers: {
           'Authorization': `${userToken}` // Thêm token vào header
         }

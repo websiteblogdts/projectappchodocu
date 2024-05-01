@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet, Alert,Image,Button, TouchableOpacity, RefreshControl, Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import config from '../../config/config';
 
 const ProductListScreen = () => {
   const navigation = useNavigation();
@@ -27,7 +28,7 @@ const ProductListScreen = () => {
       const userToken = await AsyncStorage.getItem('userToken');
       console.log('Token from AsyncStorage:', userToken);
       // Đảm bảo rằng tham số truy vấn approved được thiết lập là true
-      const response = await fetch(`http://appchodocu.ddns.net:3000/product/productdaduyet`, {
+      const response = await fetch(`${config.apiBaseURL}/product/productdaduyet`, {
         headers: {
           'Authorization': `${userToken}`
         }

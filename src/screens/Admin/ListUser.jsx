@@ -3,6 +3,7 @@ import { View, Text, FlatList, StyleSheet, TouchableOpacity, RefreshControl, Ale
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
+import config from '../../config/config';
 
 const ListUser = () => {
   const navigation = useNavigation();
@@ -15,8 +16,8 @@ const ListUser = () => {
       const userToken = await AsyncStorage.getItem('userToken');
       console.log('Token from AsyncStorage:', userToken);
   
-      // Use axios to make the HTTP request with the Authorization header
-      const response = await axios.get('http://appchodocu.ddns.net:3000/admin/getalluser', {
+      // Use axios to make the HTTP request with the Authorization header `
+      const response = await axios.get(`${config.apiBaseURL}/admin/getalluser`, {
         headers: {
           'Authorization': `${userToken}` // Ensure you're using Bearer token if required by your backend
         }
@@ -57,7 +58,7 @@ const ListUser = () => {
             const userToken = await AsyncStorage.getItem('userToken');
             console.log('Token from AsyncStorage:', userToken);
             // Make the delete request with Authorization header
-            await axios.delete(`http://appchodocu.ddns.net:3000/admin/user/delete/${id}`, {
+            await axios.delete(`${config.apiBaseURL}/admin/user/delete/${id}`, {
               headers: {
                 'Authorization': `${userToken}` // Correct way to include the token
               }

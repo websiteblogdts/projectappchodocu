@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, FlatList, Modal, StyleSheet, Alert } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import config from '../../config/config';
 const CategoryManager = () => {
   const [categories, setCategories] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
@@ -18,7 +18,7 @@ const CategoryManager = () => {
       const userToken = await AsyncStorage.getItem('userToken');
       console.log('Token from AsyncStorage:', userToken);
   
-      const response = await axios.get('http://appchodocu.ddns.net:3000/admin/allcategory',{
+      const response = await axios.get(`${config.apiBaseURL}/admin/allcategory`,{
         headers: {
           'Authorization': `${userToken}` // Ensure you're using Bearer token if required by your backend
         }
@@ -40,7 +40,7 @@ const CategoryManager = () => {
           try {
             const userToken = await AsyncStorage.getItem('userToken');
             console.log('Token from AsyncStorage:', userToken);
-      await axios.delete(`http://appchodocu.ddns.net:3000/admin/categories/${id}`, {
+      await axios.delete(`${config.apiBaseURL}/admin/categories/${id}`, {
         headers: {
           'Authorization': `${userToken}` // Correct way to include the token
         }
@@ -62,7 +62,7 @@ const addCategory = async () => {
     console.log('Token from AsyncStorage:', userToken);
 
     // Make the POST request to add a new category
-    await axios.post('http://appchodocu.ddns.net:3000/admin/createcategory', { name: newCategoryName }, {
+    await axios.post(`${config.apiBaseURL}/admin/createcategory`, { name: newCategoryName }, {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `${userToken}`  // Properly formatted Authorization header with Bearer token

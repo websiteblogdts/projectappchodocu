@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Alert, TextInput, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
+import config from '../../config/config';
 
 function RegisterUser({props}){
     const [email, setEmail] = useState('');
@@ -31,7 +32,7 @@ function RegisterUser({props}){
             };
             
             console.log("Registration data:", userData);
-            axios.post('http://appchodocu.ddns.net:3000/user/register', userData)
+            axios.post(`${config.apiBaseURL}/user/register`, userData)
             .then(res => {
                 if (res && res.data && res.data.message) {
                     Alert.alert(res.data.message);

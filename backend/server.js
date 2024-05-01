@@ -1,7 +1,8 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const server = express();
-const bodyParSer = require("body-parser");
+// const bodyParSer = require("body-parser");
+const config = require('./config/config');
 
 const authMiddleware = require('./middlewares/authMiddleware');
 
@@ -9,32 +10,31 @@ const productRoutes = require("./routes/productRoutes");
 const adminRoutes = require('./routes/adminRoutes');
 const userRoutes = require('./routes/userRoutes'); 
 
+require('dotenv').config();
 
 require("./models/Product");
 require("./models/User"); 
 
-server.user = express.json();
+server.use(express.json());
+server.use(express.urlencoded({ extended: true }));
+// server.use(bodyParSer.json());
 
-const mongURI = "mongodb+srv://appchocu:Gcd191140@appchodocu.qbquqzj.mongodb.net/?retryWrites=true&w=majority&appName=appchodocu";
-mongoose.connect(mongURI, { 
+mongoose.connect(config.mongoURI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+}).then(() => {
+  console.log("Kết nối thành công hehe <3");
+}).catch(err => {
+  console.log("Không thể kết nối rùi", err);
 });
 
-mongoose.connection.on("connected", () => {
-  console.log(`Ket noi thanh cong hehe <3 <3 <3 <3 <3 <3<3 <3 <3<3 <3 <3<3 <3 <3`);
-});
-
-mongoose.connection.on("error", (err) => {
-  console.log(`Khong the ket noi rui`, err);
-});
-
-server.use(bodyParSer.json());
 
 server.use('/product', productRoutes); 
 server.use('/admin', adminRoutes); 
 server.use("/user", userRoutes); 
-
 server.use(authMiddleware);
 
-server.listen(3000, () => {
-  console.log("Listening on 3000");
+
+server.listen(config.port, () => {
+  console.log(`Listening on ${config.port}`);
 });

@@ -5,6 +5,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import InputField from '../../components/InputField';
 import CustomButton from '../../components/CustomButton';
+import config from '../../config/config';
+console.log(process.env.REACT_APP_API_BASE_URL)
 
 function LoginScreen({ navigation }) {
   const [identifier, setEmailOrPhone] = useState('');
@@ -16,7 +18,8 @@ const handleLogin = async () => {
           identifier: identifier,
           password: password
       };
-      const response = await axios.post('http://appchodocu.ddns.net:3000/user/login', userData);
+    
+      const response = await axios.post(`${config.apiBaseURL}/user/login`, userData);
       const { token, role } = response.data; // Lấy cả role từ response data
 
       console.log('Login successful! Role:', role, 'Token:', token); // Hiển thị role và token trong terminal

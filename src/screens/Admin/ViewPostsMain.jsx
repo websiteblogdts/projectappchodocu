@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, RefreshControl, Dimensions,Alert, Button } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import config from '../../config/config';
+
 const ViewPostsMain = () => {
   const navigation = useNavigation();
   const [products, setProducts] = useState([]);
@@ -25,7 +27,7 @@ const ViewPostsMain = () => {
       const userToken = await AsyncStorage.getItem('userToken');
       console.log('Token from AsyncStorage:', userToken);
       const endpoint = approved ? 'approved=true' : 'approved=false';
-      const response = await fetch(`http://appchodocu.ddns.net:3000/admin/products/?${endpoint}`,{
+      const response = await fetch(`${config.apiBaseURL}/admin/products/?${endpoint}`,{
         headers: {
           'Authorization': `${userToken}`
         }
@@ -65,7 +67,7 @@ const ViewPostsMain = () => {
           {
             text: 'Đồng ý',
             onPress: async () => {
-              await fetch(`http://appchodocu.ddns.net:3000/admin/product/${productId}/approved`, {
+              await fetch(`${config.apiBaseURL}/admin/product/${productId}/approved`, {
                 method: 'PUT',
                 headers: {
                   'Authorization': `${userToken}`,

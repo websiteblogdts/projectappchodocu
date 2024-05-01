@@ -7,6 +7,7 @@ import { Picker } from '@react-native-picker/picker';
 import AsyncStorage from '@react-native-async-storage/async-storage'; 
 import axios from 'axios';
 import styles from '../../components/ProductStyles';
+import config from '../../config/config';
 
 const AddProduct = () => {
 
@@ -38,8 +39,8 @@ const AddProduct = () => {
 
   const fetchCategories = async () => {
     try {
-        const response = await fetch('http://appchodocu.ddns.net:3000/product/category');
-        const data = await response.json();
+      const response = await fetch(`${config.apiBaseURL}/product/category`);
+      const data = await response.json();
         setCategories(data);
     } catch (error) {
         console.error('Error fetching categories:', error);
@@ -72,7 +73,7 @@ const AddProduct = () => {
         return; 
       }
         setIsSubmitting(true);
-      const response = await fetch('http://appchodocu.ddns.net:3000/product/create', {
+      const response = await fetch(`${config.apiBaseURL}/product/create`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

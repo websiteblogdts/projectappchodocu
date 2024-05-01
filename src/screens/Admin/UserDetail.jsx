@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View,Switch, Alert, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
+import config from '../../config/config';
 
 const UserDetail = () => {
   const [user, setUser] = useState(null);
@@ -15,7 +16,7 @@ const UserDetail = () => {
     try {
       const userToken = await AsyncStorage.getItem('userToken');
       console.log('Token from AsyncStorage:', userToken);
-      const response = await fetch(`http://appchodocu.ddns.net:3000/admin/userbyid/${userId}`, {
+      const response = await fetch(`${config.apiBaseURL}admin/userbyid/${userId}`, {
       headers: {
         'Authorization': `${userToken}` // Ensure you're using Bearer token if required by your backend
       }

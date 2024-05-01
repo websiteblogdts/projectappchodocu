@@ -7,6 +7,7 @@ import { IconButton } from 'react-native-paper';
 import * as ImagePicker from 'expo-image-picker';
 import * as Camera from 'expo-camera';
 import styles from '../../components/ProfileAccount';
+import config from '../../config/config';
 
 function UserProfileScreen({ navigation }) {
   const [userData, setUserData] = useState(null);
@@ -35,7 +36,7 @@ function UserProfileScreen({ navigation }) {
         const token = await AsyncStorage.getItem('userToken');
         console.log('Token from AsyncStorage:', token);
         if (token) {
-          const response = await axios.get('http://appchodocu.ddns.net:3000/user/profile', {
+          const response = await axios.get(`${config.apiBaseURL}/user/profile`, {
             headers: {
               Authorization: `${token}`, 
             },
@@ -70,7 +71,7 @@ function UserProfileScreen({ navigation }) {
         console.log('Token not found');
         return;
       }
-      const response = await axios.put('http://appchodocu.ddns.net:3000/user/updatepass', {
+      const response = await axios.put(`http${config.apiBaseURL}/user/updatepass`, {
         oldPassword,
         newPassword
       }, {
@@ -94,7 +95,7 @@ function UserProfileScreen({ navigation }) {
       // console.error('Failed to change password:', error);
     }
   };
-  
+
   const dautichxacminhtaikhoan = async () => {
     try {
       Alert.alert('Account Verify Success', 'Dấu Tích Này Chỉ Hiển Thị Khi Tài Khoản Đã Được Xác Minh');
@@ -116,7 +117,7 @@ function UserProfileScreen({ navigation }) {
         console.log('Token not found');
         return;
       }
-      const response = await axios.put('http://appchodocu.ddns.net:3000/user/changeavatar', {
+      const response = await axios.put('${config.apiBaseURL}/user/changeavatar', {
         newAvatarImage: currentAvatar
       }, {
         headers: {

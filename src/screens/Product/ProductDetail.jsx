@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Text, StyleSheet, Image, ScrollView ,View  } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import styles from '../../components/ProductDetail';
-
+import config from '../../config/config';
 const ProductDetail = ({ route }) => {
   const [product, setProduct] = useState(null);
   const [categoryName, setCategoryName] = useState('');
@@ -16,7 +16,7 @@ const ProductDetail = ({ route }) => {
 
   const fetchCategoryName = async (categoryId) => {
     try {
-      const response = await fetch(`http://appchodocu.ddns.net:3000/product/category/${categoryId}`);
+      const response = await fetch(`${config.apiBaseURL}/product/category/${categoryId}`);
       const data = await response.json();
       setCategoryName(data.name); // Assuming the API response has a 'name' field
     } catch (error) {
@@ -28,7 +28,7 @@ const ProductDetail = ({ route }) => {
     try {
       const userToken = await AsyncStorage.getItem('userToken');
       console.log('userToken', userToken);
-      const response = await fetch(`http://appchodocu.ddns.net:3000/product/${productId}`,{
+      const response = await fetch(`${config.apiBaseURL}/product/${productId}`,{
         headers: {
           'Authorization': `${userToken}`
         }

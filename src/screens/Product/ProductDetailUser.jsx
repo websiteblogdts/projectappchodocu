@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Image, Button, Alert, ScrollView  } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage'; 
 import styles from '../../components/ProductDetail';
+import config from '../../config/config';
 
 const ProductDetailUser = ({ route, navigation }) => {
   const [product, setProduct] = useState(null);
@@ -23,7 +24,7 @@ const ProductDetailUser = ({ route, navigation }) => {
 
 const fetchCategoryName = async (categoryId) => {
     try {
-      const response = await fetch(`http://appchodocu.ddns.net:3000/product/category/${categoryId}`);
+      const response = await fetch(`${config.apiBaseURL}/product/category/${categoryId}`);
       const data = await response.json();
       setCategoryName(data.name); // Assuming the API response has a 'name' field
     } catch (error) {
@@ -35,7 +36,7 @@ const fetchProduct = async (productId) => {
     try {
       const userToken = await AsyncStorage.getItem('userToken');
       console.log('userToken', userToken);
-      const response = await fetch(`http://appchodocu.ddns.net:3000/product/${productId}`,{
+      const response = await fetch(`${config.apiBaseURL}/product/${productId}`,{
         headers: {
           'Authorization': `${userToken}`
         }
@@ -82,7 +83,7 @@ const deleteProduct = async (productId) => {
   try {
       const userToken = await AsyncStorage.getItem('userToken');
   
-      const response = await fetch(`http://appchodocu.ddns.net:3000/product/deleteproduct/${productId}`, {
+      const response = await fetch(`${config.apiBaseURL}/product/deleteproduct/${productId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `${userToken}`

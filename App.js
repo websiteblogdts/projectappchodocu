@@ -18,6 +18,7 @@ import UserProfileScreen from './src/screens/User/UserProfileScreen';
 import RegisterUser from './src/screens/Register/RegisterUser';
 import ProductListByUser from './src/screens/Product/ProductListByUser';
 import CategoryManager from './src/screens/Admin/CategoryManager';
+
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -80,8 +81,8 @@ function BottomTabsForUser() {
     >
       <Tab.Screen name="HomeStack" component={HomeStack} options={{ headerShown: false }} />
       <Tab.Screen name="CreateProduct" component={CreateProduct}  />
-      <Tab.Screen name="UserProfileScreen" component={UserProfileScreen} />
       <Tab.Screen name="ViewPostProduct" component={ViewPostProduct} options={{ headerShown: false }} />
+      <Tab.Screen name="UserProfileScreen" component={UserProfileScreen} />
     </Tab.Navigator>
   );
 }

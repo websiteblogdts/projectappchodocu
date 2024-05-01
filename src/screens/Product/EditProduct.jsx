@@ -6,6 +6,7 @@ import * as ImagePicker from 'react-native-image-picker';
 import { Picker } from '@react-native-picker/picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import styles from '../../components/ProductStyles';
+import config from '../../config/config';
 
 const EditProduct = ({ route, navigation }) => {
   const [name, setName] = useState('');
@@ -40,7 +41,7 @@ const EditProduct = ({ route, navigation }) => {
 const fetchProduct = async () => {
   try {
     const productId = route.params.productId;
-    const response = await fetch(`http://appchodocu.ddns.net:3000/product/${productId}`);
+    const response = await fetch(`${config.apiBaseURL}/product/${productId}`);
     const data = await response.json();
 
     const provinceData = await fetchProvince();
@@ -77,7 +78,7 @@ fetchProduct();
 
 const fetchCategories = async () => {
   try {
-      const response = await fetch('http://appchodocu.ddns.net:3000/product/category');
+      const response = await fetch(`${config.apiBaseURL}/product/category`);
       const data = await response.json();
       setCategories(data);
   } catch (error) {
@@ -88,7 +89,7 @@ const fetchCategories = async () => {
     try {
       const userToken = await AsyncStorage.getItem('userToken');
 
-      const response = await fetch(`http://appchodocu.ddns.net:3000/product/editproduct/${route.params.productId}`, {
+      const response = await fetch(`${config.apiBaseURL}/product/editproduct/${route.params.productId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
