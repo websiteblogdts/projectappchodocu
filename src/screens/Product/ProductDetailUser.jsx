@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Image, Button, Alert, ScrollView  } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage'; 
+import styles from '../../components/ProductDetail';
 
 const ProductDetailUser = ({ route, navigation }) => {
   const [product, setProduct] = useState(null);
@@ -102,10 +103,22 @@ const deleteProduct = async (productId) => {
 
   const handleImageSwipe = (event) => {
     const offsetX = event.nativeEvent.contentOffset.x;
-    const imageIndex = Math.round(offsetX / 350); // Assuming each image has a fixed width of 300
+    const imageIndex = Math.floor(offsetX / 350); // Assuming each image has a fixed width of 300
     setCurrentImageIndex(imageIndex);
   };
 
+  const renderImageIndicators = () => {
+    return product.images.map((image, index) => (
+      <View
+        key={index}
+        style={[
+          styles.imageIndicator,
+          { backgroundColor: currentImageIndex === index ? '#000' : '#ccc' }
+        ]}
+      />
+    ));
+  };
+  
   return (
     <ScrollView contentContainerStyle={styles.container}>
       {product ? (
@@ -121,7 +134,7 @@ const deleteProduct = async (productId) => {
           </ScrollView>
              <ScrollView
             contentContainerStyle={styles.container}
-            horizontal
+            horizontal // tắt này đi thì ảnh sẻ hiển thị dọc chứ không trược ngang.
             pagingEnabled
             showsHorizontalScrollIndicator={false}
             onScroll={handleImageSwipe}
@@ -133,6 +146,10 @@ const deleteProduct = async (productId) => {
               </View>
             ))}
           </ScrollView>
+          <View style={styles.imageIndicatorContainer}>
+            {renderImageIndicators()}
+          </View>
+
           <Text style={styles.category}>Category: {categoryName}</Text> 
           <Text style={styles.address}>Address: {product.address.province}, {product.address.district}, {product.address.ward}</Text>
         </>
@@ -142,65 +159,6 @@ const deleteProduct = async (productId) => {
     </ScrollView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flexGrow: 1,
-    padding: 16,
-  },
-  name: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 8,
-  },
-  price: {
-    fontSize: 16,
-    marginBottom: 8,
-  },
-  descriptionContainer: {
-    maxHeight: 105,
-    marginBottom: 8,
-  },
-  description: {
-    fontSize: 14,
-  },
-  imageContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 350,
-    height: 250,
-  },
-  image: {
-    width: '100%',
-    height: '100%',
-    aspectRatio: 4 / 3,
-  },
-  imageIndex: {
-    position: 'absolute',
-    bottom: 8,
-    right: 8,
-    color: 'white',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  category: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginTop: 8,
-  },
-  address: {
-    fontSize: 14,
-    marginTop: 4,
-    marginBottom: 16,
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    marginTop: 16,
-  },
-  updateButton: {
-    marginRight: 8,
-  },
-});
 
 
 export default ProductDetailUser;

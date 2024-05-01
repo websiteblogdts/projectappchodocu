@@ -3,16 +3,32 @@ import { Modal, View,Alert, Text, TextInput, TouchableOpacity, StyleSheet, Butto
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
 import Icon from 'react-native-vector-icons/FontAwesome'
+import { IconButton } from 'react-native-paper';
+import * as ImagePicker from 'expo-image-picker';
+import * as Camera from 'expo-camera';
+import styles from '../../components/ProfileAccount';
 
 function UserProfileScreen({ navigation }) {
   const [userData, setUserData] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
+  const [newAvatarImage, setImages] = useState([]);
+  const [originalAvatar, setOriginalAvatar] = useState(null);
+  const [currentAvatar, setCurrentAvatar] = useState(null);
   //bên dưới là mắt xem pass  tham khảo internet nhé
   const [isOldPasswordVisible, setIsOldPasswordVisible] = useState(false);
   const [isNewPasswordVisible, setIsNewPasswordVisible] = useState(false);
-  
+  const [modal, setModal] = useState(false);
+
+  useEffect(() => {
+    if (userData && userData.avatar_image) {
+        setCurrentAvatar(userData.avatar_image);
+        // Đặt URL avatar ban đầu khi tải dữ liệu người dùng
+        setOriginalAvatar(userData.avatar_image);
+    }
+}, [userData]);
+
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -78,7 +94,127 @@ function UserProfileScreen({ navigation }) {
       // console.error('Failed to change password:', error);
     }
   };
+  
+  const dautichxacminhtaikhoan = async () => {
+    try {
+      Alert.alert('Account Verify Success', 'Dấu Tích Này Chỉ Hiển Thị Khi Tài Khoản Đã Được Xác Minh');
+    } catch (error) {
+      console.error('Failed', error);
+    }
+  };
 
+  const handleChangeAvatar = async () => {
+   
+    if (currentAvatar === originalAvatar) {
+      Alert.alert('No Changes', 'No changes to the avatar.');
+      return;
+  }
+    try {
+      const token = await AsyncStorage.getItem('userToken');
+      console.log('Token from AsyncStorage:', token);
+      if (!token) {
+        console.log('Token not found');
+        return;
+      }
+      const response = await axios.put('http://appchodocu.ddns.net:3000/user/changeavatar', {
+        newAvatarImage: currentAvatar
+      }, {
+        headers: {
+          Authorization: `${token}`, 
+        },
+      });
+      console.log(response.data);
+      if (response.data) {
+        console.log(response.data);
+        setOriginalAvatar(currentAvatar);  // Cập nhật originalAvatar
+        Alert.alert('Success', 'Avatar successfully changed');
+    }
+      Alert.alert('Success', 'Avatar successfully changed');
+    } catch (error) {
+      setCurrentAvatar(originalAvatar);
+      if (error.response) {
+        // Error message from server
+        Alert.alert('Error', error.response.data.error);
+      } else {
+        // General error message
+        Alert.alert('Error', 'Failed to change Avatar');
+      }
+    }
+  };
+
+const handleUpload = async (image) => {
+  // Tạo một đối tượng FormData để gửi dữ liệu
+  let formData = new FormData();
+  // Thêm dữ liệu ảnh và các thông tin cần thiết cho Cloudinary vào formData
+  formData.append('file', {
+    uri: image.uri, // đường dẫn tới file ảnh
+    type: 'image/jpeg', // loại của file
+    name: 'upload.jpg' // tên file
+  });
+  formData.append('upload_preset', 'ackgbz0m'); // Preset bạn đã tạo trong Cloudinary
+  formData.append('cloud_name', 'dvm8fnczy'); // Tên Cloud của bạn
+
+  try {
+    const response = await axios.post("https://api.cloudinary.com/v1_1/dvm8fnczy/image/upload", formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data', // Thông báo định dạng dữ liệu gửi đi là form data
+      }
+    });
+    if (response.status === 200) {
+      console.log("Upload successful: ", response.data);
+      const newAvatarUrl = response.data.secure_url;
+      if (newAvatarUrl === originalAvatar) {
+        Alert.alert('Avatar Unchanged', 'The new avatar is the same as the current one.');
+    } else {
+        setCurrentAvatar(newAvatarUrl);
+        Alert.alert('Upload Successful', 'Your image has been uploaded successfully, click Save if you like this avatar!');
+    }
+    setModal(false);
+} else {
+    throw new Error("Failed to upload image");
+}
+} catch (error) {
+console.error("Error uploading image: ", error);
+Alert.alert('Upload Failed', 'Failed to upload image.');
+}
+};
+
+  const _uploadImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+  
+    if (!result.cancelled) {
+      handleUpload(result.assets[0]);
+    } else {
+      console.log("Image selection was cancelled");
+    }
+  };
+  
+  const _takePhoto = async () => {
+    // Same here for camera permissions
+    const { status } = await Camera.requestCameraPermissionsAsync();
+    if (status !== 'granted') {
+        alert('Sorry, we need camera permissions to make this work!');
+        return;
+    }
+    const result = await ImagePicker.launchCameraAsync({
+       mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+    });
+  
+    if (!result.cancelled) {
+        handleUpload(result.assets[0]);
+      } else {
+        console.log("Image selection was cancelled");
+      }
+    };
+  
   const handleLogout = async () => {
     try {
       // Xóa token từ AsyncStorage
@@ -111,16 +247,45 @@ function UserProfileScreen({ navigation }) {
   return (
     
     <View style={styles.container}>
+     
         <Image
-        source={{ uri: 'https://www.bootdey.com/image/900x400/FF7F50/000000' }}
+        source={{ uri: 
+          // 'https://c4.wallpaperflare.com/wallpaper/263/532/888/minimalism-ens%C5%8D-circle-simple-background-wallpaper-preview.jpg'         //  "https://c4.wallpaperflare.com/wallpaper/372/584/840/minimalism-samurai-warrior-simple-background-wallpaper-preview.jpg"
+        // "https://c4.wallpaperflare.com/wallpaper/249/998/393/minimalism-light-bulb-dark-simple-wallpaper-preview.jpg"
+        "https://c4.wallpaperflare.com/wallpaper/759/704/58/anime-manga-anime-girls-fan-art-illustration-hd-wallpaper-preview.jpg"
+        // "https://c4.wallpaperflare.com/wallpaper/434/309/126/minimalism-cat-funny-digital-art-artwork-hd-wallpaper-preview.jpg"
+        // "https://c4.wallpaperflare.com/wallpaper/859/305/81/neon-genesis-evangelion-ayanami-rei-blue-hair-anime-girls-wallpaper-preview.jpg"
+        }}
         style={styles.coverImage}
       />
       <View style={styles.avatarContainer}>
-        <Image
-          source={{ uri: userData.avatar_image }}
-          style={styles.avatar}
-        />
-        <Text style={[styles.name, styles.textWithShadow]}>{userData.name}</Text>
+       <TouchableOpacity onPress={() => setModal(true)}>
+            <Image
+              source={{ uri: currentAvatar }}
+              style={styles.avatar}
+            />
+            
+          </TouchableOpacity>
+          <View style={styles.nameandbutton}>
+              <Text style={[styles.name, styles.textWithShadow]}>{userData.name}</Text>  
+              <IconButton icon="shield-check" style={styles.uploadIcon} onPress={() => dautichxacminhtaikhoan()} />
+          </View>
+          <IconButton icon="content-save" style={styles.uploadIcon} onPress={() => handleChangeAvatar()} />
+           <Modal
+             animationType='slide'
+             transparent={true}
+             visible={modal}
+             onRequestClose= {() => {setModal(false)}}
+            >
+                <View style={styles.modalView}>
+                    <View style={styles.buttonModalView}>
+                        <IconButton icon="camera" onPress={_takePhoto} />
+                        <IconButton icon="folder-image" onPress={_uploadImage} />                
+                    </View>
+                   <IconButton icon="cancel" style={styles.cancelupload} mode="contained" onPress={() => setModal(false)} />
+                </View>
+            </Modal>
+                
       </View>
       
       <View style={styles.content}>
@@ -141,6 +306,7 @@ function UserProfileScreen({ navigation }) {
       <TouchableOpacity style={styles.button} onPress={openChangePasswordModal}>
         <Text style={styles.buttonText}>Change Password</Text>
       </TouchableOpacity>
+      
       <Modal
         animationType="slide"
         transparent={true}
@@ -192,124 +358,10 @@ function UserProfileScreen({ navigation }) {
         </View>
       </Modal>
       <Button title="Logout" onPress={handleLogout} />
+   
     </View>
    
   );
 }
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    padding: 20,
-  },
-  coverImage: {
-    height: 200,
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-  },
-  avatarContainer: {
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  avatar: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-  },
-  name: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginTop: 10,
-    color:'white'
-  },
-  content: {
-    marginTop: 20,
-  },
-  infoContainer: {
-    marginTop: 20,
-  },
-  infoLabel: {
-    fontWeight: 'bold',
-  },
-  infoValue: {
-    marginTop: 5,
-  },
-  button: {
-    backgroundColor: '#0066cc',
-    borderRadius: 5,
-    padding: 10,
-    marginHorizontal: 20,
-  },
-  buttonsubmit: {
-    // backgroundColor: '#0066cc',
-    borderRadius: 5,
-    padding: 10,
-    marginHorizontal: 20,
-  },
-  buttonText: {
-    fontSize: 16,
-    color: '#fff',
-    textAlign: 'center',
-  },
-  centeredView: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 22,
-  },
-  modalView: {
-    margin: 20,
-    backgroundColor: 'pink',
-    borderRadius: 20,
-    padding: 35,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  buttonClose: {
-    backgroundColor: '#2196F3',
-  },
-  buttonsubmit2: {
-    backgroundColor: 'gray',
-  },
-  textStyle: {
-    color: 'white',
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  input: {
-    width: '80%',
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
-    borderRadius: 5,
-    marginBottom: 20,
-    paddingHorizontal: 10,
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderBottomWidth: 1,
-    borderBottomColor: 'gray',
-    marginBottom: 10,
-  }, 
-  submitandcancel : {
-    flexDirection: 'row',
-  },
-  input: {
-    flex: 1,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-  }
-});
-
 
 export default UserProfileScreen;

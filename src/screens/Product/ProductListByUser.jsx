@@ -65,7 +65,14 @@ const ProductListByUser = () => {
     const firstImageUri = item.images.length > 0 ? item.images[0] : null;
 
     const backgroundColor = item.admin_approved ? '#C1FFC1' : '#BFEFFF'; // Màu xám nếu chưa được duyệt
-
+  
+    // const ProductImage = ({ imageUri }) => (
+  //   <Image
+  //     source={{ uri: imageUri }}
+  //     style={styles.image}
+  //     resizeMode="cover"
+  //   />
+  // );
     return (
       <TouchableOpacity onPress={() => navigateToProductDetail(item._id)}>
         <View style={[styles.productContainer, { width: itemWidth, backgroundColor: backgroundColor }]}>
@@ -74,9 +81,13 @@ const ProductListByUser = () => {
           <Image
             source={{ uri: firstImageUri }}
             style={styles.image}
-            resizeMode="convert"
+            resizeMode="cover"
           />
         )}
+        {/* {firstImageUri && (
+    <ProductImage imageUri={firstImageUri} />
+)} */}
+
           <Text style={styles.name}>{item.name}</Text>
           <Text style={styles.price}>${item.price}</Text>
         </View>
@@ -84,13 +95,7 @@ const ProductListByUser = () => {
     );
   };
 
-  const ProductImage = ({ imageUri }) => (
-    <Image
-      source={{ uri: imageUri }}
-      style={styles.image}
-      resizeMode="convert"
-    />
-  );
+
 
   return (
     <View style={styles.container}>

@@ -116,9 +116,10 @@ const ViewPostsMain = () => {
           <Image
             source={{ uri: firstImageUri }}
             style={styles.image}
-            resizeMode="convert"
+            resizeMode="cover"
           />
         )}
+        
           <Text style={styles.name}>{item.name}</Text>
           <Text style={styles.price}>${item.price}</Text>
           

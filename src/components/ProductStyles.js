@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
       width: '40%',
       left: 10,
       top: 30,
-      resizeMode: "contain",
+      resizeMode: "cover",
       paddingBottom: 100,
     },
     uploadIcon: {

@@ -144,5 +144,25 @@ exports.updateUserPassword = async (req, res) => {
         res.status(500).json({ error: "Internal Server Error" });
     }
 };
+exports.updateAvatar = async (req, res) => {
+    try {
+        // Xác định người dùng từ token
+        const userId = req.user.id;
+        const { newAvatarImage } = req.body;
+        // Tìm người dùng trong cơ sở dữ liệu
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+        user.avatar_image = newAvatarImage;
+
+        await user.save();
+
+        res.status(200).json({ message: "Avatar updated successfully" });
+    } catch (error) {
+        console.error("Error updating user password:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+};
 
 

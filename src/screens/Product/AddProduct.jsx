@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text,StyleSheet,Modal,TextInput, Button,TouchableOpacity ,ScrollView, Alert,ActivityIndicator,Image } from 'react-native';
+import { View, Text,Modal,TextInput,TouchableOpacity , Alert,Image } from 'react-native';
 import { IconButton } from 'react-native-paper';
 import * as ImagePicker from 'expo-image-picker';
 import * as Camera from 'expo-camera';
@@ -14,13 +14,13 @@ const AddProduct = () => {
   const [price, setPrice] = useState('');
   const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(false);
-  const [image, setImage] = useState('');
+  
   const [category, setCategory] = useState('');
   const [categories, setCategories] = useState([]);
 
   const [images, setImages] = useState([]);
-
   const [uploadedImage, setUploadedImage] = useState(null);
+
   const [modal, setModal] = useState(false);
 
   const [provinces, setProvinces] = useState([]);
@@ -59,7 +59,7 @@ const AddProduct = () => {
   const handleSubmit = async () => {
     try {
       console.log("Sending product data:", {
-        name, price, description, image, category, address: { province: selectedProvince, district: selectedDistrict, ward: selectedWard }
+        name, price, description, images, category, address: { province: selectedProvince, district: selectedDistrict, ward: selectedWard }
       });
       const userToken = await AsyncStorage.getItem('userToken');
       if (!userToken) {
@@ -155,28 +155,15 @@ const AddProduct = () => {
 //   };
 
 
-  // const increasePrice = () => {
-  //   setPrice(prevPrice => Number(prevPrice) + 1); // Chuyển prevPrice thành số trước khi cộng
-  // };
   const increasePrice = () => {
-    if (price === '' || price === '1') {
-      setPrice('2'); // Nếu price đang là rỗng hoặc là '1', thiết lập giá trị mới là '2'
-    } else {
-      setPrice(prevPrice => Number(prevPrice) + 1); // Ngược lại, thực hiện cộng thêm 1 như bình thường
-    }
+    setPrice(prevPrice => Number(prevPrice) + 1); 
   };
+
   
-  // const decreasePrice = () => {
-  //   setPrice(prevPrice => Math.max(0, prevPrice - 1));
-  // };
   const decreasePrice = () => {
-    if (price === '' || price === '1') {
-      setPrice('0'); // Nếu price là rỗng hoặc là '1', thiết lập giá trị mới là '0'
-    } else {
-      setPrice(prevPrice => Math.max(1, prevPrice - 1)); // Ngược lại, giảm giá trị đi 1 như bình thường
-    }
+    setPrice(prevPrice => Math.max(0, prevPrice - 1));
   };
-  
+
 const handleProvinceChange = (province) => {
   setSelectedProvince(province);
   const selectedProvince = provinces.find((p) => p.Name === province);
@@ -205,43 +192,6 @@ const handleWardChange = (ward) => {
   setSelectedWard(ward);
 };
 
-
-// const handleUpload = async (image) => {
-//   // Tạo một đối tượng FormData để gửi dữ liệu
-//   let formData = new FormData();
-//   // Thêm dữ liệu ảnh và các thông tin cần thiết cho Cloudinary vào formData
-//   formData.append('file', {
-//     uri: image.uri, // đường dẫn tới file ảnh
-//     type: 'image/jpeg', // loại của file
-//     name: 'upload.jpg' // tên file
-//   });
-//   formData.append('upload_preset', 'ackgbz0m'); // Preset bạn đã tạo trong Cloudinary
-//   formData.append('cloud_name', 'dvm8fnczy'); // Tên Cloud của bạn
-
-//   try {
-//     // Gửi yêu cầu POST tới Cloudinary với dữ liệu trong formData
-//     const response = await axios.post("https://api.cloudinary.com/v1_1/dvm8fnczy/image/upload", formData, {
-//       headers: {
-//         'Content-Type': 'multipart/form-data', // Thông báo định dạng dữ liệu gửi đi là form data
-//       }
-//     });
-
-//     if (response.status === 200) {
-//       console.log("Upload successful: ", response.data);
-//       // Cập nhật state nếu cần
-//       setImage(response.data.secure_url); // Lưu URL của ảnh được lưu trên Cloudinary
-//       setUploadedImage(response.data.secure_url);
-//       Alert.alert('Upload Successful', 'Your image has been uploaded successfully!');
-//       setModal(false)
-//     } else {
-//       setModal(false)
-//       throw new Error("Failed to upload image");
-//     }
-//   } catch (error) {
-//     console.error("Error uploading image: ", error);
-//     Alert.alert('Upload Failed', 'Failed to upload image.');
-//   }
-// };
 const handleUploadNhieuAnh = async (image) => {
   let formData = new FormData();
   formData.append('file', {
@@ -311,7 +261,6 @@ const _takePhoto = async () => {
   });
 
   if (!result.cancelled) {
-      setImage(result.uri);
       // handleUpload(result.assets[0]);
       handleUploadNhieuAnh(result.assets[0]);
     } else {
@@ -431,6 +380,7 @@ return (
     </View>
   </View>
 </View>
+
     <View style={styles.imageContainer}>
   {images.map((imageUri, index) => (
     <View key={index} style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -440,6 +390,7 @@ return (
       </TouchableOpacity>
     </View>
   ))}
+
 </View>
            <Modal
              animationType='slide'
