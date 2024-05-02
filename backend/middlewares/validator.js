@@ -13,7 +13,29 @@ function isValidEmail(email) {
     }
     return true; // Trả về true nếu định dạng và không chứa khoảng trắng
 }
+function isValidImages(images) {
+    // Kiểm tra xem images có là một mảng không
+    if (!Array.isArray(images)) {
+        return false;
+    }
+    
+    // Kiểm tra mỗi phần tử trong mảng images
+    for (let imageUrl of images) {
+        // Kiểm tra xem imageUrl có rỗng không
+        if (typeof imageUrl !== 'string' || imageUrl.trim() === '') {
+            return false;
+        }
+        
+        // Kiểm tra định dạng của imageUrl, ví dụ: có phải là URL hợp lệ không
+        // Bạn có thể sử dụng các phương pháp khác như kiểm tra đuôi file hoặc phần mở rộng của URL để đảm bảo hình ảnh hợp lệ.
+        // Ví dụ:
+        // if (!isValidImageUrl(imageUrl)) {
+        //     return false;
+        // }
+    }
 
+    return true;
+}
 
 // Hàm kiểm tra định dạng password
 function isValidPassword(password) {
@@ -45,5 +67,6 @@ function isValidPhoneNumber(phoneNumber) {
 module.exports = {
     isValidEmail,
     isValidPassword,
-    isValidPhoneNumber
+    isValidPhoneNumber,
+    isValidImages
 };

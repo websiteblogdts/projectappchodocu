@@ -2,16 +2,21 @@ import { StyleSheet } from 'react-native';
 
 const styles = StyleSheet.create({
     container: {
-      // flexGrow: 1,
+      flexGrow: 1,
       padding: 16,
       borderColor: 'black',
+      backgroundColor: '#3B3B3B',
+
     },
     name: {
+      color: 'white', 
       fontSize: 18,
       fontWeight: 'bold',
       marginBottom: 8,
     },
     price: {
+      color: 'white', 
+
       fontSize: 16,
       marginBottom: 8,
     },
@@ -20,6 +25,7 @@ const styles = StyleSheet.create({
       marginBottom: 8,
     },
     description: {
+      color: 'white',  
       fontSize: 14,
     },
     imageContainer: {
@@ -41,6 +47,7 @@ const styles = StyleSheet.create({
       color: 'blue',
       fontSize: 16,
       fontWeight: 'bold',
+      
     },
     imageIndicatorContainer: {
       flexDirection: 'row',
@@ -55,11 +62,14 @@ const styles = StyleSheet.create({
       marginHorizontal: 5,
     },
     category: {
+      color: 'white', 
       fontSize: 16,
       fontWeight: 'bold',
       marginTop: 8,
     },
     address: {
+      color: 'white', 
+
       fontSize: 14,
       marginTop: 4,
       marginBottom: 16,

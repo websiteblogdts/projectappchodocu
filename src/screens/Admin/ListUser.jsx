@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, RefreshControl, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
 import config from '../../config/config';
@@ -78,11 +79,11 @@ const ListUser = () => {
     return (
       <TouchableOpacity onPress={() => navigateToUserDetail(item._id)}>
         <View style={styles.userContainer}>
-          <Text style={styles.name}>Name:{item.name}</Text>
-          <Text style={styles.email}>Mail:{item.email}</Text>
-          <Text>Phone:{item.phone_number}</Text>
+          <Text style={styles.name}>Name: {item.name}</Text>
+          <Text style={styles.email}>Mail: {item.email}</Text>
+          <Text style={styles.email}>Phone: {item.phone_number}</Text>
           <TouchableOpacity onPress={() => deleteUser(item._id)} style={styles.deleteButton}>
-          <Text>Delete</Text>
+          <Ionicons name="trash-bin" size={30} color="#EA7575" />
         </TouchableOpacity>
         </View>
       </TouchableOpacity>
@@ -115,10 +116,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: '#E6E6E6',
+    backgroundColor: '#3B3B3B',
   },
   userContainer: {
-    backgroundColor: '#FFF',
+    backgroundColor: '#414141',
     borderRadius: 6,
     marginBottom: 15,
     marginHorizontal: 2,
@@ -133,11 +134,14 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   name: {
+    color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 8,
   },
   email: {
+    color: '#fff',
+
     fontSize: 16,
     marginBottom: 8,
   },
@@ -151,7 +155,6 @@ const styles = StyleSheet.create({
   },
   deleteButton: {
     marginTop: 10,
-    backgroundColor: 'red',
     padding: 8,
     borderRadius: 5,
   },

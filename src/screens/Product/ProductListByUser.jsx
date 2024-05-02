@@ -65,7 +65,7 @@ const ProductListByUser = () => {
     const itemWidth = (screenWidth - 32 - 16) / numColumns;
     const firstImageUri = item.images.length > 0 ? item.images[0] : null;
 
-    const backgroundColor = item.admin_approved ? '#C1FFC1' : '#BFEFFF'; // Màu xám nếu chưa được duyệt
+    const backgroundColor = item.admin_approved ? '#C1FFC1' : '#414141'; // Màu xám nếu chưa được duyệt
   
     // const ProductImage = ({ imageUri }) => (
   //   <Image
@@ -77,7 +77,7 @@ const ProductListByUser = () => {
     return (
       <TouchableOpacity onPress={() => navigateToProductDetail(item._id)}>
         <View style={[styles.productContainer, { width: itemWidth, backgroundColor: backgroundColor }]}>
-        <Text style={styles.status}>{item.admin_approved ? 'Đã duyệt' : 'Đang chờ duyệt'}</Text>
+        <Text style={[styles.status, { color: item.admin_approved ? 'green' : 'gray' }]}>{item.admin_approved ? 'Đã duyệt' : 'Chờ xử lý'}</Text>
         {firstImageUri && (
           <Image
             source={{ uri: firstImageUri }}
@@ -89,8 +89,9 @@ const ProductListByUser = () => {
     <ProductImage imageUri={firstImageUri} />
 )} */}
 
-          <Text style={styles.name}>{item.name}</Text>
-          <Text style={styles.price}>${item.price}</Text>
+<Text style={[styles.name, { color: item.admin_approved ? 'black' : 'white' }]}>{item.name}</Text>
+<Text style={[styles.price, { color: item.admin_approved ? 'black' : 'white' }]}>${item.price}</Text>
+          {/* <Text style={styles.price}>${item.price}</Text> */}
         </View>
       </TouchableOpacity>
     );
@@ -127,7 +128,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    // backgroundColor: '#CAE1FF',
+    backgroundColor: '#3B3B3B',
   },
   productContainer: {
     width: 160, // chiều rộng cố định
@@ -146,6 +147,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   name: {
+    color: "white",
     fontSize: 16,
     fontWeight: 'bold',
     marginTop: 8,
@@ -154,6 +156,8 @@ const styles = StyleSheet.create({
     overflow: 'hidden' // Ngăn text vượt quá chiều cao đã định
   },
   price: {
+    color: "white",
+    fontWeight: 'bold',
     fontSize: 14,
     textAlign: 'center',
     marginTop: 4, // Đảm bảo cách đều từ text tên sản phẩm

@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = "Gcd191140";
 const User = require('../models/User');
+const { isValidimages } = require('../middlewares/validator');
 
 exports.getRoutes = (req, res) => {
     res.send('Hello son');
@@ -82,7 +83,9 @@ exports.createProduct = async (req, res) => {
         if (!name || !price || !description || !images || !category || !province || !district || !ward) {
             return res.status(400).json({ error: "Kiểm tra xem bạn có để trống cái gì chưa điền không nhé sơn <3" });
         }
-
+        if (!Array.isArray(images) || images.length === 0) {
+            return res.status(400).json({ error: "Chưa có hình ảnh được chọn." });
+        }
         // Ensure price is a non-negative number
         if (typeof price !== 'number' || price < 0) {
             return res.status(400).json({ error: "Giá sản phẩm phải là một số không âm." });

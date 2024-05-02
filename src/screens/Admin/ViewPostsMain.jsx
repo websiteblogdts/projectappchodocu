@@ -111,7 +111,14 @@ const ViewPostsMain = () => {
 
     return (
       <TouchableOpacity onPress={() => navigateToProductDetail(item._id)}>
+<TouchableOpacity
+          style={[styles.approvalButton, item.admin_approved ? styles.unapproveButtonText : styles.approveButtonText]}
+          onPress={() => toggleProductApproval(item._id)}
+        >
+          <Text style={styles.buttonText}>{item.admin_approved ? "Unapprove" : "Approve"}</Text>
+        </TouchableOpacity>
         <View style={[styles.productContainer, { width: itemWidth, backgroundColor: backgroundColor } ]}>
+        
         <Text style={styles.status}>{item.admin_approved ? 'Đã duyệt' : 'Đang chờ duyệt'}</Text>
 
         {firstImageUri && (
@@ -121,17 +128,9 @@ const ViewPostsMain = () => {
             resizeMode="cover"
           />
         )}
-        
           <Text style={styles.name}>{item.name}</Text>
           <Text style={styles.price}>${item.price}</Text>
-          
         </View>
-        <TouchableOpacity
-          style={[styles.approvalButton, item.admin_approved ? styles.unapproveButtonText : styles.approveButtonText]}
-          onPress={() => toggleProductApproval(item._id)}
-        >
-          <Text style={styles.buttonText}>{item.admin_approved ? "Unapprove" : "Approve"}</Text>
-        </TouchableOpacity>
 
       </TouchableOpacity>
     );
@@ -165,7 +164,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: '#FFFACD',
+    backgroundColor: '#3B3B3B',
   },
   productContainer: {
     width: 160, // chiều rộng cố định
@@ -220,8 +219,8 @@ const styles = StyleSheet.create({
   approvalButton:  {
     padding: 10,
     backgroundColor: '#4CAF50',
-    borderRadius: 5,
-    marginTop: 10,
+    borderRadius: 15,
+    marginTop: 7,
   },
   approveButtonText: {
     backgroundColor: '#4CAF50',

@@ -16,7 +16,7 @@ const UserDetail = () => {
     try {
       const userToken = await AsyncStorage.getItem('userToken');
       console.log('Token from AsyncStorage:', userToken);
-      const response = await fetch(`${config.apiBaseURL}admin/userbyid/${userId}`, {
+      const response = await fetch(`${config.apiBaseURL}/admin/userbyid/${userId}`, {
       headers: {
         'Authorization': `${userToken}` // Ensure you're using Bearer token if required by your backend
       }
@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#f4f4f4',
+    backgroundColor: '#3B3B3B',
   },
   name: {
     fontSize: 22,

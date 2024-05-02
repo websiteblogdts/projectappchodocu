@@ -57,7 +57,9 @@ function BottomTabsForUser() {
           let iconName;
 
           if (route.name === 'HomeStack') {
-            iconName = focused ? 'house' : 'house';
+            iconName = focused ? 'shop' : 'shop';
+            // iconName = focused ? 'handshake' : 'handshake';
+            // bag-shopping store
           }
           if (route.name === 'ProductList') {
             iconName = focused ? 'basket-shopping' : 'basket-shopping';
@@ -66,16 +68,18 @@ function BottomTabsForUser() {
           } else if (route.name === 'Chat') {
             iconName = focused ? 'Chat' : 'chatbubble-ellipses-outline';
           } else if (route.name === 'UserProfileScreen') {
-            iconName = focused ? 'user-tie' : 'user-tie';
+            iconName = focused ? 'circle-user' : 'circle-user';
+            // address-card
           }else if (route.name === 'ViewPostProduct') {
             iconName = focused ? 'list-check' : 'list-check';
+            // ballot-check
           }
           return <FontAwesome6 name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: '#FF3399',
-        tabBarInactiveTintColor: 'black',
+        tabBarActiveTintColor: '#CB75EA',
+        tabBarInactiveTintColor: 'gray',
         tabBarStyle: {
-          backgroundColor: '#FFFFCC',
+          backgroundColor: '#3B3B3B',
         }
       })}
     >
@@ -128,6 +132,7 @@ function BottomTabsForAdmin() {
 
           if (route.name === 'HomeStack') {
             iconName = focused ? 'house' : 'house';
+            // chart-simple
           }
           if (route.name === 'Category') {
             iconName = focused ? 'list' : 'list';
@@ -147,11 +152,10 @@ function BottomTabsForAdmin() {
             </View>
           );
         },
-        tabBarActiveTintColor: '#FF3399',
-        tabBarInactiveTintColor: 'black',
+        tabBarActiveTintColor: '#CB75EA',
+        tabBarInactiveTintColor: 'gray',
         tabBarStyle: {
-         
-          backgroundColor: '#FFFFCC',
+        backgroundColor: '#3B3B3B',
         }
       })}
     >

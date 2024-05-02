@@ -3,6 +3,7 @@ import { Modal, View,Alert, Text, TextInput, TouchableOpacity, StyleSheet, Butto
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
 import Icon from 'react-native-vector-icons/FontAwesome'
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import { IconButton } from 'react-native-paper';
 import * as ImagePicker from 'expo-image-picker';
 import * as Camera from 'expo-camera';
@@ -269,9 +270,10 @@ Alert.alert('Upload Failed', 'Failed to upload image.');
           </TouchableOpacity>
           <View style={styles.nameandbutton}>
               <Text style={[styles.name, styles.textWithShadow]}>{userData.name}</Text>  
-              <IconButton icon="shield-check" style={styles.uploadIcon} onPress={() => dautichxacminhtaikhoan()} />
+              <Ionicons name='checkmark-circle' size={30} color="#EA7575" style={styles.uploadIcon} onPress={() => dautichxacminhtaikhoan()} />
           </View>
-          <IconButton icon="content-save" style={styles.uploadIcon} onPress={() => handleChangeAvatar()} />
+          <Ionicons name='save' style={styles.iconsave} size={30} color="#EA7575" onPress={() => handleChangeAvatar()} />
+           
            <Modal
              animationType='slide'
              transparent={true}
@@ -307,7 +309,12 @@ Alert.alert('Upload Failed', 'Failed to upload image.');
       <TouchableOpacity style={styles.button} onPress={openChangePasswordModal}>
         <Text style={styles.buttonText}>Change Password</Text>
       </TouchableOpacity>
-      
+
+      <TouchableOpacity style={styles.buttonlogout}>
+      <Text style={styles.buttonTextlogout}>Log Out</Text>
+       <Ionicons name='exit-outline' title="Logout" size={40} color="#E0E0E0" style={styles.iconlogout} onPress={handleLogout} />
+      </TouchableOpacity>
+
       <Modal
         animationType="slide"
         transparent={true}
@@ -357,9 +364,7 @@ Alert.alert('Upload Failed', 'Failed to upload image.');
 
           </View>
         </View>
-      </Modal>
-      <Button title="Logout" onPress={handleLogout} />
-   
+      </Modal>   
     </View>
    
   );

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, StyleSheet, Alert,Image,Button, TouchableOpacity, RefreshControl, Dimensions } from 'react-native';
+import { View, Text, FlatList,CustomCardView, StyleSheet, Alert,Image,Button, TouchableOpacity, RefreshControl, Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import config from '../../config/config';
@@ -54,7 +54,6 @@ const ProductListScreen = () => {
     navigation.navigate('ProductDetail', { productId });
   };
 
-
   const renderProduct = ({ item }) => {
     const screenWidth = Dimensions.get('window').width;
     const itemWidth = (screenWidth - 32 - 16) / numColumns; // 16 là tổng padding và margin của container, 8 là khoảng cách giữa các cột
@@ -77,11 +76,12 @@ const ProductListScreen = () => {
     );
   };
 
+
   return (
-    
     <View style={styles.container}>
       {products.length === 0 ? (
-        <Text style={styles.emptyText}>Danh sách trống</Text>
+        
+     <Text style={styles.emptyText}>Danh sách trống</Text>
       ) : (
         <FlatList
           data={products}
@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: '#CAE1FF',
+    backgroundColor: '#3B3B3B',
 
   },
   productContainer: {
@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
     height: 250, // chiều cao cố định
     // flex: 1,  // Cho phép container mở rộng để lấp đầy không gian khả dụng
     // minHeight: 250, // Đặt chiều cao tối thiểu để đảm bảo tính nhất quán
-    backgroundColor: '#FFE4C4',
+    backgroundColor: '#B4EEB4',
     borderRadius: 6,
     marginBottom: 15,
     marginHorizontal: 2,
@@ -155,6 +155,14 @@ const styles = StyleSheet.create({
   flatListContent: {
     flexGrow: 1,
   },
+
+  card: {
+    borderRadius: 24,
+    width: '75%',
+    height: 170,
+    margin: 10,
+    overflow: 'hidden',
+},
 });
 
 export default ProductListScreen;

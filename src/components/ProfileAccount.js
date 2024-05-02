@@ -1,9 +1,12 @@
 import { StyleSheet } from 'react-native';
-
+import * as Font from 'expo-font';
+Font.loadAsync({
+  'josefin-sans': require('./../../assets/Inknut_Antiqua/InknutAntiqua-Regular.ttf'),
+});
 const styles = StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: '#fff',
+      backgroundColor: '#414141',
       padding: 20,
     },
     nameandbutton:{
@@ -11,7 +14,11 @@ const styles = StyleSheet.create({
         left: 25,
     },
     uploadIcon:{
-    left: 1,
+      top: 9 ,
+      left: 5,
+    },
+    iconsave:{
+      right: 180
     },
     coverImage: {
       height: 200,
@@ -42,12 +49,15 @@ const styles = StyleSheet.create({
       marginTop: 20,
     },
     infoLabel: {
+      color: 'white',
       fontWeight: 'bold',
     },
     infoValue: {
+      color: 'white',
       marginTop: 5,
     },
     button: {
+      
       backgroundColor: '#0066cc',
       borderRadius: 5,
       padding: 10,
@@ -60,9 +70,31 @@ const styles = StyleSheet.create({
       marginHorizontal: 20,
     },
     buttonText: {
-      fontSize: 16,
+      fontSize: 17,
       color: '#fff',
       textAlign: 'center',
+      
+    },
+    iconlogout:{
+      bottom: 7,
+    },
+    
+    buttonTextlogout: {
+      left: 15,
+      flex: 1,
+      fontSize: 20,
+      color: '#fff',
+      textAlign: 'center',
+      fontWeight: 'bold',
+      fontFamily: 'josefin-sans',
+      fontSize: 16, 
+    },
+    buttonlogout:{
+      flexDirection: 'row',
+      backgroundColor: '#FF275B',
+      top: 90,
+      borderRadius: 25,
+      padding: 20,
     },
     centeredView: {
       flex: 1,
@@ -86,8 +118,9 @@ const styles = StyleSheet.create({
       elevation: 5,
     },
     buttonClose: {
-      backgroundColor: '#2196F3',
+      backgroundColor: '#414141',
     },
+   
     buttonsubmit2: {
       backgroundColor: 'gray',
     },
@@ -97,6 +130,7 @@ const styles = StyleSheet.create({
       textAlign: 'center',
     },
     input: {
+      
       width: '80%',
       height: 40,
       borderColor: 'gray',

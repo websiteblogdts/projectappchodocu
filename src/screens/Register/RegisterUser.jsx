@@ -85,12 +85,14 @@ return (
       <TextInput
                 style={styles.input}
                 placeholder="Name"
+                placeholderTextColor="#888"
                 value={name}
                 onChangeText={handleName}
       />
             <TextInput
                 style={styles.input}
                 placeholder="Email"
+                placeholderTextColor="#888"
                 value={email}
                 onChangeText={handleEmail} 
             />
@@ -98,6 +100,7 @@ return (
             <TextInput
                 style={styles.input}
                 placeholder="Password"
+                placeholderTextColor="#888"
                 value={password}
                 onChangeText={(text) => handlePassword(text)}
                 secureTextEntry={!showPassword}
@@ -105,6 +108,7 @@ return (
             <TextInput
                 style={styles.input}
                 placeholder="Phonenumber"
+                placeholderTextColor="#888"
                 value={phone_number}
                 onChangeText={(text) => handleMobile(text)}
                 keyboardType="numeric"
@@ -120,8 +124,10 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+        backgroundColor: '#3B3B3B',
     },
     input: {
+        color: 'white',
         height: 40,
         width: 300,
         borderColor: 'gray',
@@ -131,7 +137,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
     },
     button: {
-        backgroundColor: 'blue',
+        backgroundColor: 'gray',
         padding: 10,
         borderRadius: 5,
     },

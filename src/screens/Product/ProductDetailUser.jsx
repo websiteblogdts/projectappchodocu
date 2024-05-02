@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Image, Button, Alert, ScrollView  } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage'; 
 import styles from '../../components/ProductDetail';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import config from '../../config/config';
 
 const ProductDetailUser = ({ route, navigation }) => {
@@ -9,12 +11,6 @@ const ProductDetailUser = ({ route, navigation }) => {
   const { reloadProducts } = route.params;
   const [categoryName, setCategoryName] = useState('');
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-
-
-  // React.useEffect(() => {
-  //   fetchCategories();
-  //   fetchProvinces();
-  // }, []);
 
   React.useEffect(() => {
     // Lấy ID của sản phẩm từ tham số định tuyến
@@ -125,8 +121,8 @@ const deleteProduct = async (productId) => {
       {product ? (
         <>
         <View style={styles.buttonContainer}>
-            <Button title="Cập nhật" onPress={handleUpdateProduct} style={styles.updateButton} />
-            <Button title="Xóa" onPress={handleDeleteProduct} />
+            <FontAwesome title="Cập nhật" name="edit" onPress={handleUpdateProduct} size={30} color="gray" style={styles.updateButton} />
+            <Ionicons title="Xóa" name="trash-bin" size={30} color="gray" onPress={handleDeleteProduct} />
           </View>
           <Text style={styles.name}>{product.name}</Text>
           <Text style={styles.price}>${product.price}</Text>

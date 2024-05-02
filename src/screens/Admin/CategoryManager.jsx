@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, FlatList, Modal, StyleSheet, Alert } from 'react-native';
 import axios from 'axios';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import config from '../../config/config';
+import { IconButton } from 'react-native-paper';
 const CategoryManager = () => {
   const [categories, setCategories] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
@@ -85,7 +87,7 @@ const addCategory = async () => {
   
   return (
     <View style={styles.container}>
-      <Button title="Add Category" onPress={() => setModalVisible(true)} />
+      <Ionicons name="add-circle" size={50} color="#CB75EA" title="Add Category" style={styles.buttonadd} onPress={() => setModalVisible(true)} />
       <Modal
         animationType="slide"
         transparent={true}
@@ -103,24 +105,26 @@ const addCategory = async () => {
             value={newCategoryName}
             onChangeText={handleCategoryNameChange}
           />
+        <View style={styles.buttonsaveandclose}>
+          <Ionicons name='close-circle' title="Close" size={30} color="black" style={styles.buttonIcon} onPress={() => setModalVisible(false)} />
+          <Ionicons name='save' title="Save" size={30} color="black" style={styles.buttonIcon} onPress={addCategory} disabled={!isCategoryNameValid} />
+        </View>
 
-            <Button title="Save" onPress={addCategory} disabled={!isCategoryNameValid} />
-
-            <Button title="Close" onPress={() => setModalVisible(false)} />
+           
           </View>
         </View>
       </Modal>
       <View style={styles.containercategory}>
       {categories.length === 0 ? (
-        <Text style={styles.emptyText}>Danh sách trống</Text>
+        <Text>Danh sách trống</Text>
       ) : (
       <FlatList
         data={categories}
         keyExtractor={(item) => item._id}
         renderItem={({ item }) => (
           <View style={styles.listItem}>
-            <Text>{item.name}</Text>
-            <Button title="Delete" onPress={() => deleteCategory(item._id)} />
+            <Text style={styles.emptyText}>{item.name}</Text>
+            <Ionicons name="trash-bin" size={30} color="#EA7575" title="Delete" onPress={() => deleteCategory(item._id)} />
           </View>
         )}
       />
@@ -133,13 +137,28 @@ const addCategory = async () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: 50,
+    backgroundColor: '#3B3B3B',
+  },
+  buttonadd: {
+    top: 5,
+  },
+  buttonsaveandclose: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginVertical: 10,
+  },
+  buttonIcon: {
+    marginHorizontal: 30,
   },
   containercategory: {
     flex: 1,
     padding: 16,
-    backgroundColor: '#CAE1FF',
+    backgroundColor: '#3B3B3B',
 
+  },
+  emptyText:{
+color: 'white'
   },
   listItem: {
     flexDirection: 'row',
@@ -147,7 +166,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 10,
     marginVertical: 6,
-    backgroundColor: '#fff',
+    backgroundColor: '#414141',
     borderWidth: 1,
     borderColor: '#ddd',
   },
@@ -159,7 +178,7 @@ const styles = StyleSheet.create({
   },
   modalView: {
     margin: 20,
-    backgroundColor: 'white',
+    backgroundColor: "gray",
     borderRadius: 20,
     padding: 35,
     alignItems: 'center',
