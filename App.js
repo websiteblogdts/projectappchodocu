@@ -59,7 +59,7 @@ function BottomTabsForUser() {
           if (route.name === 'HomeStack') {
             iconName = focused ? 'shop' : 'shop';
             // iconName = focused ? 'handshake' : 'handshake';
-            // bag-shopping store
+            //icon giỏ hàng basket-shopping
           }
           if (route.name === 'ProductList') {
             iconName = focused ? 'basket-shopping' : 'basket-shopping';
@@ -131,8 +131,7 @@ function BottomTabsForAdmin() {
           let iconName;
 
           if (route.name === 'HomeStack') {
-            iconName = focused ? 'house' : 'house';
-            // chart-simple
+            iconName = focused ? 'chart-simple' : 'chart-simple';
           }
           if (route.name === 'Category') {
             iconName = focused ? 'list' : 'list';
