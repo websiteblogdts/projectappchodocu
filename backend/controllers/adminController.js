@@ -25,45 +25,6 @@ exports.updateApprovedStatus = (req, res) => {
         });
 };
 
-// exports.lockUserAccount = async (req, res) => {
-//     try {
-//         // Kiểm tra vai trò của người dùng (chỉ admin mới được phép khóa tài khoản)
-//         if (req.user.role !== 'admin') {
-//             return res.status(403).json({ error: "You are not authorized to perform this action" });
-//         }
-
-//         const userId = req.params.userId;
-//         const user = await User.findByIdAndUpdate(userId, { account_status: 'locked' }, { new: true });
-//         if (!user) {
-//             return res.status(404).send('User not found');
-//         }
-//         res.send('Account has been locked');
-//     } catch (error) {
-//         console.error('Error locking account:', error);
-//         res.status(500).send('Internal server error');
-//     }
-// };
-
-// exports.unlockUserAccount = async (req, res) => {
-//     try {
-//         // Kiểm tra vai trò của người dùng (chỉ admin mới được phép mở khóa tài khoản)
-//         if (req.user.role !== 'admin') {
-//             return res.status(403).json({ error: "You are not authorized to perform this action" });
-//         }
-
-//         const userId = req.params.userId;
-//         const user = await User.findByIdAndUpdate(userId, { account_status: 'active' }, { new: true });
-//         if (!user) {
-//             return res.status(404).send('User not found');
-//         }
-//         res.send('Account has been unlocked');
-//     } catch (error) {
-//         console.error('Error unlocking account:', error);
-//         res.status(500).send('Internal server error');
-//     }
-// };
-
-
 //lấy tất cả sản phẩm theo trạng thái phê duyệt (true hoặc false)
 exports.getProductsByApprovalStatus = (req, res) => {
     // Lấy trạng thái phê duyệt từ query parameters, mặc định là true
@@ -171,7 +132,18 @@ exports.updateUserByIdForAdmin = async (req, res) => {
             if (!existingUser) {
                 return res.status(404).json({ error: "User not found" });
             }
-
+        
+            const emailExists = await User.findOne({ email: updateData.email });
+            if (emailExists && emailExists._id.toString() !== userId) {
+                return res.status(400).json({ error: "Email already exists" });
+            }
+    
+            // Kiểm tra xem số điện thoại đã tồn tại trong cơ sở dữ liệu hay chưa
+            const phoneExists = await User.findOne({ phone_number: updateData.phone_number });
+            if (phoneExists && phoneExists._id.toString() !== userId) {
+                return res.status(400).json({ error: "Phone number already exists" });
+            }
+            
         if (!updateData.email) {
             // Sử dụng giá trị hiện tại của trường email trong cơ sở dữ liệu
             updateData.email = existingUser.email;
@@ -234,3 +206,41 @@ exports.deleteUserById = async (req, res) => {
         res.status(500).json({ error: "Internal Server Error" });
     }
 };
+
+// exports.lockUserAccount = async (req, res) => {
+//     try {
+//         // Kiểm tra vai trò của người dùng (chỉ admin mới được phép khóa tài khoản)
+//         if (req.user.role !== 'admin') {
+//             return res.status(403).json({ error: "You are not authorized to perform this action" });
+//         }
+
+//         const userId = req.params.userId;
+//         const user = await User.findByIdAndUpdate(userId, { account_status: 'locked' }, { new: true });
+//         if (!user) {
+//             return res.status(404).send('User not found');
+//         }
+//         res.send('Account has been locked');
+//     } catch (error) {
+//         console.error('Error locking account:', error);
+//         res.status(500).send('Internal server error');
+//     }
+// };
+
+// exports.unlockUserAccount = async (req, res) => {
+//     try {
+//         // Kiểm tra vai trò của người dùng (chỉ admin mới được phép mở khóa tài khoản)
+//         if (req.user.role !== 'admin') {
+//             return res.status(403).json({ error: "You are not authorized to perform this action" });
+//         }
+
+//         const userId = req.params.userId;
+//         const user = await User.findByIdAndUpdate(userId, { account_status: 'active' }, { new: true });
+//         if (!user) {
+//             return res.status(404).send('User not found');
+//         }
+//         res.send('Account has been unlocked');
+//     } catch (error) {
+//         console.error('Error unlocking account:', error);
+//         res.status(500).send('Internal server error');
+//     }
+// };

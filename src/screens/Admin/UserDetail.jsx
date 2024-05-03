@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { View,Switch, Alert, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { Modal, View,Alert, Text, TextInput, TouchableOpacity, StyleSheet, Button, Image, ActivityIndicator } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
 import config from '../../config/config';
+import styles from '../../components/ProfileAccount';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const UserDetail = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const route = useRoute();
-  const navigation = useNavigation();
-
 
   const fetchUserDetails = async () => {
     const { userId } = route.params;
@@ -35,6 +35,13 @@ const UserDetail = () => {
     }
   };
  
+  const dautichxacminhtaikhoan = async () => {
+    try {
+      Alert.alert('Account Verify Success', 'Dấu Tích Này Chỉ Hiển Thị Khi Tài Khoản Đã Được Xác Minh');
+    } catch (error) {
+      console.error('Failed', error);
+    }
+  };
 
   useEffect(() => {
     fetchUserDetails();
@@ -50,66 +57,57 @@ const UserDetail = () => {
 
   if (!user) {
     return (
-      <View style={styles.centered}>
+      <View >
         <Text>User not found.</Text>
       </View>
     );
   }
 
   return (
+    
     <View style={styles.container}>
-      <Text style={styles.name}>{user.name}</Text>
-      <View>
-      <Text >Email: {user.email}</Text>
-      <Text >Phone: {user.phone_number}</Text>
-      <Text >Role: {user.role}</Text>
-      <Text >account_status: {user.account_status}</Text>
+     
+        <Image
+        source={{ uri: 
+          // 'https://c4.wallpaperflare.com/wallpaper/263/532/888/minimalism-ens%C5%8D-circle-simple-background-wallpaper-preview.jpg'         
+          //  "https://c4.wallpaperflare.com/wallpaper/372/584/840/minimalism-samurai-warrior-simple-background-wallpaper-preview.jpg"
+        // "https://c4.wallpaperflare.com/wallpaper/249/998/393/minimalism-light-bulb-dark-simple-wallpaper-preview.jpg"
+        "https://c4.wallpaperflare.com/wallpaper/759/704/58/anime-manga-anime-girls-fan-art-illustration-hd-wallpaper-preview.jpg"
+        // "https://c4.wallpaperflare.com/wallpaper/434/309/126/minimalism-cat-funny-digital-art-artwork-hd-wallpaper-preview.jpg"
+        // "https://c4.wallpaperflare.com/wallpaper/859/305/81/neon-genesis-evangelion-ayanami-rei-blue-hair-anime-girls-wallpaper-preview.jpg"
+        }}
+        style={styles.coverImage}
+      />
+      <View style={styles.avatarContainer}>
+       <TouchableOpacity>
+       <Image
+            source={{ uri: user.avatar_image }}
+            style={styles.avatar}
+          />
+          </TouchableOpacity>
+          <View style={styles.nameandbutton}>
+              <Text style={[styles.name, styles.textWithShadow]}>{user.name}</Text>  
+              <Ionicons name='checkmark-circle' size={30} color="#EA7575" style={styles.uploadIcon} onPress={() => dautichxacminhtaikhoan()} />
+          </View>           
+      </View>
+      <View style={styles.content}>
+        <View style={styles.infoContainer}>
+          <Text style={styles.infoLabel}>Email:</Text>
+          <Text style={styles.infoValue}> {user.email}</Text>
+        </View>
+        <View style={styles.infoContainer}>
+          <Text style={styles.infoLabel}>Phone Number:</Text>
+          <Text style={styles.infoValue}>{user.phone_number}</Text>
+        </View>
+        <View style={styles.infoContainer}>
+          <Text style={styles.infoLabel}>Cái gì đó chưa nghĩ ra có thể là hiển thị cái qq gì đó:</Text>
+          <Text style={styles.infoValue}>Đẹp trai có gì sai.</Text>
+        </View>
       </View>
     </View>
+   
   );
-};
+}
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: '#3B3B3B',
-  },
-  name: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  detail: {
-    fontSize: 18,
-    marginBottom: 5,
-  },
-  centered: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  button: {
-    backgroundColor: '#007bff',
-    padding: 10,
-    borderRadius: 5,
-    marginTop: 20,
-    alignSelf: 'center',
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 18,
-  },
-  
-  switchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  switchLabel: {
-    fontSize: 18,
-    marginRight: 10,
-  }
-});
 
 export default UserDetail;

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, RefreshControl, Alert } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, RefreshControl, Alert, Modal, TextInput } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 import { useNavigation } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import axios from 'axios';
@@ -11,14 +12,25 @@ const ListUser = () => {
   const [users, setUsers] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
 
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const [editUserData, setEditUserData] = useState({
+    name: '',
+    password: '',
+    reward_points: '',
+    role: '',
+    account_status: '',
+    email: '',
+    phone_number: ''
+  });
+  
+  const [selectedUserId, setSelectedUserId] = useState(null);
+
   const fetchUsers = async () => {
     try {
-      // Retrieve the token from AsyncStorage
       const userToken = await AsyncStorage.getItem('userToken');
-      console.log('Token from AsyncStorage:', userToken);
-  
-      // Use axios to make the HTTP request with the Authorization header `
-      const response = await axios.get(`${config.apiBaseURL}/admin/getalluser`, {
+      // console.log('Token from AsyncStorage:', userToken);
+        const response = await axios.get(`${config.apiBaseURL}/admin/getalluser`, {
         headers: {
           'Authorization': `${userToken}` // Ensure you're using Bearer token if required by your backend
         }
@@ -48,6 +60,47 @@ const ListUser = () => {
     navigation.navigate('UserDetail', { userId });
   };
 
+  const handleLockUnlockAccount = async (userId) => {
+    try {
+      console.log('User ID:', userId);
+      const userToken = await AsyncStorage.getItem('userToken');
+      console.log('Request URL:', `${config.apiBaseURL}/admin/changstatusaccount/${userId}`);
+        await axios.put(`${config.apiBaseURL}/admin/changstatusaccount/${userId}`, null, {
+        headers: {
+          'Authorization': `${userToken}`
+        }
+      });
+      fetchUsers();
+      console.log('Account status changed successfully'); // In ra thông báo khi thay đổi thành công
+    } catch (error) {
+      console.error('Lỗi khi khóa/mở khóa tài khoản:', error); // In ra lỗi nếu có
+    }
+  };
+  
+
+  const editUser = async () => {
+    try {
+      console.log('Edit user data:', editUserData);
+      const userToken = await AsyncStorage.getItem('userToken');
+      console.log('Token from AsyncStorage:', userToken);      // Make the edit request with Authorization header
+      await axios.put(`${config.apiBaseURL}/admin/edituser/${selectedUserId}`, editUserData, {
+        headers: {
+          'Authorization': `${userToken}`
+        }
+      });
+      fetchUsers();
+      setModalVisible(false);
+      Alert.alert("Success", "User updated successfully");
+    } catch (error) {
+      console.error('Failed to update user:', error);
+      if (error.response && error.response.data && error.response.data.error) {
+          Alert.alert('Error rui', error.response.data.error);
+      } else {
+        Alert.alert('Error rui son oi', error.response.data.error || 'Failed to add product');
+          Alert.alert('Error', 'Failed to update user');
+      }
+    }
+};
   const deleteUser = async (id, token) => { // Include `token` as an argument if it's not globally available
     Alert.alert(
       "Confirm Deletion",
@@ -57,8 +110,6 @@ const ListUser = () => {
         { text: "Delete", onPress: async () => {
           try {
             const userToken = await AsyncStorage.getItem('userToken');
-            console.log('Token from AsyncStorage:', userToken);
-            // Make the delete request with Authorization header
             await axios.delete(`${config.apiBaseURL}/admin/user/delete/${id}`, {
               headers: {
                 'Authorization': `${userToken}` // Correct way to include the token
@@ -78,13 +129,42 @@ const ListUser = () => {
   const renderUser = ({ item }) => {
     return (
       <TouchableOpacity onPress={() => navigateToUserDetail(item._id)}>
-        <View style={styles.userContainer}>
-          <Text style={styles.name}>Name: {item.name}</Text>
-          <Text style={styles.email}>Mail: {item.email}</Text>
-          <Text style={styles.email}>Phone: {item.phone_number}</Text>
-          <TouchableOpacity onPress={() => deleteUser(item._id)} style={styles.deleteButton}>
-          <Ionicons name="trash-bin" size={30} color="#EA7575" />
-        </TouchableOpacity>
+            <View style={styles.userContainer}>
+          <TouchableOpacity onPress={() => navigateToUserDetail(item._id)}>
+            <View>
+              <Text style={styles.name}>Name: {item.name}</Text>
+              <Text style={styles.email}>Mail: {item.email}</Text>
+              <Text style={styles.email}>Phone: {item.phone_number}</Text>
+              <Text style={styles.email}>Points: {item.reward_points}</Text>
+            </View>
+          </TouchableOpacity>
+          <View style={styles.nutchucnang}>
+            <TouchableOpacity onPress={() => {
+              setSelectedUserId(item._id);
+              setEditUserData({
+                name: item.name,
+                email: item.email,
+                phone_number: item.phone_number,
+                password: '',
+                reward_points: item.reward_points.toString(),
+                role: item.role,
+                account_status: item.account_status
+              });
+              setModalVisible(true);
+            }}>
+              <Ionicons name="create-outline" size={30} color="#1E90FF" />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => deleteUser(item._id)}>
+              <Ionicons name="trash-bin" size={30} color="#EA7575" />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => handleLockUnlockAccount(item._id)}>
+            <Ionicons 
+                name={item.account_status === 'active' ? 'lock-open-outline' : 'lock-closed-outline'} 
+                size={30} 
+                color={item.account_status === 'active' ? '#FFA500' : '#FF0000'} // Màu cam nếu tài khoản đang active, màu đỏ nếu tài khoản đang bị khóa
+              />
+            </TouchableOpacity>
+          </View>
         </View>
       </TouchableOpacity>
     );
@@ -108,6 +188,83 @@ const ListUser = () => {
           }
         />
       )}
+
+<Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => {
+          setModalVisible(!modalVisible);
+        }}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Edit User</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Name"
+              value={editUserData.name}
+              onChangeText={(text) => setEditUserData({ ...editUserData, name: text })}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Email"
+              value={editUserData.email}
+              onChangeText={(text) => setEditUserData({ ...editUserData, email: text })}
+            />
+          <TextInput 
+            style={styles.input}
+            placeholder="Phone Number"
+            keyboardType="numeric"
+            value={editUserData.phone_number}
+            onChangeText={(text) => setEditUserData({ ...editUserData, phone_number: text})}
+          />
+            <TextInput
+              style={styles.input}
+              placeholder="New Password"
+              secureTextEntry={true}
+              value={editUserData.password}
+              onChangeText={(text) => setEditUserData({ ...editUserData, password: text })}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Reward Points"
+              value={editUserData.reward_points}
+              onChangeText={(text) => setEditUserData({ ...editUserData, reward_points: text })}
+            />
+            <Picker
+              selectedValue={editUserData.role}
+              style={styles.input}
+              onValueChange={(itemValue, itemIndex) =>
+                setEditUserData({ ...editUserData, role: itemValue })
+              }>
+              <Picker.Item label="User" value="user" />
+              <Picker.Item label="Moderator" value="moderator" />
+            </Picker>
+            <Picker
+              selectedValue={editUserData.account_status}
+              style={styles.input}
+              onValueChange={(itemValue, itemIndex) =>
+                setEditUserData({ ...editUserData, account_status: itemValue })
+              }>
+              <Picker.Item label="Active" value="active" />
+              <Picker.Item label="Locked" value="locked" />
+            </Picker>
+            <TouchableOpacity
+              style={styles.saveButton}
+              onPress={() => editUser()}
+            >
+              <Text style={styles.saveButtonText}>Save Changes</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.cancelButton}
+              onPress={() => setModalVisible(!modalVisible)}
+            >
+              <Text style={styles.cancelButtonText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -132,6 +289,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
+    // flexDirection: 'row',
+    // justifyContent: 'space-between',
+    // alignItems: 'center'
   },
   name: {
     color: '#fff',
@@ -141,7 +301,9 @@ const styles = StyleSheet.create({
   },
   email: {
     color: '#fff',
-
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 8,
     fontSize: 16,
     marginBottom: 8,
   },
@@ -153,10 +315,57 @@ const styles = StyleSheet.create({
   flatListContent: {
     flexGrow: 1,
   },
-  deleteButton: {
-    marginTop: 10,
-    padding: 8,
+  nutchucnang:{
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  },
+  // Modal styles
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 20,
+    width: '80%',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#ccc',
     borderRadius: 5,
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    marginBottom: 15,
+  },
+  saveButton: {
+    backgroundColor: '#1E90FF',
+    borderRadius: 5,
+    paddingVertical: 12,
+    marginBottom: 10,
+  },
+  saveButtonText: {
+    color: '#fff',
+    textAlign: 'center',
+    fontSize: 16,
+  },
+  cancelButton: {
+    backgroundColor: '#FF4500',
+    borderRadius: 5,
+    paddingVertical: 12,
+  },
+  cancelButtonText: {
+    color: '#fff',
+    textAlign: 'center',
+    fontSize: 16,
   },
 });
 

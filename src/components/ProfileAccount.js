@@ -1,13 +1,27 @@
 import { StyleSheet } from 'react-native';
 import * as Font from 'expo-font';
 Font.loadAsync({
-  'josefin-sans': require('./../../assets/Inknut_Antiqua/InknutAntiqua-Regular.ttf'),
+  'GreatVibes': require('./../../assets/fonts/GreatVibes-Regular.ttf'),
+  'Honk': require('./../../assets/fonts/Honk-Regular-VariableFont_MORF,SHLN.ttf'),
+  'BlackOpsOne': require('./../../assets/fonts/BlackOpsOne-Regular.ttf'),
+  'BungeeShade': require('./../../assets/fonts/BungeeShade-Regular.ttf'),
+  'ConcertOne': require('./../../assets/fonts/ConcertOne-Regular.ttf'), 
+ 
 });
 const styles = StyleSheet.create({
     container: {
       flex: 1,
       backgroundColor: '#414141',
       padding: 20,
+    },
+    name: {
+      fontSize: 20,
+      marginTop: 10,
+      right: 10,
+      color:'white',
+      textAlign: 'center',
+      // fontWeight: 'bold',
+      fontFamily: 'BlackOpsOne',
     },
     nameandbutton:{
         flexDirection: 'row',
@@ -17,8 +31,27 @@ const styles = StyleSheet.create({
       top: 9 ,
       left: 5,
     },
+    reward_points:{
+      fontSize: 20,
+      marginTop: 10,
+      right: 10,
+      color:'pink',
+      textAlign: 'center',
+      // fontWeight: 'bold',
+      fontFamily: 'ConcertOne',
+    },
+    iconvatextsave:{
+    flexDirection: 'row',
+    },
     iconsave:{
-      right: 180
+      left: 150 ,
+      bottom: 150
+    },
+    texticonsave:{
+      left: 140 ,
+      bottom: 140,
+      color: 'white',
+      fontWeight: 'bold',
     },
     coverImage: {
       height: 200,
@@ -36,12 +69,7 @@ const styles = StyleSheet.create({
       height: 120,
       borderRadius: 60,
     },
-    name: {
-      fontSize: 20,
-      fontWeight: 'bold',
-      marginTop: 10,
-      color:'white'
-    },
+   
     content: {
       marginTop: 20,
     },
@@ -56,12 +84,30 @@ const styles = StyleSheet.create({
       color: 'white',
       marginTop: 5,
     },
+    textInput: {
+    height: '50%',
+    borderWidth: 1,
+    borderRadius: 5,
+    borderColor: 'gray',
+    width: '100%',
+    color: "#9C9C9C",
+    },
+    buttonText: {
+      fontSize: 17,
+      color: '#fff',
+      textAlign: 'center',
+      // bottom:200,
+    },
     button: {
-      
-      backgroundColor: '#0066cc',
-      borderRadius: 5,
+      // backgroundColor: 'gray',
+      bottom: 160,
+      borderRadius: 15,
+      color: '#fff',
+      textAlign: 'center',
+      borderColor: 'gray', // Thay 'blue' bằng màu bạn muốn
+      borderWidth: 1,
       padding: 10,
-      marginHorizontal: 20,
+      // marginHorizontal: 20,
     },
     buttonsubmit: {
       // backgroundColor: '#0066cc',
@@ -69,16 +115,10 @@ const styles = StyleSheet.create({
       padding: 10,
       marginHorizontal: 20,
     },
-    buttonText: {
-      fontSize: 17,
-      color: '#fff',
-      textAlign: 'center',
-      
-    },
+   
     iconlogout:{
       bottom: 7,
     },
-    
     buttonTextlogout: {
       left: 15,
       flex: 1,
@@ -92,7 +132,8 @@ const styles = StyleSheet.create({
     buttonlogout:{
       flexDirection: 'row',
       backgroundColor: '#FF275B',
-      top: 90,
+      bottom: 145,
+      // top: 90,
       borderRadius: 25,
       padding: 20,
     },

@@ -104,7 +104,7 @@ const AddProduct = () => {
       Alert.alert('Success', 'Product added successfully!');
       } catch (error) {
         console.error('Error adding product:', error);
-        Alert.alert('Error', error.message || 'Failed to add product');
+        Alert.alert('Error rui son oi', error.message || 'Failed to add product');
     }
     finally {
       setIsSubmitting(false);

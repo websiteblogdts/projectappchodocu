@@ -11,7 +11,6 @@ router.post('/register', userController.register);
 
 router.use(authMiddleware);
 
-
 router.get('/getid', authMiddleware, userController.getUserId);
 
 router.put('/updatepass',authMiddleware, userController.updateUserPassword); // xây dựng chức năng update pass cũ để update pass mới, xác minh otp nếu cần
