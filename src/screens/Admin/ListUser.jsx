@@ -155,13 +155,13 @@ const ListUser = () => {
               <Ionicons name="create-outline" size={30} color="#1E90FF" />
             </TouchableOpacity>
             <TouchableOpacity onPress={() => deleteUser(item._id)}>
-              <Ionicons name="trash-bin" size={30} color="#EA7575" />
+              <Ionicons name="trash-bin" size={30} color="gray" />
             </TouchableOpacity>
             <TouchableOpacity onPress={() => handleLockUnlockAccount(item._id)}>
             <Ionicons 
-                name={item.account_status === 'active' ? 'lock-open-outline' : 'lock-closed-outline'} 
+                name={item.account_status === 'active' ? 'lock-open' : 'lock-closed'} 
                 size={30} 
-                color={item.account_status === 'active' ? '#FFA500' : '#FF0000'} // Màu cam nếu tài khoản đang active, màu đỏ nếu tài khoản đang bị khóa
+                color={item.account_status === 'active' ? 'green' : '#E54646'} // Màu cam nếu tài khoản đang active, màu đỏ nếu tài khoản đang bị khóa
               />
             </TouchableOpacity>
           </View>

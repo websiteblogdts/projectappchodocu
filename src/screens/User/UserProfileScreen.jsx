@@ -65,7 +65,7 @@ function UserProfileScreen({ navigation }) {
   const handleChangePassword = async () => {
     try {
       const token = await AsyncStorage.getItem('userToken');
-      console.log('Token from AsyncStorage:', token);
+      // console.log('Token from AsyncStorage:', token);
       console.log('Old Password:', oldPassword);
       console.log('New Password:', newPassword);
       if (!token) {
@@ -106,19 +106,14 @@ function UserProfileScreen({ navigation }) {
   };
 
   const handleChangeAvatar = async () => {
-   
+
     if (currentAvatar === originalAvatar) {
       Alert.alert('No Changes', 'No changes to the avatar.');
       return;
   }
     try {
       const token = await AsyncStorage.getItem('userToken');
-      console.log('Token from AsyncStorage:', token);
-      if (!token) {
-        console.log('Token not found');
-        return;
-      }
-      const response = await axios.put('${config.apiBaseURL}/user/changeavatar', {
+      const response = await axios.put(`${config.apiBaseURL}/user/changeavatar`, {
         newAvatarImage: currentAvatar
       }, {
         headers: {
@@ -129,7 +124,6 @@ function UserProfileScreen({ navigation }) {
       if (response.data) {
         console.log(response.data);
         setOriginalAvatar(currentAvatar);  // Cập nhật originalAvatar
-        Alert.alert('Success', 'Avatar successfully changed');
     }
       Alert.alert('Success', 'Avatar successfully changed');
     } catch (error) {
@@ -266,16 +260,15 @@ Alert.alert('Upload Failed', 'Failed to upload image.');
               source={{ uri: currentAvatar }}
               style={styles.avatar}
             />
-            
           </TouchableOpacity>
           <View style={styles.nameandbutton}>
               <Text style={[styles.name, styles.textWithShadow]}>{userData.name}</Text>  
               <Ionicons name='checkmark-circle' size={30} color="#EA7575" style={styles.uploadIcon} onPress={() => dautichxacminhtaikhoan()} />
           </View>
-          <Ionicons name='save' style={styles.iconsave} size={30} color="#EA7575" onPress={() => handleChangeAvatar()} />
-           
+          
+          <Text style={styles.reward_points}>Points: {userData.reward_points}</Text>
            <Modal
-             animationType='slide'
+             animationType='slide' 
              transparent={true}
              visible={modal}
              onRequestClose= {() => {setModal(false)}}
@@ -290,27 +283,34 @@ Alert.alert('Upload Failed', 'Failed to upload image.');
             </Modal>
                 
       </View>
-      
       <View style={styles.content}>
         <View style={styles.infoContainer}>
-          <Text style={styles.infoLabel}>Email:</Text>
-          <Text style={styles.infoValue}> {userData.email}</Text>
+          <Text style={styles.infoLabel}>Email: {userData.email}</Text>
         </View>
         <View style={styles.infoContainer}>
-          <Text style={styles.infoLabel}>Phone Number:</Text>
-          <Text style={styles.infoValue}>{userData.phone_number}</Text>
+          <Text style={styles.infoLabel}>Phone Number: {userData.phone_number}</Text>
         </View>
         <View style={styles.infoContainer}>
-          <Text style={styles.infoLabel}>Cái gì đó chưa nghĩ ra có thể là hiển thị cái qq gì đó:</Text>
-          <Text style={styles.infoValue}>Đẹp trai có gì sai.</Text>
+          <Text style={styles.infoLabel}>Mô Tả:</Text>
+          <TextInput
+            style={styles.textInput}
+            placeholder="Nhập mô tả sản phẩm..."
+            placeholderTextColor="#888"
+          />
         </View>
+
       </View>
 
       <TouchableOpacity style={styles.button} onPress={openChangePasswordModal}>
         <Text style={styles.buttonText}>Change Password</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.buttonlogout}>
+      <TouchableOpacity style={styles.iconvatextsave}>
+      <Text style={styles.texticonsave}>Save All</Text>
+      <Ionicons name='save' style={styles.iconsave} size={35} color="#EA7575" onPress={() => handleChangeAvatar()} />
+      
+      </TouchableOpacity>
+      <TouchableOpacity  onPress={handleLogout} style={styles.buttonlogout}>
       <Text style={styles.buttonTextlogout}>Log Out</Text>
        <Ionicons name='exit-outline' title="Logout" size={40} color="#E0E0E0" style={styles.iconlogout} onPress={handleLogout} />
       </TouchableOpacity>
