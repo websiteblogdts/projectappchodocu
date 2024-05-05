@@ -11,8 +11,39 @@ const ProductDetailUser = ({ route, navigation }) => {
   const { reloadProducts } = route.params;
   const [categoryName, setCategoryName] = useState('');
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+ 
 
-  React.useEffect(() => {
+  useEffect(() => {
+    // Lấy ID của sản phẩm từ tham số định tuyến
+    const productId = route.params.productId;
+    fetchProduct(productId);
+
+    // Thiết lập nút "Reload" trong header
+    navigation.setOptions({
+      headerRight: () => (
+        <Button onPress={handleReload} title="Reload" color="#000" />
+      ),
+    });
+  }, []);
+
+  const handleReload = () => { 
+    const productId = route.params.productId;
+    fetchProduct(productId);
+  };
+
+  // useEffect(() => {
+  //   navigation.setOptions({
+  //     headerRight: () => (
+  //       <Button
+  //         onPress={reloadProducts}
+  //         title="Reload"
+  //         color="black"
+  //       />
+  //     ),
+  //   });
+  // }, []);
+
+  useEffect(() => {
     // Lấy ID của sản phẩm từ tham số định tuyến
     const productId = route.params.productId;
     fetchProduct(productId);

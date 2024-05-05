@@ -203,18 +203,21 @@ const ListUser = () => {
             <TextInput
               style={styles.input}
               placeholder="Name"
+              placeholderTextColor="#888"
               value={editUserData.name}
               onChangeText={(text) => setEditUserData({ ...editUserData, name: text })}
             />
             <TextInput
               style={styles.input}
               placeholder="Email"
+              placeholderTextColor="#888"
               value={editUserData.email}
               onChangeText={(text) => setEditUserData({ ...editUserData, email: text })}
             />
           <TextInput 
             style={styles.input}
             placeholder="Phone Number"
+            placeholderTextColor="#888"
             keyboardType="numeric"
             value={editUserData.phone_number}
             onChangeText={(text) => setEditUserData({ ...editUserData, phone_number: text})}
@@ -222,6 +225,7 @@ const ListUser = () => {
             <TextInput
               style={styles.input}
               placeholder="New Password"
+              placeholderTextColor="#888"
               secureTextEntry={true}
               value={editUserData.password}
               onChangeText={(text) => setEditUserData({ ...editUserData, password: text })}
@@ -229,6 +233,7 @@ const ListUser = () => {
             <TextInput
               style={styles.input}
               placeholder="Reward Points"
+              placeholderTextColor="#888"
               value={editUserData.reward_points}
               onChangeText={(text) => setEditUserData({ ...editUserData, reward_points: text })}
             />
@@ -277,21 +282,13 @@ const styles = StyleSheet.create({
   },
   userContainer: {
     backgroundColor: '#414141',
-    borderRadius: 6,
+    borderRadius: 16,
     marginBottom: 15,
     marginHorizontal: 2,
     padding: 10,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-    // flexDirection: 'row',
-    // justifyContent: 'space-between',
-    // alignItems: 'center'
+    elevation: 12,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   name: {
     color: '#fff',
@@ -307,6 +304,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 8,
   },
+ 
   emptyText: {
     fontSize: 16,
     textAlign: 'center',
@@ -327,16 +325,19 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.5)',
   },
   modalContent: {
-    backgroundColor: '#fff',
+    backgroundColor: '#3B3B3B',
     borderRadius: 10,
     padding: 20,
     width: '80%',
+    color: "white"
   },
   modalTitle: {
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 20,
     textAlign: 'center',
+    color: "white"
+
   },
   input: {
     borderWidth: 1,
@@ -345,9 +346,10 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 15,
     marginBottom: 15,
+    color: "white"
   },
   saveButton: {
-    backgroundColor: '#1E90FF',
+    backgroundColor: 'gray',
     borderRadius: 5,
     paddingVertical: 12,
     marginBottom: 10,

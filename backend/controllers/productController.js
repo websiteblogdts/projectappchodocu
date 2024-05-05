@@ -84,7 +84,7 @@ exports.createProduct = async (req, res) => {
             return res.status(400).json({ error: "Kiểm tra xem bạn có để trống cái gì chưa điền không nhé sơn <3" });
         }
         if (!Array.isArray(images) || images.length === 0) {
-            return res.status(400).json({ error: "Chưa có hình ảnh được chọn." });
+            return res.status(400).json({ error: "Chưa có hình ảnh được chọn. Cần ít nhất 1 ảnh" });
         }
         // Ensure price is a non-negative number
         if (typeof price !== 'number' || price < 0) {

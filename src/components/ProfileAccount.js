@@ -125,8 +125,8 @@ const styles = StyleSheet.create({
       fontSize: 20,
       color: '#fff',
       textAlign: 'center',
-      fontWeight: 'bold',
-      fontFamily: 'josefin-sans',
+      // fontWeight: 'bold',
+      fontFamily: 'ConcertOne',
       fontSize: 16, 
     },
     buttonlogout:{

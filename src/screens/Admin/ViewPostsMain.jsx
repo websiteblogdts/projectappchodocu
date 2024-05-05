@@ -138,7 +138,12 @@ const ViewPostsMain = () => {
 
   return (
     <View style={styles.container}>
-      <Button title={approved ? "Show Unapproved" : "Show Approved"} onPress={toggleApproved} />
+<Button
+  title={approved ? "Show Unapproved" : "Show Approved"}
+  onPress={toggleApproved}
+  style={styles.buttonshowhide}
+  color={approved ? "#FF5733" : "#4CAF50"}
+/>
       {products.length === 0 ? (
         <Text style={styles.emptyText}>Danh sách trống</Text>
       ) : (
@@ -165,6 +170,12 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
     backgroundColor: '#3B3B3B',
+  },
+  buttonshowhide: {
+    borderRadius: 10, // Độ bo viền
+    paddingVertical: 10, // Khoảng cách dọc
+    paddingHorizontal: 20, // Khoảng cách ngang
+    fontSize: 16, // Kích thước chữ
   },
   productContainer: {
     width: 160, // chiều rộng cố định

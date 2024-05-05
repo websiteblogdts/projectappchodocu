@@ -61,6 +61,15 @@ const AddProduct = () => {
 
   const handleSubmit = async () => {
     try {
+      console.log("Images:", images);
+      console.log("Uploaded image:", uploadedImage)
+      console.log("Name:", name);
+      console.log("Price:", price);
+      console.log("Description:", description);
+      console.log("Category:", category);
+      console.log("Selected province:", selectedProvince);
+      console.log("Selected district:", selectedDistrict);
+      console.log("Selected ward:", selectedWard);
       console.log("Images before sending:", images);
       console.log("Sending product data:", {
         name, price, description, images, category, address: { province: selectedProvince, district: selectedDistrict, ward: selectedWard }
@@ -170,6 +179,7 @@ const handleUploadNhieuAnh = async (image) => {
       setImages(prevImages => [...prevImages, response.data.secure_url]);
       setUploadedImage(response.data.secure_url);
       Alert.alert('Upload Successful', 'Your image has been uploaded successfully!');
+      console.log("Uploaded image:", image); // Log ra ảnh được chọn để upload
       setModal(false)
     } else {
       setModal(false)
@@ -202,7 +212,9 @@ const _uploadImage = async () => {
   });
 
   if (!result.cancelled) {
-    handleUploadNhieuAnh(result.assets[0]); // Gọi hàm handleUpload với đối tượng ảnh thu được
+    handleUploadNhieuAnh(result.assets[0]); 
+    console.log("Uploaded image:", result.assets[0]);
+    // Gọi hàm handleUpload với đối tượng ảnh thu được
   } else {
     console.log("Image selection was cancelled");
   }
@@ -225,6 +237,8 @@ const _takePhoto = async () => {
   if (!result.cancelled) {
       // handleUpload(result.assets[0]);
       handleUploadNhieuAnh(result.assets[0]);
+      console.log("Uploaded image:", result.assets[0]);
+
     } else {
       console.log("Image selection was cancelled");
     }
@@ -236,7 +250,9 @@ const _takePhoto = async () => {
       const width = event.nativeEvent.layoutMeasurement.width;
       const index = Math.floor(scrollPosition / width);
       setCurrentImageIndex(index);
+      console.log("Current image index:", currentImageIndex);
     };
+
 
 return (
 <View style={styles.container}>
@@ -319,39 +335,41 @@ return (
         
      <View style={styles.containeraddress}>
      <Text style={styles.addressLabel}>Address</Text>
-    <Picker
-      selectedValue={selectedProvince}
-      onValueChange={handleProvinceChange}
-      style={styles.addressSelect}
-    >
-      <Picker.Item label="Select Province" value="" />
-      {provinces.map((province) => (
-        <Picker.Item key={province.id} label={province.Name} value={province.Name} />
-      ))}
-    </Picker>
+
+     <Picker
+        selectedValue={selectedProvince}
+        onValueChange={handleProvinceChange}
+        style={styles.addressSelect}
+      >
+        <Picker.Item key="selectProvince" label="Select Province" value="" />
+        {provinces.map((province) => (
+          <Picker.Item key={province.Name} label={province.Name} value={province.Name} />
+        ))}
+      </Picker>
 
       <Picker
-        selectedValue={selectedDistrict}
-        onValueChange={handleDistrictChange}
-        style={styles.addressSelect}
+          selectedValue={selectedDistrict}
+          onValueChange={handleDistrictChange}
+          style={styles.addressSelect}
+        >
+          <Picker.Item key="selectDistrict" label="Select District" value="" />
+          {districts && districts.map((district) => (
+            <Picker.Item key={district.Name} label={district.Name} value={district.Name} />
+          ))}
+        </Picker>
 
-      >
-    <Picker.Item label="Select District" value="" />
-    {districts && districts.map((district) => (
-     <Picker.Item key={district.id} label={district.Name} value={district.Name} />
-    ))}
-    </Picker>
+        <Picker
+          selectedValue={selectedWard}
+          onValueChange={handleWardChange}
+          style={styles.addressSelect}
+        >
+          <Picker.Item key="selectWard" label="Select Ward" value="" />
+          {wards && wards.map((ward) => (
+            <Picker.Item key={ward.Name} label={ward.Name} value={ward.Name} />
+          ))}
+        </Picker>
 
-    <Picker
-      selectedValue={selectedWard}
-      onValueChange={handleWardChange}
-      style={styles.addressSelect}
-    >
-      <Picker.Item label="Select Ward" value="" />
-      {wards && wards.map((ward) => (
-  <Picker.Item key={ward.id} label={ward.Name} value={ward.Name} />
-))}
-    </Picker>
+
     </View>
   </View>
 </View>
@@ -364,13 +382,14 @@ return (
         onScroll={handleScroll}
       >
         {images.map((imageUri, index) => (
-          <View key={index} style={styles.imageContainerdelete}>
+          <View key={imageUri} style={styles.imageContainerdelete}>
             <Image source={{ uri: imageUri }} style={styles.imagedelete} resizeMode="contain" />
             <TouchableOpacity style={styles.deleteButton} onPress={() => handleRemoveImage(index)}>
               <Ionicons name="trash-bin" size={30} color="gray" />
             </TouchableOpacity>
           </View>
         ))}
+
       </ScrollView>
       
       <View style={styles.indicatorContainer}>
