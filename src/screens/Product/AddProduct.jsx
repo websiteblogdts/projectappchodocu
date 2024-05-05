@@ -61,19 +61,19 @@ const AddProduct = () => {
 
   const handleSubmit = async () => {
     try {
-      console.log("Images:", images);
-      console.log("Uploaded image:", uploadedImage)
-      console.log("Name:", name);
-      console.log("Price:", price);
-      console.log("Description:", description);
-      console.log("Category:", category);
-      console.log("Selected province:", selectedProvince);
-      console.log("Selected district:", selectedDistrict);
-      console.log("Selected ward:", selectedWard);
-      console.log("Images before sending:", images);
-      console.log("Sending product data:", {
-        name, price, description, images, category, address: { province: selectedProvince, district: selectedDistrict, ward: selectedWard }
-      });
+      // console.log("Images:", images);
+      // console.log("Uploaded image:", uploadedImage)
+      // console.log("Name:", name);
+      // console.log("Price:", price);
+      // console.log("Description:", description);
+      // console.log("Category:", category);
+      // console.log("Selected province:", selectedProvince);
+      // console.log("Selected district:", selectedDistrict);
+      // console.log("Selected ward:", selectedWard);
+      // console.log("Images before sending:", images);
+      // console.log("Sending product data:", {
+      //   name, price, description, images, category, address: { province: selectedProvince, district: selectedDistrict, ward: selectedWard }
+      // });
       const userToken = await AsyncStorage.getItem('userToken');
       if (!userToken) {
         Alert.alert('Error', 'No user token found. Please login again.');
@@ -166,7 +166,6 @@ const handleUploadNhieuAnh = async (image) => {
   });
   formData.append('upload_preset', 'ackgbz0m');
   formData.append('cloud_name', 'dvm8fnczy');
-
   try {
     const response = await axios.post("https://api.cloudinary.com/v1_1/dvm8fnczy/image/upload", formData, {
       headers: {
@@ -175,7 +174,7 @@ const handleUploadNhieuAnh = async (image) => {
     });
 
     if (response.status === 200) {
-      console.log("Upload successful: ", response.data);
+      // console.log("Upload successful: ", response.data);
       setImages(prevImages => [...prevImages, response.data.secure_url]);
       setUploadedImage(response.data.secure_url);
       Alert.alert('Upload Successful', 'Your image has been uploaded successfully!');
@@ -213,10 +212,10 @@ const _uploadImage = async () => {
 
   if (!result.cancelled) {
     handleUploadNhieuAnh(result.assets[0]); 
-    console.log("Uploaded image:", result.assets[0]);
+    // console.log("Uploaded image:", result.assets[0]);
     // Gọi hàm handleUpload với đối tượng ảnh thu được
   } else {
-    console.log("Image selection was cancelled");
+    // console.log("Image selection was cancelled");
   }
 };
 
@@ -237,10 +236,10 @@ const _takePhoto = async () => {
   if (!result.cancelled) {
       // handleUpload(result.assets[0]);
       handleUploadNhieuAnh(result.assets[0]);
-      console.log("Uploaded image:", result.assets[0]);
+      // console.log("Uploaded image:", result.assets[0]);
 
     } else {
-      console.log("Image selection was cancelled");
+      // console.log("Image selection was cancelled");
     }
   };
 
@@ -250,7 +249,7 @@ const _takePhoto = async () => {
       const width = event.nativeEvent.layoutMeasurement.width;
       const index = Math.floor(scrollPosition / width);
       setCurrentImageIndex(index);
-      console.log("Current image index:", currentImageIndex);
+      // console.log("Current image index:", currentImageIndex);
     };
 
 
@@ -298,17 +297,22 @@ return (
 </View>
 
     <View style={styles.details}>
-       
+    <View style={styles.inputContainer}>
+    {/* <Text style={styles.tieude} >TITLE </Text> */}
         <TextInput
-          style={styles.inputtext}
-          placeholder="Name"
+          style={styles.inputname}
+          placeholder="Enter a title for the article/product"
           placeholderTextColor="#888"
           value={name}
           onChangeText={text => setName(text)}
+          maxLength={40}  // Giới hạn nhập tối đa 40 ký tự
         />
+        <Text style={styles.charCount}>
+          {name.length}/40
+        </Text>
+      </View>
 
         <View style={styles.category}>
-
           <Picker
             selectedValue={category}
             onValueChange={(itemValue) => setCategory(itemValue)}
@@ -389,7 +393,6 @@ return (
             </TouchableOpacity>
           </View>
         ))}
-
       </ScrollView>
       
       <View style={styles.indicatorContainer}>

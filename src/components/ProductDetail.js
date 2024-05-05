@@ -1,85 +1,83 @@
-import { StyleSheet } from 'react-native';
-
+import { StyleSheet,Dimensions } from 'react-native';
+import * as Font from 'expo-font';
+Font.loadAsync({
+  'GreatVibes': require('./../../assets/fonts/GreatVibes-Regular.ttf'),
+  'Honk': require('./../../assets/fonts/Honk-Regular-VariableFont_MORF,SHLN.ttf'),
+  'BlackOpsOne': require('./../../assets/fonts/BlackOpsOne-Regular.ttf'),
+  'BungeeShade': require('./../../assets/fonts/BungeeShade-Regular.ttf'),
+  'ConcertOne': require('./../../assets/fonts/ConcertOne-Regular.ttf'), 
+ 
+});
 const styles = StyleSheet.create({
-    container: {
-      flexGrow: 1,
-      padding: 16,
-      borderColor: 'black',
-      backgroundColor: '#3B3B3B',
+  container: {
+    flex: 1,
+    backgroundColor: '#3B3B3B',
+  },
+  buttonContainer:{
+    flexDirection: 'row',
+  },
+  imageContainer: {
+    height: 280,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  image: {
+    width: Dimensions.get('window').width,
+    height: '100%',
+  },
+  imageIndicatorContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginVertical: 10,
+  },
+  imageIndicator: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    marginHorizontal: 5,
+    backgroundColor: '#ccc',
+  },
+  activeImageIndicator: {
+    backgroundColor: '#000',
+  },
+  name: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    color: 'white', 
+  },
+  price: {
+    fontFamily: 'ConcertOne',
+    fontSize: 35,
+    color: 'white', 
+    marginBottom: 10,
+  },
+  descriptionContainer: {
+    maxHeight: 150, // chỉnh ô mô tả to bé đẩy cái chấm chấm kia lên cao
+    marginBottom: 30,
 
-    },
-    name: {
-      color: 'white', 
-      fontSize: 18,
-      fontWeight: 'bold',
-      marginBottom: 8,
-    },
-    price: {
-      color: 'white', 
+  },
+  description: {
+    fontSize: 16,
+    color: 'white', 
+    backgroundColor:"#414141",
+    borderWidth:1,
+    borderColor:"black",
+    // 4C4C4C
+  },
+  category: {
+    fontSize: 18,
+    marginBottom: 10,
+    color: 'white', 
+    fontFamily: 'ConcertOne',
 
-      fontSize: 16,
-      marginBottom: 8,
-    },
-    descriptionContainer: {
-      maxHeight: 105,
-      marginBottom: 8,
-    },
-    description: {
-      color: 'white',  
-      fontSize: 14,
-    },
-    imageContainer: {
-      alignItems: 'center',
-      justifyContent: 'center',
-      width: 350,
-      height: 250,
-      
-    },
-    image: {
-      width: '100%',
-      height: '100%',
-      aspectRatio: 4 / 3,
-    },
-    imageIndex: {
-      position: 'absolute',
-      bottom: 8,
-      right: 8,
-      color: 'blue',
-      fontSize: 16,
-      fontWeight: 'bold',
-      
-    },
-    imageIndicatorContainer: {
-      flexDirection: 'row',
-      justifyContent: 'center',
-      alignItems: 'center',
-      marginTop: 8,
-    },
-    imageIndicator: {
-      width: 10,
-      height: 10,
-      borderRadius: 5,
-      marginHorizontal: 5,
-    },
-    category: {
-      color: 'white', 
-      fontSize: 16,
-      fontWeight: 'bold',
-      marginTop: 8,
-    },
-    address: {
-      color: 'white', 
+  },
+  address: {
+    fontSize: 16,
+    marginBottom: 20,
+    color: 'white', 
 
-      fontSize: 14,
-      marginTop: 4,
-      marginBottom: 16,
-    },
-    buttonContainer: {
-      flexDirection: 'row',
-      marginTop: 16,
-    },
-    updateButton: {
-      marginRight: 8,
-    },
-  });
+  },
+});
+
   export default styles;

@@ -11,43 +11,36 @@ const ProductDetailUser = ({ route, navigation }) => {
   const { reloadProducts } = route.params;
   const [categoryName, setCategoryName] = useState('');
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
- 
 
-  useEffect(() => {
-    // Lấy ID của sản phẩm từ tham số định tuyến
-    const productId = route.params.productId;
-    fetchProduct(productId);
-
-    // Thiết lập nút "Reload" trong header
-    navigation.setOptions({
-      headerRight: () => (
-        <Button onPress={handleReload} title="Reload" color="#000" />
-      ),
-    });
-  }, []);
-
-  const handleReload = () => { 
-    const productId = route.params.productId;
-    fetchProduct(productId);
-  };
-
-  // useEffect(() => {
-  //   navigation.setOptions({
-  //     headerRight: () => (
-  //       <Button
-  //         onPress={reloadProducts}
-  //         title="Reload"
-  //         color="black"
-  //       />
-  //     ),
-  //   });
-  // }, []);
 
   useEffect(() => {
     // Lấy ID của sản phẩm từ tham số định tuyến
     const productId = route.params.productId;
     fetchProduct(productId);
   }, [route.params.productId]);
+ 
+   
+    useEffect(() => {
+      navigation.setOptions({
+        headerRight: () => (
+          <View style={{ flexDirection: 'row' }}>
+          <FontAwesome
+            name="edit"
+            size={30}
+            color="gray"
+            onPress={handleUpdateProduct}
+            style={{ marginRight: 10 }} // Thêm một chút khoảng cách giữa các nút
+          />
+           <Ionicons
+            name="trash-bin"
+            size={30}
+            color="gray"
+            onPress={handleDeleteProduct}
+          />
+        </View>
+          ),
+      });
+    },);
 
 const fetchCategoryName = async (categoryId) => {
     try {
@@ -141,52 +134,57 @@ const deleteProduct = async (productId) => {
         key={index}
         style={[
           styles.imageIndicator,
-          { backgroundColor: currentImageIndex === index ? '#000' : '#ccc' }
+          currentImageIndex === index ? styles.activeImageIndicator : null
         ]}
       />
     ));
   };
   
+ 
   return (
+    
     <ScrollView contentContainerStyle={styles.container}>
+       <View style={styles.buttonContainer}>
+        <FontAwesome title="Cập nhật" name="edit" onPress={handleUpdateProduct} size={30} color="gray" style={styles.updateButton} />
+        <Ionicons title="Xóa" name="trash-bin" size={30} color="gray" onPress={handleDeleteProduct} />
+      </View>
       {product ? (
         <>
-        <View style={styles.buttonContainer}>
-            <FontAwesome title="Cập nhật" name="edit" onPress={handleUpdateProduct} size={30} color="gray" style={styles.updateButton} />
-            <Ionicons title="Xóa" name="trash-bin" size={30} color="gray" onPress={handleDeleteProduct} />
-          </View>
-          <Text style={styles.name}>{product.name}</Text>
-          <Text style={styles.price}>${product.price}</Text>
-          <ScrollView style={styles.descriptionContainer}>
-            <Text style={styles.description}>{product.description}</Text>
-          </ScrollView>
-             <ScrollView
-            contentContainerStyle={styles.container}
-            horizontal // tắt này đi thì ảnh sẻ hiển thị dọc chứ không trược ngang.
+            <ScrollView
+            contentContainerStyle={styles.containerkhungimage}
+            horizontal
             pagingEnabled
             showsHorizontalScrollIndicator={false}
             onScroll={handleImageSwipe}
           >
             {product && product.images.map((image, index) => (
               <View key={index} style={styles.imageContainer}>
-                <Image source={{ uri: image }} style={styles.image} />
+                <Image source={{ uri: image }} style={styles.image}/>
                 <Text style={styles.imageIndex}>{index + 1}/{product.images.length}</Text>
               </View>
             ))}
           </ScrollView>
+
           <View style={styles.imageIndicatorContainer}>
             {renderImageIndicators()}
           </View>
-
-          <Text style={styles.category}>Category: {categoryName}</Text> 
+          
+          <Text style={styles.name}>{product.name}</Text>
+          <Text style={styles.price}>${product.price}</Text>
+          <Text style={styles.category}>Category: {categoryName}</Text>
           <Text style={styles.address}>Address: {product.address.province}, {product.address.district}, {product.address.ward}</Text>
+ 
+          <ScrollView style={styles.descriptionContainer}>
+            <Text style={styles.description}>{product.description}</Text>
+          </ScrollView>
+        
         </>
       ) : (
         <Text>Loading...</Text>
       )}
     </ScrollView>
   );
+  
 };
-
 
 export default ProductDetailUser;

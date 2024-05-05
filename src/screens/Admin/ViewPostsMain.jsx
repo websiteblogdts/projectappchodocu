@@ -22,6 +22,19 @@ const ViewPostsMain = () => {
     return unsubscribe;
   }, [navigation, approved]);
 
+  useEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+       <Button
+          title={approved ? "Show Unapproved" : "Show Approved"}
+          onPress={toggleApproved}
+          style={styles.buttonshowhide}
+          color={approved ? "#FF5733" : "#4CAF50"}
+        />
+        ),
+    });
+  },);
+
   const fetchProducts = async (approved) => {
     try {            
       const userToken = await AsyncStorage.getItem('userToken');
@@ -128,7 +141,9 @@ const ViewPostsMain = () => {
             resizeMode="cover"
           />
         )}
-          <Text style={styles.name}>{item.name}</Text>
+          <Text style={styles.name} numberOfLines={2} ellipsizeMode="tail">
+          {item.name}
+        </Text>
           <Text style={styles.price}>${item.price}</Text>
         </View>
 
@@ -138,12 +153,12 @@ const ViewPostsMain = () => {
 
   return (
     <View style={styles.container}>
-<Button
+{/* <Button
   title={approved ? "Show Unapproved" : "Show Approved"}
   onPress={toggleApproved}
   style={styles.buttonshowhide}
   color={approved ? "#FF5733" : "#4CAF50"}
-/>
+/> */}
       {products.length === 0 ? (
         <Text style={styles.emptyText}>Danh sách trống</Text>
       ) : (
@@ -178,10 +193,8 @@ const styles = StyleSheet.create({
     fontSize: 16, // Kích thước chữ
   },
   productContainer: {
-    width: 160, // chiều rộng cố định
-    height: 250, // chiều cao cố định
-    // flex: 1,  // Cho phép container mở rộng để lấp đầy không gian khả dụng
-    // minHeight: 250, // Đặt chiều cao tối thiểu để đảm bảo tính nhất quán
+    width: 160, 
+    height: 250, 
     backgroundColor: '#FFE4C4',
     borderRadius: 6,
     marginBottom: 15,
@@ -197,19 +210,20 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   status: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: 'bold',
     textAlign: 'center',
     color: '#888', 
-    marginTop: 5,
   },
   name: {
-    fontSize: 18,
+    fontSize: 15,
     fontWeight: 'bold',
     marginBottom: 8,
+    flex:1,
   },
   price: {
-    fontSize: 16,
+    fontSize: 15,
+    fontWeight: 'bold',
     marginBottom: 8,
   },
   image: {
@@ -217,7 +231,6 @@ const styles = StyleSheet.create({
     aspectRatio: 1,
     borderRadius: 10, // Bo góc cho hình ảnh
     borderWidth: 2, // Độ dày của viền
-    borderColor: '#EED5B7' // Màu sắc của viền
   },
   emptyText: {
     fontSize: 16,

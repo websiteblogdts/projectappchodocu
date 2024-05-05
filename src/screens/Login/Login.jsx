@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text,SafeAreaView, Image, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, Image, ScrollView, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, SafeAreaView } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage'; 
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import InputField from '../../components/InputField';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import CustomButton from '../../components/CustomButton';
 import config from '../../config/config';
 console.log(process.env.REACT_APP_API_BASE_URL)
@@ -41,8 +41,13 @@ const handleForgotPassword = () => {
 
 
   return (
-    <SafeAreaView style={{flex: 1, justifyContent: 'center'}}>
-      
+    <SafeAreaView style={{flex: 1,backgroundColor:'#3B3B3B', justifyContent: 'center'}}>
+       <KeyboardAvoidingView 
+        style={{flex: 1}}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}
+      >
+        <ScrollView contentContainerStyle={{flexGrow: 1, justifyContent: 'center'}}>
         <View style={styles.logoContainer}>
         <Image
           source={{ uri: "https://res.cloudinary.com/dvm8fnczy/image/upload/v1713510313/vrzu6ljfyvevdfzatyzf.jpg" }}
@@ -53,9 +58,9 @@ const handleForgotPassword = () => {
         <View style={{paddingHorizontal: 25}}>
         <Text
           style={{
-            fontSize: 28,
-            fontWeight: '500',
-            color: '#333',
+            fontSize: 30,
+            fontWeight: 'bold',
+            color: 'white',
             marginBottom: 30,
           }}>
           Login
@@ -65,43 +70,45 @@ const handleForgotPassword = () => {
         <MaterialIcons
           name="alternate-email"
           size={20}
-          color="#666"
+          color="white"
           style={styles.icon}
         />
         <TextInput
           style={styles.input}
           placeholder="Email or SDT"
+          placeholderTextColor="#888"
           value={identifier}
           onChangeText={text => setEmailOrPhone(text)}
         />
          </View>   
 
 
-<View style={styles.inputContainer}>
-  <MaterialIcons
-    name="lock"
-    size={20}
-    color="#666"
-    style={styles.icon}
-  />
-  <TextInput
-    style={styles.input}
-    placeholder="Password"
-    value={password}
-    onChangeText={text => setPassword(text)}
-    secureTextEntry={true}
-  />
-  <TouchableOpacity onPress={() => navigation.navigate('RegisterUser')}>
-        <Text style={styles.forgotPassword}>Forgot?</Text>
-  </TouchableOpacity>
-</View>
+              <View style={styles.inputContainer}>
+                <MaterialIcons
+                  name="lock"
+                  size={20}
+                  color="white"
+                  style={styles.icon}
+                />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Password"
+                  placeholderTextColor="#888"
+                  value={password}
+                  onChangeText={text => setPassword(text)}
+                  secureTextEntry={true}
+                />
+                <TouchableOpacity onPress={() => navigation.navigate('RegisterUser')}>
+                      <Text style={styles.forgotPassword}>Forgot?</Text>
+                </TouchableOpacity>
+              </View>
 
 
- <CustomButton label={"Login"} onPress={handleLogin} />
+              <CustomButton label={"Login"} onPress={handleLogin} />
 
 
      
-      <Text style={{textAlign: 'center', color: '#666', marginBottom: 30}}>
+      <Text style={{textAlign: 'center', color: '#888', marginBottom: 30}}>
           Or, login with ...
         </Text>
 
@@ -120,9 +127,9 @@ const handleForgotPassword = () => {
               paddingHorizontal: 60,
               paddingVertical: 10,
             }}>
-              <Image height={24} width={24}
-          source={{ uri: "https://banner2.cleanpng.com/20180423/gkw/kisspng-google-logo-logo-logo-5ade7dc753b015.9317679115245306313428.jpg" }}
-        />
+        <MaterialCommunityIcons name="google" 
+        title="google" size={30} color="#EA7575"   onPress={() => {}} />
+
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => {}}
@@ -133,10 +140,8 @@ const handleForgotPassword = () => {
               paddingHorizontal: 60,
               paddingVertical: 10,
             }}>
-<Image height={24} width={24}
-          source={{ uri: "https://w7.pngwing.com/pngs/480/615/png-transparent-facebook-logo-facebook-computer-icons-desktop-s-icon-facebook-blue-text-trademark.png" }}
-          
-        />
+        <MaterialCommunityIcons name="facebook" 
+        title="google" size={30} color="#75ABEA"   onPress={() => {}} />
           </TouchableOpacity>
          
         </View>
@@ -153,12 +158,15 @@ const handleForgotPassword = () => {
           </TouchableOpacity>
         </View>
     </View>
+    </ScrollView>
+    </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    backgroundColor: "gray",
     flex: 0.3,
     justifyContent: 'center',
     alignItems: 'center',
@@ -171,15 +179,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     marginBottom: 20,
   },
-  input: {
-    width: '80%',
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
-    borderRadius: 5,
-    marginBottom: 20,
-    paddingHorizontal: 10,
-  },
+
   button: {
     backgroundColor: 'blue',
     padding: 10,
@@ -218,8 +218,10 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#ccc',
     marginBottom: 10,
+    
   },
   input: {
+    color:'white',
     flex: 1,
     paddingVertical: 8,
     paddingHorizontal: 12,

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, View,Alert, Text, TextInput, TouchableOpacity, StyleSheet, Button, Image } from 'react-native';
+import { Modal, View, Alert, Text, TextInput, TouchableOpacity, StyleSheet, Button, Image, KeyboardAvoidingView, Platform } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
 import Icon from 'react-native-vector-icons/FontAwesome'
@@ -24,6 +26,13 @@ function UserProfileScreen({ navigation }) {
   const [modal, setModal] = useState(false);
 
   useEffect(() => {
+
+    navigation.setOptions({
+      headerRight: () => (
+        <Ionicons name='log-out' title="Logout" size={40} color="#EA7575" style={styles.iconlogout} onPress={handleLogout} />
+        ),
+    });
+
     if (userData && userData.avatar_image) {
         setCurrentAvatar(userData.avatar_image);
         // Đặt URL avatar ban đầu khi tải dữ liệu người dùng
@@ -241,8 +250,15 @@ Alert.alert('Upload Failed', 'Failed to upload image.');
   }
 
   return (
+    <KeyboardAwareScrollView
+    style={{ flex: 1}}
+    extraScrollHeight={1}
+    // enableOnAndroid={true}
+    keyboardShouldPersistTaps='handled'
     
+  >
     <View style={styles.container}>
+  
      
         <Image
         source={{ uri: 
@@ -263,7 +279,7 @@ Alert.alert('Upload Failed', 'Failed to upload image.');
           </TouchableOpacity>
           <View style={styles.nameandbutton}>
               <Text style={[styles.name, styles.textWithShadow]}>{userData.name}</Text>  
-              <Ionicons name='checkmark-circle' size={30} color="#EA7575" style={styles.uploadIcon} onPress={() => dautichxacminhtaikhoan()} />
+              <Ionicons name='checkmark-circle' size={27} color="#EA7575" style={styles.uploadIcon} onPress={() => dautichxacminhtaikhoan()} />
           </View>
           
           <Text style={styles.reward_points}>Points: {userData.reward_points}</Text>
@@ -296,6 +312,8 @@ Alert.alert('Upload Failed', 'Failed to upload image.');
             style={styles.textInput}
             placeholder="Nhập mô tả sản phẩm..."
             placeholderTextColor="#888"
+            textAlignVertical="top"
+            multiline
           />
         </View>
 
@@ -310,10 +328,10 @@ Alert.alert('Upload Failed', 'Failed to upload image.');
       <Ionicons name='save' style={styles.iconsave} size={35} color="#EA7575" onPress={() => handleChangeAvatar()} />
       
       </TouchableOpacity>
-      <TouchableOpacity  onPress={handleLogout} style={styles.buttonlogout}>
+      {/* <TouchableOpacity  onPress={handleLogout} style={styles.buttonlogout}>
       <Text style={styles.buttonTextlogout}>Log Out</Text>
        <Ionicons name='exit-outline' title="Logout" size={40} color="#E0E0E0" style={styles.iconlogout} onPress={handleLogout} />
-      </TouchableOpacity>
+      </TouchableOpacity> */}
 
       <Modal
         animationType="slide"
@@ -366,7 +384,8 @@ Alert.alert('Upload Failed', 'Failed to upload image.');
         </View>
       </Modal>   
     </View>
-   
+    </KeyboardAwareScrollView>
+
   );
 }
 

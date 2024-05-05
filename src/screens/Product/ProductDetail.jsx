@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Text, StyleSheet, Image, ScrollView ,View  } from 'react-native';
+import { Text,  Image, ScrollView ,View  } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import styles from '../../components/ProductDetail';
 import config from '../../config/config';
@@ -46,29 +46,25 @@ const ProductDetail = ({ route }) => {
     setCurrentImageIndex(imageIndex);
   };
 
-  const renderImageIndicators = () => {
-    return product.images.map((image, index) => (
-      <View
-        key={index}
-        style={[
-          styles.imageIndicator,
-          { backgroundColor: currentImageIndex === index ? '#000' : '#ccc' }
-        ]}
-      />
-    ));
-  };
+const renderImageIndicators = () => {
+  return product.images.map((image, index) => (
+    <View
+      key={index}
+      style={[
+        styles.imageIndicator,
+        currentImageIndex === index ? styles.activeImageIndicator : null
+      ]}
+    />
+  ));
+};
+
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
       {product ? (
         <>
-          <Text style={styles.name}>{product.name}</Text>
-          <Text style={styles.price}>${product.price}</Text>
-          <ScrollView style={styles.descriptionContainer}>
-            <Text style={styles.description}>{product.description}</Text>
-          </ScrollView>
             <ScrollView
-            contentContainerStyle={styles.container}
+            contentContainerStyle={styles.containerkhungimage}
             horizontal
             pagingEnabled
             showsHorizontalScrollIndicator={false}
@@ -76,16 +72,24 @@ const ProductDetail = ({ route }) => {
           >
             {product && product.images.map((image, index) => (
               <View key={index} style={styles.imageContainer}>
-                <Image source={{ uri: image }} style={styles.image} />
+                <Image source={{ uri: image }} style={styles.image}/>
                 <Text style={styles.imageIndex}>{index + 1}/{product.images.length}</Text>
               </View>
             ))}
           </ScrollView>
+
           <View style={styles.imageIndicatorContainer}>
             {renderImageIndicators()}
           </View>
-          <Text style={styles.category}>Category: {categoryName}</Text> 
+          
+          <Text style={styles.name}>{product.name}</Text>
+          <Text style={styles.price}>${product.price}</Text>
+          <Text style={styles.category}>Category: {categoryName}</Text>
           <Text style={styles.address}>Address: {product.address.province}, {product.address.district}, {product.address.ward}</Text>
+ 
+          <ScrollView style={styles.descriptionContainer}>
+            <Text style={styles.description}>{product.description}</Text>
+          </ScrollView>
         
         </>
       ) : (

@@ -33,7 +33,7 @@ const ProductListByUser = () => {
       }
   
       const data = await response.json();
-      console.log('Dữ liệu sản phẩm:', data);
+      // console.log('Dữ liệu sản phẩm:', data);
       setProducts(data);
     } catch (error) {
       console.error('Error fetching products:', error);
@@ -67,13 +67,6 @@ const ProductListByUser = () => {
 
     const backgroundColor = item.admin_approved ? '#C1FFC1' : '#414141'; // Màu xám nếu chưa được duyệt
   
-    // const ProductImage = ({ imageUri }) => (
-  //   <Image
-  //     source={{ uri: imageUri }}
-  //     style={styles.image}
-  //     resizeMode="cover"
-  //   />
-  // );
     return (
       <TouchableOpacity onPress={() => navigateToProductDetail(item._id)}>
         <View style={[styles.productContainer, { width: itemWidth, backgroundColor: backgroundColor }]}>

@@ -22,11 +22,13 @@ import CategoryManager from './src/screens/Admin/CategoryManager';
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
+
 // Màn hình Home Stack khai báo gì thì dùng được cái đó, khai báo mới hiển thị được.
 //dành cho user
 function HomeStack() {
   return (
-    <Stack.Navigator>
+    <Stack.Navigator screenOptions={defaultHeaderOptions}>
+
       <Stack.Screen name="ProductList" component={ProductList} options={{ headerShown: true ,title: 'View Product List'}} />
       <Stack.Screen name="ProductDetail" component={ProductDetail} options={{ headerShown: true ,title: 'View Product List'}}/>
     </Stack.Navigator>
@@ -34,66 +36,50 @@ function HomeStack() {
 }
 function CreateProduct(){
     return(
-      <Stack.Navigator>
-        <Stack.Screen name="AddProduct" component={AddProduct} options={{ headerShown: false }} />
+  
+      <Stack.Navigator screenOptions={defaultHeaderOptions}>
+        <Stack.Screen name="AddProduct" component={AddProduct} options={{ headerShown: true }} />
       </Stack.Navigator>
     );
 }
 function ViewPostProduct() {
   return (
-    <Stack.Navigator>
+    <Stack.Navigator screenOptions={defaultHeaderOptions}>
+
       <Stack.Screen name="ProductListByUser" component={ProductListByUser}  options={{ title: 'Status Post'}} />
       <Stack.Screen name="ProductDetailUser" component={ProductDetailUser} />
       <Stack.Screen name="EditProduct" component={EditProduct} />
     </Stack.Navigator>
   );
 }
-// Bottom Tab Navigator cho user
 function BottomTabsForUser() {
   return (
-    <Tab.Navigator
-      screenOptions={({ route }) => ({
-        tabBarIcon: ({ focused, color, size }) => {
-          let iconName;
+    <Tab.Navigator screenOptions={{tabBarActiveTintColor: '#CB75EA', tabBarInactiveTintColor: 'gray',tabBarStyle: {backgroundColor: '#3B3B3B', }, tabBarShowLabel: false, tabBarIconStyle: { display: 'flex' }}} >
 
-          if (route.name === 'HomeStack') {
-            iconName = focused ? 'shop' : 'shop';
-            // iconName = focused ? 'handshake' : 'handshake';
-            //icon giỏ hàng basket-shopping
-          }
-          if (route.name === 'ProductList') {
-            iconName = focused ? 'basket-shopping' : 'basket-shopping';
-          } else if (route.name === 'CreateProduct') {
-            iconName = focused ? 'circle-plus' : 'circle-plus';
-          } else if (route.name === 'Chat') {
-            iconName = focused ? 'Chat' : 'chatbubble-ellipses-outline';
-          } else if (route.name === 'UserProfileScreen') {
-            iconName = focused ? 'circle-user' : 'circle-user';
-            // address-card
-          }else if (route.name === 'ViewPostProduct') {
-            iconName = focused ? 'list-check' : 'list-check';
-            // ballot-check
-          }
-          return <FontAwesome6 name={iconName} size={size} color={color} />;
-        },
-        tabBarActiveTintColor: '#CB75EA',
-        tabBarInactiveTintColor: 'gray',
-        tabBarStyle: {
-          backgroundColor: '#3B3B3B',
-        }
-      })}
-    >
-      <Tab.Screen name="HomeStack" component={HomeStack} options={{ headerShown: false }} />
-      <Tab.Screen name="CreateProduct" component={CreateProduct}  />
-      <Tab.Screen name="ViewPostProduct" component={ViewPostProduct} options={{ headerShown: false }} />
-      <Tab.Screen name="UserProfileScreen" component={UserProfileScreen} />
+      <Tab.Screen name="HomeStack" component={HomeStack}
+        options={{headerShown: false, tabBarIcon: ({ color, size }) => (<FontAwesome6 name="shop" size={size} color={color} />)}} />
+
+      <Tab.Screen 
+        name="CreateProduct" 
+        component={CreateProduct}
+        options={{headerShown: false, tabBarIcon: ({ color, size }) => (<FontAwesome6 name="circle-plus" size={size} color={color} />)}} />
+     
+      <Tab.Screen name="ViewPostProduct" component={ViewPostProduct}
+        options={{ headerShown: false, tabBarIcon: ({ color, size }) => (<FontAwesome6 name="list-check" size={size} color={color} />)}} />
+  
+      <Tab.Screen name="UserProfileScreen" component={UserProfile} 
+      options={{ headerShown: false, tabBarIcon: ({ color, size }) => ( <FontAwesome6 name="circle-user" size={size} color={color} />)}} />
+      
     </Tab.Navigator>
   );
 }
 
+////////////////////////////////////////////////////ADMIN////////////////////////////////////////////////// 
+
 function HomeStackAdmin() {
   return (
-    <Stack.Navigator>
+    <Stack.Navigator screenOptions={defaultHeaderOptions}>
+
     <Stack.Screen name="Home" component={Home}/> 
     </Stack.Navigator>
   );
@@ -101,7 +87,8 @@ function HomeStackAdmin() {
 
 function Quanlyuser() {
   return (
-    <Stack.Navigator>
+    <Stack.Navigator screenOptions={defaultHeaderOptions}>
+
       <Stack.Screen name="ListUser" component={ListUser} options={{ headerShown: true, title: 'View User List' }} />
       <Stack.Screen name="UserDetail" component={UserDetail} options={{ headerShown: true, title: 'User Details' }}/>
     </Stack.Navigator>
@@ -110,63 +97,50 @@ function Quanlyuser() {
 function QuanlyPost()
 {
   return (
-    <Stack.Navigator>
-      <Tab.Screen name="ViewPostsMain" component={ViewPostsMain} options={{ headerShown: true }} />
+    <Stack.Navigator screenOptions={defaultHeaderOptions}>
+      <Stack.Screen name="ViewPostsMain" component={ViewPostsMain} options={{ headerShown: true }} />
       <Stack.Screen name="ProductDetail" component={ProductDetail} options={{ headerShown: true }} />
       </Stack.Navigator>
   )
 }
 function Category() {
   return (
-    <Stack.Navigator>
+    <Stack.Navigator screenOptions={defaultHeaderOptions}>
       <Stack.Screen name="CategoryManager" component={CategoryManager} options={{ headerShown: true, title: 'View Category List' }} />
+    </Stack.Navigator>
+  );
+}
+function UserProfile() {
+  return (
+    <Stack.Navigator screenOptions={defaultHeaderOptions}>
+      <Stack.Screen name="ProfileScreen" component={UserProfileScreen} options={{ headerShown: true, title: 'View UserProfileScreen' }} />
     </Stack.Navigator>
   );
 }
 function BottomTabsForAdmin() {
   return (
-    <Tab.Navigator
-      screenOptions={({ route }) => ({
-        tabBarIcon: ({ focused, color, size }) => {
-          let iconName;
+    <Tab.Navigator screenOptions={{ tabBarActiveTintColor: '#CB75EA',tabBarInactiveTintColor: 'gray',tabBarStyle: {backgroundColor: '#3B3B3B',},tabBarShowLabel: false,  tabBarIconStyle: { display: 'flex' } }}
+>
+  <Tab.Screen name="HomeStack"         component={HomeStackAdmin}
+    options={{ headerShown: false,tabBarIcon: ({ color, size }) => (<FontAwesome6 name="chart-simple" size={size} color={color} />)}}/>
 
-          if (route.name === 'HomeStack') {
-            iconName = focused ? 'chart-simple' : 'chart-simple';
-          }
-          if (route.name === 'Category') {
-            iconName = focused ? 'list' : 'list';
-          }
-          else if (route.name === 'Quanlyuser') {
-            iconName = focused ? 'user-lock' : 'user-lock';
-          } else if (route.name === 'QuanlyPost') {
-            iconName = focused ? 'list-check' : 'list-check';
-          } else if (route.name === 'UserProfileScreen') {
-            iconName = focused ? 'user-secret' : 'user-secret';
-          }else if (route.name === 'RegisterUser') {
-            iconName = focused ? '' : '';
-          }
-          return (
-            <View style={styles.iconContainer}>
-              <FontAwesome6 name={iconName} size={size} color={color} />
-            </View>
-          );
-        },
-        tabBarActiveTintColor: '#CB75EA',
-        tabBarInactiveTintColor: 'gray',
-        tabBarStyle: {
-        backgroundColor: '#3B3B3B',
-        }
-      })}
-    >
-      <Tab.Screen name="HomeStack" component={HomeStackAdmin} options={{ headerShown: false, title: 'Home' }}/>
-      <Tab.Screen name="QuanlyPost" component={QuanlyPost} options={{ headerShown: false, title: 'View Posts' }} />
-      <Tab.Screen name="Quanlyuser" component={Quanlyuser} options={{ headerShown: false, title: 'Users' }} />
-      <Tab.Screen name="Category" component={Category} options={{ headerShown: false, title: 'View Category List' }} />
-      <Tab.Screen name="UserProfileScreen" component={UserProfileScreen} options={{ title: 'View Trang Ca Nhan Account' }} />   
-    </Tab.Navigator>
+  <Tab.Screen name="Category"          component={Category}
+    options={{ headerShown: false,tabBarIcon: ({ color, size }) => (<FontAwesome6 name="list" size={size} color={color} /> )}}/>
+  
+  <Tab.Screen name="Quanlyuser"        component={Quanlyuser}
+    options={{ headerShown: false,tabBarIcon: ({ color, size }) => (<FontAwesome6 name="user-lock" size={size} color={color} />)}} />
+ 
+  <Tab.Screen name="QuanlyPost"        component={QuanlyPost}
+    options={{ headerShown: false ,tabBarIcon: ({ color, size }) => (<FontAwesome6 name="list-check" size={size} color={color} />)}}/>
+ 
+  <Tab.Screen name="UserProfileScreen" component={UserProfile} 
+  options={{ headerShown: false, tabBarIcon: ({ color, size }) => ( <FontAwesome6 name="user-secret" size={size} color={color} />)}} />
+  
+</Tab.Navigator>
   );
 }
 
+/////////////////////////////APP/////////////////////////
 function App() {
   return (
     <NavigationContainer>
@@ -180,6 +154,16 @@ function App() {
   );
 }
 
+
+const defaultHeaderOptions = {
+  headerStyle: {
+    backgroundColor: '#3B3B3B', // Màu nền chung cho tất cả các header
+  },
+  headerTintColor: '#fff', // Màu của tiêu đề và nút
+  headerTitleStyle: {
+    fontWeight: 'bold' // Kiểu chữ của tiêu đề
+  }
+};
 
 const styles = StyleSheet.create({
   iconContainer: {

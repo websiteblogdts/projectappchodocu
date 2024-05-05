@@ -3,17 +3,26 @@ import { View, Text, FlatList,CustomCardView, StyleSheet, Alert,Image,Button, To
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import config from '../../config/config';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const ProductListScreen = () => {
   const navigation = useNavigation();
   const [products, setProducts] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const numColumns = 2; 
-
+  const [viewMode, setViewMode] = useState('grid');
 
   useEffect(() => {
     fetchProducts();
   }, []);
+
+  useEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <MaterialCommunityIcons name={viewMode === 'grid' ? 'view-list' : 'view-grid'} title="Logout" size={30} color="#EA7575" style={styles.iconlogout} onPress={toggleViewMode} />
+        ),
+    });
+  },);
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
@@ -26,7 +35,7 @@ const ProductListScreen = () => {
   const fetchProducts = async () => {
     try {
       const userToken = await AsyncStorage.getItem('userToken');
-      console.log('Token from AsyncStorage:', userToken);
+      // console.log('Token from AsyncStorage:', userToken);
       // Đảm bảo rằng tham số truy vấn approved được thiết lập là true
       const response = await fetch(`${config.apiBaseURL}/product/productdaduyet`, {
         headers: {
@@ -35,7 +44,7 @@ const ProductListScreen = () => {
       });
       const data = await response.json();
       setProducts(data);
-      console.log("Fetched products:", data);
+      // console.log("Fetched products:", data);
       if (data.length === 0) {
         Alert.alert("Thông báo", "Không tìm thấy sản phẩm nào.");
       }
@@ -54,28 +63,43 @@ const ProductListScreen = () => {
     navigation.navigate('ProductDetail', { productId });
   };
 
-  const renderProduct = ({ item }) => {
+  const toggleViewMode = () => {
+    setViewMode(viewMode === 'grid' ? 'list' : 'grid');
+  };
+
+
+    const renderProduct = ({ item }) => {
     const screenWidth = Dimensions.get('window').width;
-    const itemWidth = (screenWidth - 32 - 16) / numColumns; // 16 là tổng padding và margin của container, 8 là khoảng cách giữa các cột
     const firstImageUri = item.images.length > 0 ? item.images[0] : null;
+    const itemWidth = viewMode === 'grid' ? (screenWidth - 32 - (numColumns - 1) * 8) / numColumns : screenWidth - 32;
+    const itemHeight = viewMode === 'grid' ? 250 : 120;  // Chiều cao thay đổi theo chế độ xem
+    const styles = viewMode === 'grid' ? gridStyles : listStyles;
 
     return (
+      
       <TouchableOpacity onPress={() => navigateToProductDetail(item._id)}>
-        <View style={[styles.productContainer, { width: itemWidth }]}>
-        {firstImageUri && (
-          <Image
-            source={{ uri: firstImageUri }}
+        <View style={[styles.productContainer, { width: itemWidth , height: itemHeight }]}>
+        {item.images[0] && (
+          
+            <Image
+            source={{ uri: item.images[0] }}
             style={styles.image}
             resizeMode="cover"
           />
+         
+
         )}
-                    <Text style={styles.name}>{item.name}</Text>
-          <Text style={styles.price}>${item.price}</Text>
+        <View style={styles.nameandprice}>
+        <Text style={styles.price}>${item.price}</Text>
+        <Text style={styles.name} numberOfLines={2} ellipsizeMode="tail">
+          {item.name}
+        </Text>
+        
+        </View>
         </View>
       </TouchableOpacity>
     );
   };
-
 
   return (
     <View style={styles.container}>
@@ -87,7 +111,8 @@ const ProductListScreen = () => {
           data={products}
           renderItem={renderProduct}
           keyExtractor={(item) => item._id}
-          numColumns={numColumns}
+          key={viewMode}  // Thêm dòng này để đảm bảo FlatList được re-render khi viewMode thay đổi
+          numColumns={viewMode === 'grid' ? numColumns : 1}
           contentContainerStyle={styles.flatListContent}
           refreshControl={
             <RefreshControl
@@ -100,6 +125,7 @@ const ProductListScreen = () => {
     </View>
   );
 };
+   
 
 const styles = StyleSheet.create({
   container: {
@@ -107,25 +133,6 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: '#3B3B3B',
 
-  },
-  productContainer: {
-    width: 160, // chiều rộng cố định
-    height: 250, // chiều cao cố định
-    // flex: 1,  // Cho phép container mở rộng để lấp đầy không gian khả dụng
-    // minHeight: 250, // Đặt chiều cao tối thiểu để đảm bảo tính nhất quán
-    backgroundColor: '#B4EEB4',
-    borderRadius: 6,
-    marginBottom: 15,
-    marginHorizontal: 2,
-    padding: 10,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
   },
   name: {
     fontSize: 18,
@@ -140,13 +147,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
 
   },
-  image: {
-    width: '100%',
-    aspectRatio: 1,
-    borderRadius: 10, // Bo góc cho hình ảnh
-    borderWidth: 2, // Độ dày của viền
-    borderColor: '#EED5B7' // Màu sắc của viền
-  },
+
   emptyText: {
     fontSize: 16,
     textAlign: 'center',
@@ -155,14 +156,102 @@ const styles = StyleSheet.create({
   flatListContent: {
     flexGrow: 1,
   },
-
-  card: {
-    borderRadius: 24,
-    width: '75%',
-    height: 170,
+  toggleButton: {
+    padding: 10,
+    backgroundColor: 'blue',
+    borderRadius: 5,
+    alignSelf: 'center',
     margin: 10,
+  },
+  toggleButtonText: {
+    color: 'white',
+    fontSize: 16,
+  }
+
+});
+const gridStyles = StyleSheet.create({
+  productContainer: {
+    width: 160,
+    height: 250,
+    backgroundColor: '#B4EEB4',
+    borderRadius: 8,
+    marginBottom: 10,
+    marginHorizontal: 2,
+    padding: 5,
+    shadowColor: "black", // Màu đổ bóng
+    shadowOffset:{width: 1, height: 2,} ,// Khoảng cách đổ bóng theo chiều dọc
+    shadowOpacity: 4.25, // Độ mờ của bóng
+    shadowRadius: 5.84, // Bán kính của đổ bóng
+    elevation: 5, // Sử dụng cho Android để hiển thị đổ bóng
     overflow: 'hidden',
-},
+  },
+  name: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  price: {
+    fontWeight: 'bold',
+    fontSize: 18,
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  image: {
+    width: '100%',
+    aspectRatio: 1,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: '#EED5B7'
+  },
+});
+
+
+//dạng sanh sách ngang
+const listStyles = StyleSheet.create({
+  productContainer: {
+   flexDirection:'row',
+    backgroundColor: '#B4EEB4',
+    borderRadius: 25,
+    margin: 70,
+    padding: 16,
+    marginBottom: 15,
+    marginHorizontal: 25,
+    alignItems: 'center', // Thêm để căn giữa các items theo chiều dọc
+    
+  },
+  nameandprice:{
+    right:30,
+      flexDirection:'colume',
+      justifyContent: "space-around",
+      width:"60%",
+  },
+  imageContainer: {
+    elevation: 10, // Sử dụng cho Android để hiển thị đổ bóng
+    borderRadius: 40, // Bo góc cho hình ảnh
+  },
+  name: {
+    fontSize: 15,  // Có thể giảm kích thước font nếu cần
+    fontWeight: 'bold',
+    textAlign: 'left',
+    flex: 1, // Thêm để `name` chiếm hết không gian còn lại sau `image`
+
+  },
+  price: {
+    fontSize: 20,  // Giảm kích thước font cho giá
+    marginBottom: 10,
+    textAlign: 'left',
+    fontWeight: 'bold',
+
+  },
+  image: {
+    bottom:45,
+    right:37,
+    width: 130,
+    height: 150,
+    borderRadius: 30,
+    borderColor: 'black',
+  },
 });
 
 export default ProductListScreen;
