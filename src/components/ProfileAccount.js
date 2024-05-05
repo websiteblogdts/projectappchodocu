@@ -28,8 +28,8 @@ const styles = StyleSheet.create({
         left: 25,
     },
     uploadIcon:{
-      top: 9 ,
-      left: 5,
+      top: 10 ,
+      right:10,
     },
     reward_points:{
       fontSize: 20,
@@ -41,15 +41,16 @@ const styles = StyleSheet.create({
       fontFamily: 'ConcertOne',
     },
     iconvatextsave:{
+      padding:65,
     flexDirection: 'row',
     },
     iconsave:{
-      left: 150 ,
-      bottom: 150
+      left: 80 ,
+      bottom: 210
     },
     texticonsave:{
-      left: 140 ,
-      bottom: 140,
+      left: 70 ,
+      bottom: 203,
       color: 'white',
       fontWeight: 'bold',
     },
@@ -71,10 +72,10 @@ const styles = StyleSheet.create({
     },
    
     content: {
-      marginTop: 20,
+      // marginTop: 1,
     },
     infoContainer: {
-      marginTop: 20,
+      marginTop: 23,
     },
     infoLabel: {
       color: 'white',
@@ -100,14 +101,14 @@ const styles = StyleSheet.create({
     },
     button: {
       // backgroundColor: 'gray',
-      bottom: 160,
+      bottom: 170,
       borderRadius: 15,
       color: '#fff',
       textAlign: 'center',
       borderColor: 'gray', // Thay 'blue' bằng màu bạn muốn
       borderWidth: 1,
-      padding: 10,
-      // marginHorizontal: 20,
+      padding: 20,
+      marginHorizontal: 20,
     },
     buttonsubmit: {
       // backgroundColor: '#0066cc',
@@ -117,7 +118,7 @@ const styles = StyleSheet.create({
     },
    
     iconlogout:{
-      bottom: 7,
+      // bottom: 1,
     },
     buttonTextlogout: {
       left: 15,
@@ -135,7 +136,7 @@ const styles = StyleSheet.create({
       bottom: 145,
       // top: 90,
       borderRadius: 25,
-      padding: 20,
+      padding: 40,
     },
     centeredView: {
       flex: 1,
