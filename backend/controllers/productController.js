@@ -13,9 +13,14 @@ exports.getRoutes = (req, res) => {
 exports.getProductById = (req, res) => {
     const productId = req.params.productId;
     Product.findById(productId)
+        .populate('author', 'isDeleted account_status')
         .then(product => {
             if (!product) {
                 return res.status(404).json({ error: 'Product not found' });
+            }
+            // Kiểm tra người dùng có bị xóa hoặc khóa không
+            if (product.author.isDeleted || product.author.account_status === 'locked') {
+                return res.status(403).json({ error: 'Product is not available' });
             }
             res.json(product);
         })
@@ -24,35 +29,59 @@ exports.getProductById = (req, res) => {
             res.status(500).json({ error: 'Internal server error' });
         });
 };
-// product theo user
-exports.getAllProductsByUser = (req, res) => {
-    try {
-        // Trích xuất userId từ req.user
-        const userId = req.user.id;
 
-        // Tìm tất cả các sản phẩm mà author trùng khớp với userId
-        Product.find({ author: userId })
+//trang này hiển thị product cho viewpost ( xem các bài ở trạng thái chờ duyệt)
+exports.getAllProductsByUser = (req, res) => {
+    const userId = req.user.id;
+
+    // Kiểm tra trạng thái của người dùng
+    User.findById(userId).then(user => {
+        if (!user || user.isDeleted || user.account_status === 'locked') {
+            return res.status(403).json({ error: 'User is not available' });
+        }
+
+        Product.find({ author: userId, admin_approved: true })
             .then(products => {
-                // Trả về danh sách các sản phẩm
                 res.json(products);
             })
             .catch(error => {
                 console.error('Error fetching products:', error);
                 res.status(500).json({ error: 'Internal server error' });
             });
-    } catch (error) {
-        console.error('Error fetching products:', error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
+    });
 };
+
 
 exports.getproductdaduyet = (req, res) => {
     try {
-        Product.find({  admin_approved: true })
-            .then(products => {
-                // Trả về danh sách các sản phẩm
-                res.json(products);
+        Product.find({ admin_approved: true })
+            .populate({
+                path: 'author',
+                match: { isDeleted: false }  // Chỉ lấy sản phẩm nếu người dùng không bị xóa mềm
+               // match: { isDeleted: false, account_status: 'active' }  // Chỉ lấy sản phẩm nếu người dùng không bị xóa mềm và tài khoản đang hoạt động
+
             })
+            .then(products => {
+                // Lọc ra các sản phẩm mà người dùng không bị khóa hoặc xóa
+                const filteredProducts = products.filter(product => product.author && !product.author.isDeleted);
+                if (filteredProducts.length === 0) {
+                    return res.status(404).json({ message: 'Không có sản phẩm phù hợp.' });
+                }
+                // Trả về danh sách các sản phẩm
+                res.json(filteredProducts);
+            })
+
+            // .then(products => {
+            //     // Lọc ra các sản phẩm mà người dùng không bị khóa hoặc xóa và tài khoản đang hoạt động
+            //     const filteredProducts = products.filter(product => product.author && !product.author.isDeleted && product.author.account_status === 'active');
+            //     if (filteredProducts.length === 0) {
+            //         return res.status(404).json({ message: 'Không có sản phẩm phù hợp.' });
+            //     }
+            //     // Trả về danh sách các sản phẩm
+            //     res.json(filteredProducts);
+            // })
+
+
             .catch(error => {
                 console.error('Error fetching products:', error);
                 res.status(500).json({ error: 'Internal server error' });
@@ -62,10 +91,11 @@ exports.getproductdaduyet = (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 };
+
 // Hàm xử lý hiển thị tất cả các sản phẩm giá trị true cho trang listproduct
 exports.getAllProducts = (req, res) => {
-    Product.find({  admin_approved: true })
-            .then(products => {
+    Product.find({ admin_approved: true,  })
+        .then(products => {
             res.send(products);
         })
         .catch(error => {
@@ -73,6 +103,7 @@ exports.getAllProducts = (req, res) => {
             res.status(500).json({ error: 'Internal server error' });
         });
 };
+
 
 exports.createProduct = async (req, res) => {
     try {
@@ -174,39 +205,68 @@ exports.createProduct = async (req, res) => {
     }
 };
 
+//xóa cứng
+// exports.deleteProductById = (req, res) => {
+//     try {
+//         const userId = req.user.id;
+//         // Lấy id của sản phẩm cần xóa
+//         const productId = req.params.productId;
+//         // Tìm sản phẩm trong cơ sở dữ liệu
+//         Product.findById(productId)
+//             .then(product => {
+//                 // Kiểm tra xem sản phẩm có tồn tại không
+//                 if (!product) {
+//                     return res.status(404).json({ error: 'Product not found' });
+//                 }
+//                 // Kiểm tra xem người dùng hiện tại có phải là tác giả của sản phẩm không
+//                 if (product.author.toString() !== userId) {
+//                     return res.status(401).json({ error: 'Unauthorized' });
+//                 }
+//                 // Xóa sản phẩm khỏi cơ sở dữ liệu
+//                 Product.findByIdAndDelete(productId)
+//                     .then(() => {
+//                         res.json({ message: 'Product deleted successfully' });
+//                     })
+//                     .catch(error => {
+//                         console.error('Error deleting product:', error);
+//                         res.status(500).json({ error: 'Delete operation failed' });
+//                     });
+//             })
+//             .catch(error => {
+//                 console.error('Error finding product:', error);
+//                 res.status(500).json({ error: 'Internal server error' });
+//             });
+//     } catch (error) {
+//         console.error('Error deleting product:', error);
+//         res.status(500).json({ error: 'Internal server error' });
+//     }
+// };
 exports.deleteProductById = (req, res) => {
-    try {
-        const userId = req.user.id;
-        // Lấy id của sản phẩm cần xóa
-        const productId = req.params.productId;
-        // Tìm sản phẩm trong cơ sở dữ liệu
-        Product.findById(productId)
-            .then(product => {
-                // Kiểm tra xem sản phẩm có tồn tại không
-                if (!product) {
-                    return res.status(404).json({ error: 'Product not found' });
-                }
-                // Kiểm tra xem người dùng hiện tại có phải là tác giả của sản phẩm không
-                if (product.author.toString() !== userId) {
-                    return res.status(401).json({ error: 'Unauthorized' });
-                }
-                // Xóa sản phẩm khỏi cơ sở dữ liệu
-                Product.findByIdAndDelete(productId)
-                    .then(() => {
-                        res.json({ message: 'Product deleted successfully' });
-                    })
-                    .catch(error => {
-                        console.error('Error deleting product:', error);
-                        res.status(500).json({ error: 'Delete operation failed' });
-                    });
-            })
-            .catch(error => {
-                console.error('Error finding product:', error);
-                res.status(500).json({ error: 'Internal server error' });
-            });
-    } catch (error) {
-        console.error('Error deleting product:', error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
+    const userId = req.user.id;
+    const productId = req.params.productId;
+
+    Product.findById(productId)
+        .then(product => {
+            if (!product) {
+                return res.status(404).json({ error: 'Product not found' });
+            }
+            if (product.author.toString() !== userId) {
+                return res.status(401).json({ error: 'Unauthorized' });
+            }
+            // Thay vì xóa, cập nhật trạng thái isDeleted và thêm thời gian xóa
+            Product.findByIdAndUpdate(productId, { isDeleted: true, deletedAt: new Date() }, { new: true })
+                .then(() => {
+                    res.json({ message: 'Product deleted successfully' });
+                })
+                .catch(error => {
+                    console.error('Error deleting product:', error);
+                    res.status(500).json({ error: 'Delete operation failed' });
+                });
+        })
+        .catch(error => {
+            console.error('Error finding product:', error);
+            res.status(500).json({ error: 'Internal server error' });
+        });
 };
+
 

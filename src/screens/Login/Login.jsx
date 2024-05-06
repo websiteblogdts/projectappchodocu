@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Image, ScrollView, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, SafeAreaView } from 'react-native';
+import { View, Text, Image, ScrollView, TextInput,Alert, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, SafeAreaView } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage'; 
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -29,8 +29,9 @@ const handleLogin = async () => {
 
       navigation.navigate(role === 'admin' ? 'Admin' : 'Root'); // Navigation dựa trên role
   } catch (error) {
-      console.error("Login error:", error);
-      alert("Invalid email or password. Please try again.");
+    Alert.alert('Error rui son oi', error.response.data.error);
+      // console.error("Login error:", error.response.data.error);
+      // alert("Invalid email or password. Please try again.");
   }
 };
 

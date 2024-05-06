@@ -14,7 +14,9 @@ const ProductSchema = new mongoose.Schema({
     images: { type: [String], required: true}, // Sử dụng mảng các chuỗi để lưu trữ nhiều URL hình ảnh
     category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true }, // Tham chiếu tới Category
     address: AddressSchema,
-    admin_approved: { type: Boolean, default: false }
+    admin_approved: { type: Boolean, default: false },
+    isDeleted: { type: Boolean, default: false },
+    deletedAt: { type: Date }
 }, { timestamps: true
 
 });

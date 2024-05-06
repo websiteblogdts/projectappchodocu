@@ -28,21 +28,42 @@ exports.createCategory = async (req, res) => {
 
 exports.getAllCategories = async (req, res) => {
     try {
-        const categories = await Category.find({}); // Truy vấn tất cả các danh mục
-        res.status(200).json(categories); // Trả về danh sách các danh mục
+        // Only retrieve categories that have not been marked as deleted
+        const categories = await Category.find({ isDeleted: false }); // Adjusted query to exclude soft-deleted categories
+        if (categories.length === 0) {
+            return res.status(404).json({ message: "No categories found" }); // Informative message if no categories exist
+        }
+        res.status(200).json(categories); // Return the list of categories
     } catch (error) {
         console.error("Error retrieving categories:", error);
         res.status(500).json({ error: "Internal Server Error" });
     }
 };
 
+
+// exports.getCategoryById = async (req, res) => {
+//     try {
+//         const categoryId = req.params.id;
+//         const category = await Category.findById(categoryId);
+
+//         if (!category) {
+//             return res.status(404).json({ error: "Category not found" });
+//         }
+
+//         res.status(200).json(category);
+//     } catch (error) {
+//         console.error("Error retrieving category:", error);
+//         res.status(500).json({ error: "Internal Server Error" });
+//     }
+// };
 exports.getCategoryById = async (req, res) => {
     try {
         const categoryId = req.params.id;
-        const category = await Category.findById(categoryId);
+        // Include the isDeleted check to ensure we are not retrieving soft-deleted categories
+        const category = await Category.findOne({ _id: categoryId, isDeleted: false });
 
         if (!category) {
-            return res.status(404).json({ error: "Category not found" });
+            return res.status(404).json({ error: "Category not found or has been deleted" });
         }
 
         res.status(200).json(category);
@@ -52,7 +73,25 @@ exports.getCategoryById = async (req, res) => {
     }
 };
 
+//xóa cứng category
+// exports.deleteCategory = async (req, res) => {
+//     try {
+//         if (req.user.role !== 'admin') {
+//             return res.status(403).json({ error: "You are not authorized to perform this action" });
+//         }
 
+//         const categoryId = req.params.id;
+//         const deletedCategory = await Category.findByIdAndDelete(categoryId);
+
+//         if (!deletedCategory) {
+//             return res.status(404).json({ error: "Category not found" });
+//         }
+//         res.status(200).json({ message: "Category deleted successfully", deletedCategory });
+//     } catch (error) {
+//         console.error("Error deleting category:", error);
+//         res.status(500).json({ error: "Internal Server Error" });
+//     }
+// };
 exports.deleteCategory = async (req, res) => {
     try {
         if (req.user.role !== 'admin') {
@@ -60,12 +99,17 @@ exports.deleteCategory = async (req, res) => {
         }
 
         const categoryId = req.params.id;
-        const deletedCategory = await Category.findByIdAndDelete(categoryId);
+        // Cập nhật danh mục thành đã xóa mềm thay vì xóa vĩnh viễn
+        const deletedCategory = await Category.findByIdAndUpdate(categoryId, {
+            isDeleted: true,
+            deletedAt: new Date()
+        }, { new: true });
 
         if (!deletedCategory) {
             return res.status(404).json({ error: "Category not found" });
         }
-        res.status(200).json({ message: "Category deleted successfully", deletedCategory });
+
+        res.status(200).json({ message: "Category deleted successfully", category: deletedCategory });
     } catch (error) {
         console.error("Error deleting category:", error);
         res.status(500).json({ error: "Internal Server Error" });

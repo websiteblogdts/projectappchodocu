@@ -39,31 +39,45 @@ exports.getUserProfile = async (req, res) => {
     }
   };
 
-exports.login = async (req, res) => {
+
+  exports.login = async (req, res) => {
     const { identifier, password } = req.body;
 
     try {
         // Tìm người dùng trong cơ sở dữ liệu bằng email hoặc số điện thoại
         const user = await User.findOne({ $or: [{ email: identifier }, { phone_number: identifier }] });
-
+        // const user = await User.findOne({ 
+        //     $or: [{ email: identifier }, { phone_number: identifier }],
+        //     isDeleted: false  // Chỉ tìm những tài khoản chưa bị xóa
+        // });
         if (!user) {
             return res.status(404).json({ error: "User not found" });
         }
 
+        // Kiểm tra nếu tài khoản đã bị xóa
+        if (user.isDeleted) {
+            return res.status(401).json({ error: "This account has been deactivated" });
+        }
+
+        // Kiểm tra trạng thái khóa của tài khoản
+        if (user.account_status === 'locked') {
+            return res.status(403).json({ error: "This account is locked" });
+        }
+
         // Kiểm tra mật khẩu
         const isPasswordValid = await bcrypt.compare(password, user.password);
-
         if (!isPasswordValid) {
             return res.status(401).json({ error: "Invalid credentials" });
         }
+
         // Tạo JWT token
         const token = jwt.sign({
-            id: user._id.toString(), // Lưu ý: Mã hóa `_id` từ ObjectID sang String
+            id: user._id.toString(), // Chuyển đổi _id từ ObjectID sang String
             email: user.email,
             role: user.role
         }, JWT_SECRET, { expiresIn: '1h' }); // Token hết hạn sau 1 giờ
 
-        res.status(200).json({ message: "Login successful",  token, role: user.role });
+        res.status(200).json({ message: "Login successful", token, role: user.role });
     } catch (error) {
         console.error("Error logging in:", error);
         res.status(500).json({ error: "Internal Server Error" });

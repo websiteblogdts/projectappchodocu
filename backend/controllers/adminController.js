@@ -27,15 +27,21 @@ exports.updateApprovedStatus = (req, res) => {
 
 //lấy tất cả sản phẩm theo trạng thái phê duyệt (true hoặc false)
 exports.getProductsByApprovalStatus = (req, res) => {
-    // Lấy trạng thái phê duyệt từ query parameters, mặc định là true
     const approved = req.query.approved === 'true';
 
     Product.find({ admin_approved: approved })
+        .populate({
+            path: 'author',
+            match: { isDeleted: false }
+          //  match: { isDeleted: false, account_status: 'active' } // bổ sung thêm lọc account khóa hay kích hoạt
+        })
         .then(products => {
-            if (products.length === 0) {
+            // Lọc ra các sản phẩm mà người dùng không bị khóa hoặc xóa
+            const filteredProducts = products.filter(product => product.author !== null);
+            if (filteredProducts.length === 0) {
                 return res.status(404).json({ message: 'Không có sản phẩm.' });
             }
-            res.send(products);
+            res.send(filteredProducts);
         })
         .catch(error => {
             console.error(`Lỗi khi lấy danh sách sản phẩm có trạng thái phê duyệt là ${approved}:`, error);
@@ -53,7 +59,7 @@ exports.getAllUsers = async (req, res) => {
 
         // Lấy tất cả người dùng từ cơ sở dữ liệu
         // const users = await User.find({}); // Lấy tất cả người dùng
-        const users = await User.find({ role: 'user' });
+        const users = await User.find({ role: 'user', isDeleted: false });
         // Kiểm tra xem có người dùng nào không
         if (users.length === 0) {
             return res.status(404).json({ error: "No users found" });
@@ -76,7 +82,8 @@ exports.getUserById = async (req, res) => {
             return res.status(403).json({ error: "You are not authorized to perform this action" });
         }
         // Tìm người dùng trong cơ sở dữ liệu bằng ID
-        const user = await User.findById(userId);
+        // const user = await User.findById(userId);
+        const user = await User.findOne({ _id: userId, isDeleted: false });
 
         // Kiểm tra xem người dùng có tồn tại không
         if (!user) {
@@ -183,16 +190,15 @@ exports.updateUserByIdForAdmin = async (req, res) => {
     }
 };
 
-
 exports.deleteUserById = async (req, res) => {
-
     try {
         if (req.user.role !== 'admin') {
             return res.status(403).json({ error: "You are not authorized to perform this action" });
         }
         const userId = req.params.userId;
-        // Xóa người dùng từ cơ sở dữ liệu dựa trên ID
-        const deletedUser = await User.findByIdAndDelete(userId);
+
+        // Cập nhật người dùng thành trạng thái đã xóa
+        const deletedUser = await User.findByIdAndUpdate(userId, { isDeleted: true, deletedAt: new Date() }, { new: true });
 
         // Kiểm tra xem người dùng có tồn tại không
         if (!deletedUser) {
@@ -200,47 +206,9 @@ exports.deleteUserById = async (req, res) => {
         }
 
         // Trả về thông báo xác nhận xóa thành công
-        res.status(200).json({ message: "User deleted successfully" });
+        res.status(200).json({ message: "User deleted successfully", user: deletedUser });
     } catch (error) {
         console.error("Error deleting user:", error);
         res.status(500).json({ error: "Internal Server Error" });
     }
 };
-
-// exports.lockUserAccount = async (req, res) => {
-//     try {
-//         // Kiểm tra vai trò của người dùng (chỉ admin mới được phép khóa tài khoản)
-//         if (req.user.role !== 'admin') {
-//             return res.status(403).json({ error: "You are not authorized to perform this action" });
-//         }
-
-//         const userId = req.params.userId;
-//         const user = await User.findByIdAndUpdate(userId, { account_status: 'locked' }, { new: true });
-//         if (!user) {
-//             return res.status(404).send('User not found');
-//         }
-//         res.send('Account has been locked');
-//     } catch (error) {
-//         console.error('Error locking account:', error);
-//         res.status(500).send('Internal server error');
-//     }
-// };
-
-// exports.unlockUserAccount = async (req, res) => {
-//     try {
-//         // Kiểm tra vai trò của người dùng (chỉ admin mới được phép mở khóa tài khoản)
-//         if (req.user.role !== 'admin') {
-//             return res.status(403).json({ error: "You are not authorized to perform this action" });
-//         }
-
-//         const userId = req.params.userId;
-//         const user = await User.findByIdAndUpdate(userId, { account_status: 'active' }, { new: true });
-//         if (!user) {
-//             return res.status(404).send('User not found');
-//         }
-//         res.send('Account has been unlocked');
-//     } catch (error) {
-//         console.error('Error unlocking account:', error);
-//         res.status(500).send('Internal server error');
-//     }
-// };

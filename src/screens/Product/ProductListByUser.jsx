@@ -170,6 +170,7 @@ const styles = StyleSheet.create({
     borderColor: '#EED5B7' // Màu sắc của viền
   },
   emptyText: {
+    color: "white",
     fontSize: 16,
     textAlign: 'center',
     marginTop: 20,
