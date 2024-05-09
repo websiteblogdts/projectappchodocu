@@ -1,4 +1,5 @@
 import React from 'react';
+import 'react-native-get-random-values';
 import { View, StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';

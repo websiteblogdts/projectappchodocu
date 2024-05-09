@@ -45,11 +45,11 @@ exports.getUserProfile = async (req, res) => {
 
     try {
         // Tìm người dùng trong cơ sở dữ liệu bằng email hoặc số điện thoại
-        const user = await User.findOne({ $or: [{ email: identifier }, { phone_number: identifier }] });
-        // const user = await User.findOne({ 
-        //     $or: [{ email: identifier }, { phone_number: identifier }],
-        //     isDeleted: false  // Chỉ tìm những tài khoản chưa bị xóa
-        // });
+        // const user = await User.findOne({ $or: [{ email: identifier }, { phone_number: identifier }] });
+        const user = await User.findOne({ 
+            $or: [{ email: identifier }, { phone_number: identifier }],
+            //isDeleted: false  // Chỉ tìm những tài khoản chưa bị xóa
+        });
         if (!user) {
             return res.status(404).json({ error: "User not found" });
         }

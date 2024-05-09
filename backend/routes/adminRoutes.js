@@ -21,6 +21,12 @@ router.get('/products', authMiddleware, adminController.getProductsByApprovalSta
 router.post('/createcategory',authMiddleware, categoryController.createCategory);
 router.get('/allcategory', authMiddleware, categoryController.getAllCategories);
 router.delete('/categories/:id', authMiddleware, categoryController.deleteCategory);
+
+router.patch('/categories/edit/:categoryId', authMiddleware, categoryController.updateCategory);
+
+router.put('/categories/restore/:id', authMiddleware, categoryController.restoreCategory);
+router.get('/historycategorydelete', authMiddleware, categoryController.getDeletedCategories);
+
 // router.post('/users/:userId/unlock',authMiddleware, adminController.unlockUserAccount);
 // router.post('/users/:userId/lock', authMiddleware,adminController.lockUserAccount);
 module.exports = router;

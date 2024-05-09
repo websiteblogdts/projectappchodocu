@@ -1,36 +1,83 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, FlatList, Modal, StyleSheet, Alert } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import config from '../../config/config';
-import { IconButton } from 'react-native-paper';
+
 const CategoryManager = () => {
   const [categories, setCategories] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');
   const [isCategoryNameValid, setIsCategoryNameValid] = useState(false);
+  const [updateModalVisible, setUpdateModalVisible] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [deletedCategories, setDeletedCategories] = useState([]);
+  const [showDeletedCategoriesModal, setShowDeletedCategoriesModal] = useState(false);
+  const navigation = useNavigation();
 
   useEffect(() => {
     fetchCategories();
-  }, []);
+  }, [])
 
-  const fetchCategories = async () => {
-    try {
-      const userToken = await AsyncStorage.getItem('userToken');
-      console.log('Token from AsyncStorage:', userToken);
-  
-      const response = await axios.get(`${config.apiBaseURL}/admin/allcategory`,{
-        headers: {
-          'Authorization': `${userToken}` // Ensure you're using Bearer token if required by your backend
-        }
-      });
-      setCategories(response.data);
-    } catch (error) {
-      console.error('Failed to fetch categories:', error);
-      Alert.alert('Error', 'Failed to fetch categories');
+    useEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <Ionicons name="trash" size={30} color="#EA7575" onPress={() => setShowDeletedCategoriesModal(true)} style={styles.trashButton} />
+
+        //  <Ionicons
+        //   name="reload"
+        //   size={30}
+        //   color="gray"
+        //   onPress={fetchCategories}
+        //   // onPress={() => navigation.navigate('CategoryManager')}
+        //   />
+        ),
+    });
+  },);
+
+;
+
+const fetchDeletedCategories = async () => {
+  const userToken = await AsyncStorage.getItem('userToken');
+  const response = await axios.get(`${config.apiBaseURL}/admin/historycategorydelete`, {
+      headers: {
+          'Authorization': `${userToken}`
+      }
+  });
+  setDeletedCategories(response.data);
+};
+
+useEffect(() => {
+  fetchDeletedCategories();
+}, []);
+
+const fetchCategories = async () => {
+  try {
+    const userToken = await AsyncStorage.getItem('userToken');
+    console.log('Token from AsyncStorage:', userToken);
+
+    const response = await axios.get(`${config.apiBaseURL}/admin/allcategory`, {
+      headers: {
+        'Authorization': `${userToken}` // Ensure you're using Bearer token if required by your backend
+      }
+    });
+    setCategories(response.data); // Set categories with response data
+  } catch (error) {
+    // console.error('Failed:', error);
+    // Handle specific error response case
+    if (error.response) {
+      if (error.response.status === 404) {
+        // If no categories found, clear the categories state
+        setCategories([]); // This ensures UI will not display old categories
+        Alert.alert('Info', error.response.data.message); // Display alert with info message
+      } else if (error.response.data && error.response.data.error) {
+        Alert.alert('Error rui', error.response.data.error);
+      }
     }
-  };
+  }
+};
 
   const deleteCategory = async (id) => {
     Alert.alert(
@@ -47,6 +94,7 @@ const CategoryManager = () => {
           'Authorization': `${userToken}` // Correct way to include the token
         }
       });
+      Alert.alert('Success', 'Category deleted successfully');
       fetchCategories(); // Refresh the list after deletion
       } catch (error) {
         console.error('Failed to delete category:', error);
@@ -62,7 +110,6 @@ const addCategory = async () => {
     // Retrieve the token from AsyncStorage
     const userToken = await AsyncStorage.getItem('userToken');
     console.log('Token from AsyncStorage:', userToken);
-
     // Make the POST request to add a new category
     await axios.post(`${config.apiBaseURL}/admin/createcategory`, { name: newCategoryName }, {
       headers: {
@@ -73,13 +120,69 @@ const addCategory = async () => {
     // Close the modal and reset state only if the request is successful
     setModalVisible(false);
     setNewCategoryName('');
+    Alert.alert("Success", "Add category successfully")
     fetchCategories();  // Refresh the categories list
   } catch (error) {
-    console.error('Failed to add category:', error);
-    Alert.alert('Error', 'Failed to add category');
+    // console.error('Failed to add category:', error);
+    Alert.alert('Error rui', error.response.data.error);
   }
 };
-  
+const openUpdateModal = (category) => {
+  setSelectedCategory(category);
+  setUpdateModalVisible(true);
+};
+
+const handleUpdateCategory = async () => {
+
+  try {
+    const userToken = await AsyncStorage.getItem('userToken');
+    const response = await axios.patch(`${config.apiBaseURL}/admin/categories/edit/${selectedCategory._id}`, { name: newCategoryName }, {
+        headers: {
+            'Authorization': `${userToken}`
+        }
+    });
+
+    console.log("Response from server:", response.data);
+    Alert.alert("Success", "Category updated successfully");
+    setUpdateModalVisible(false);
+    fetchCategories();
+  } catch (error) {
+    // console.error('Failed to update category:', error);
+    // Safely accessing error.response
+    if (error.response) {
+      // Now we can safely access error.response.data
+      const errorMessage = error.response.data && error.response.data.error ? error.response.data.error : 'An unexpected error occurred';
+      Alert.alert('Error', errorMessage);
+    } else {
+      // Handle errors that don't have a response (network errors, timeout errors)
+      Alert.alert('Error', 'Network error or no response from server');
+    }
+  }
+};
+
+const restoreCategory = async (categoryId) => {
+  try {
+      const userToken = await AsyncStorage.getItem('userToken');
+      const response = await axios.put(`${config.apiBaseURL}/admin/categories/restore/${categoryId}`, {}, {
+          headers: {
+              'Authorization': `${userToken}`
+          }
+      });
+
+      console.log("Response from server:", response.data);
+
+      if (response.status === 200) {
+          Alert.alert("Success", "Category restored successfully");
+          fetchDeletedCategories(); // Refresh the list of deleted categories
+          fetchCategories(); // Refresh the list of active categories
+      }
+  } catch (error) {
+      console.error('Failed to restore category:', error);
+      Alert.alert('Error', 'Failed to restore category');
+  }
+};
+
+
   const handleCategoryNameChange = (text) => {
     setNewCategoryName(text);
     setIsCategoryNameValid(text.trim().length > 0);
@@ -124,13 +227,72 @@ const addCategory = async () => {
         renderItem={({ item }) => (
           <View style={styles.listItem}>
             <Text style={styles.emptyText}>{item.name}</Text>
+            <View style={styles.penvadelete}>
+            <Ionicons name="pencil" size={30} color="#FFCC00" onPress={() => openUpdateModal(item)} />
             <Ionicons name="trash-bin" size={30} color="#EA7575" title="Delete" onPress={() => deleteCategory(item._id)} />
+            </View>
           </View>
         )}
       />
       )}
       </View>
+      <Modal
+    animationType="slide"
+    transparent={true}
+    visible={updateModalVisible}
+    onRequestClose={() => {
+        Alert.alert('Modal has been closed.');
+        setUpdateModalVisible(!updateModalVisible);
+    }}
+>
+    <View style={styles.centeredView}>
+        <View style={styles.modalView}>
+            <TextInput
+                style={styles.input}
+                placeholder="Update Category Name"
+                value={newCategoryName}
+                onChangeText={setNewCategoryName}
+            />
+            <View style={styles.buttonsaveandclose}>
+                <Ionicons name='close-circle' size={30} color="black" onPress={() => setUpdateModalVisible(false)} />
+                <Ionicons name='save' size={30} color="black" onPress={handleUpdateCategory} />
+            </View>
+        </View>
     </View>
+</Modal>
+<Modal
+  animationType="slide"
+  transparent={true}
+  visible={showDeletedCategoriesModal}
+  onRequestClose={() => {
+    Alert.alert('Modal has been closed.');
+    setShowDeletedCategoriesModal(!showDeletedCategoriesModal);
+  }}
+>
+  <View style={styles.centeredView}>
+    <View style={styles.modalView}>
+      <Text style={styles.modalText}>Deleted Categories</Text>
+      <FlatList
+            data={deletedCategories}
+            keyExtractor={(item) => item._id}
+            renderItem={({ item }) => (
+                <View style={styles.deletedListItem}>
+                    <Text style={styles.deletedItemText}>{item.name}</Text>
+                    <Button
+                        title="Restore"
+                        onPress={() => restoreCategory(item._id)}
+                    />
+                </View>
+            )}
+        />
+
+      <Ionicons name='close-circle' size={30} color="black" onPress={() => setShowDeletedCategoriesModal(false)} style={styles.closeIcon} />
+    </View>
+  </View>
+</Modal>
+
+    </View>
+    
   );
 };
 
@@ -155,11 +317,12 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
     backgroundColor: '#3B3B3B',
+  },
 
-  },
   emptyText:{
-color: 'white'
+  color: 'white'
   },
+
   listItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -169,6 +332,16 @@ color: 'white'
     backgroundColor: '#414141',
     borderWidth: 1,
     borderColor: '#ddd',
+  },
+  penvadelete: {
+    flexDirection: 'row',
+    // justifyContent: 'space-between',
+    // alignItems: 'center',
+    padding: 5,
+    marginVertical: 6,
+    // backgroundColor: '#414141',
+    // borderWidth: 1,
+    // borderColor: '#ddd',
   },
   centeredView: {
     flex: 1,
@@ -190,6 +363,7 @@ color: 'white'
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
+    // width: '90%'
   },
   input: {
     height: 40,
@@ -197,6 +371,19 @@ color: 'white'
     borderWidth: 1,
     padding: 10,
     width: 200,
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: "center",
+    fontWeight: 'bold'
+  },
+  deletedListItem: {
+    // flex: 1,
+    flexDirection: 'row',
+    backgroundColor: '#f8f8f8',
+    padding: 30,
+    marginVertical: 6,
+    borderRadius: 5
   },
 });
 

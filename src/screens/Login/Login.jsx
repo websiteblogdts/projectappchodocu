@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Image, ScrollView, TextInput,Alert, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, SafeAreaView } from 'react-native';
+import { View, Text, Image, ScrollView, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, SafeAreaView } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage'; 
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -18,7 +18,10 @@ const handleLogin = async () => {
           identifier: identifier,
           password: password
       };
-    
+      console.log('Logging in with:', userData);
+      const apiURL = `${config.apiBaseURL}/user/login`;
+      console.log('API URL:', apiURL);
+
       const response = await axios.post(`${config.apiBaseURL}/user/login`, userData);
       const { token, role } = response.data; // Lấy cả role từ response data
 
@@ -29,9 +32,8 @@ const handleLogin = async () => {
 
       navigation.navigate(role === 'admin' ? 'Admin' : 'Root'); // Navigation dựa trên role
   } catch (error) {
-    Alert.alert('Error rui son oi', error.response.data.error);
-      // console.error("Login error:", error.response.data.error);
-      // alert("Invalid email or password. Please try again.");
+      console.error("Login error:", error);
+      alert("Invalid email or password. Please try again.");
   }
 };
 
@@ -39,7 +41,6 @@ const handleForgotPassword = () => {
   navigation.navigate('RegisterUser')
   console.log('Forgot password pressed');
 };
-
 
   return (
     <SafeAreaView style={{flex: 1,backgroundColor:'#3B3B3B', justifyContent: 'center'}}>
