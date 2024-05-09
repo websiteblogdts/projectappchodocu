@@ -3,6 +3,7 @@ import { View, Text, TextInput, Button, FlatList, Modal, StyleSheet, Alert } fro
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import config from '../../config/config';
 
@@ -22,36 +23,51 @@ const CategoryManager = () => {
   }, [])
 
     useEffect(() => {
+      fetchDeletedCategories();
     navigation.setOptions({
       headerRight: () => (
-        <Ionicons name="trash" size={30} color="#EA7575" onPress={() => setShowDeletedCategoriesModal(true)} style={styles.trashButton} />
-
-        //  <Ionicons
-        //   name="reload"
-        //   size={30}
-        //   color="gray"
-        //   onPress={fetchCategories}
-        //   // onPress={() => navigation.navigate('CategoryManager')}
-        //   />
+        <MaterialIcons name="restore" size={30} color="#EA7575" 
+        onPress={() => setShowDeletedCategoriesModal(true)}  style={styles.trashButton} />
         ),
     });
   },);
 
 ;
 
-const fetchDeletedCategories = async () => {
-  const userToken = await AsyncStorage.getItem('userToken');
-  const response = await axios.get(`${config.apiBaseURL}/admin/historycategorydelete`, {
-      headers: {
-          'Authorization': `${userToken}`
-      }
-  });
-  setDeletedCategories(response.data);
-};
+
 
 useEffect(() => {
   fetchDeletedCategories();
 }, []);
+
+const fetchDeletedCategories = async () => {
+  try {
+    const userToken = await AsyncStorage.getItem('userToken');
+    const response = await axios.get(`${config.apiBaseURL}/admin/historycategorydelete`, {
+        headers: {
+            'Authorization': `${userToken}`
+        }
+    });
+    // Check if the response has data and update state accordingly
+    if (response.data && response.data.length > 0) {
+      setDeletedCategories(response.data);
+    } else {
+      // Handle the case where response is successful but no data is returned
+      setDeletedCategories([]);
+      // console.log('No deleted categories found');
+    }
+  } catch (error) {
+    // console.error('Failed to fetch deleted categories:', error);
+    // Handle specific error response cases
+    if (error.response) {
+      // Customize error handling based on status codes or error messages
+      if (error.response.status === 404) {
+        setDeletedCategories([])
+        // Alert.alert('Info', 'No deleted categories found');
+      }
+    }
+  }
+};
 
 const fetchCategories = async () => {
   try {
@@ -161,6 +177,7 @@ const handleUpdateCategory = async () => {
 };
 
 const restoreCategory = async (categoryId) => {
+  
   try {
       const userToken = await AsyncStorage.getItem('userToken');
       const response = await axios.put(`${config.apiBaseURL}/admin/categories/restore/${categoryId}`, {}, {
@@ -168,9 +185,7 @@ const restoreCategory = async (categoryId) => {
               'Authorization': `${userToken}`
           }
       });
-
       console.log("Response from server:", response.data);
-
       if (response.status === 200) {
           Alert.alert("Success", "Category restored successfully");
           fetchDeletedCategories(); // Refresh the list of deleted categories
@@ -207,6 +222,7 @@ const restoreCategory = async (categoryId) => {
             placeholder="Category Name"
             value={newCategoryName}
             onChangeText={handleCategoryNameChange}
+            maxLength={20}
           />
         <View style={styles.buttonsaveandclose}>
           <Ionicons name='close-circle' title="Close" size={30} color="black" style={styles.buttonIcon} onPress={() => setModalVisible(false)} />
@@ -271,25 +287,26 @@ const restoreCategory = async (categoryId) => {
 >
   <View style={styles.centeredView}>
     <View style={styles.modalView}>
-      <Text style={styles.modalText}>Deleted Categories</Text>
-      <FlatList
-            data={deletedCategories}
-            keyExtractor={(item) => item._id}
-            renderItem={({ item }) => (
-                <View style={styles.deletedListItem}>
-                    <Text style={styles.deletedItemText}>{item.name}</Text>
-                    <Button
-                        title="Restore"
-                        onPress={() => restoreCategory(item._id)}
-                    />
-                </View>
-            )}
+      <Text style={styles.modalTitle}>Deleted Categories</Text>
+      {deletedCategories.length === 0 ? (
+        <Text style={styles.emptyText}>No categories to restore.</Text>
+      ) : (
+        <FlatList
+          data={deletedCategories}
+          keyExtractor={(item) => item._id}
+          renderItem={({ item }) => (
+            <View style={styles.deletedListItem}>
+              <Text style={styles.deletedItemText}>{item.name}</Text>
+              <Ionicons name="refresh-circle" size={30} color="#4CAF50" onPress={() => restoreCategory(item._id)} />
+            </View>
+          )}
         />
-
+      )}
       <Ionicons name='close-circle' size={30} color="black" onPress={() => setShowDeletedCategoriesModal(false)} style={styles.closeIcon} />
     </View>
   </View>
 </Modal>
+
 
     </View>
     
@@ -384,6 +401,36 @@ const styles = StyleSheet.create({
     padding: 30,
     marginVertical: 6,
     borderRadius: 5
+ },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#FFF',
+    paddingBottom: 10,
+  },
+  deletedListItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#C0C0C0',
+    padding: 20,
+    marginVertical: 4,
+    borderRadius: 10,
+  },
+  deletedItemText: {
+    // flex: 1, // makes text take up as much space as it can
+    marginRight: 10, // space between text and button
+    color: '#333',
+  },
+  emptyText: {
+    color: 'white',
+    textAlign: 'center',
+    marginTop: 20,
+  },
+  closeIcon: {
+    position: 'absolute', // To position the close icon better
+    right: 10,
+    top: 10,
   },
 });
 
