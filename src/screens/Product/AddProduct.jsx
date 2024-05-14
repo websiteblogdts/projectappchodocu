@@ -29,9 +29,11 @@ const AddProduct = () => {
   const [provinces, setProvinces] = useState([]);
   const [districts, setDistricts] = useState([]);
   const [wards, setWards] = useState([]);
+  
   const [selectedProvince, setSelectedProvince] = useState('');
   const [selectedDistrict, setSelectedDistrict] = useState('');
   const [selectedWard, setSelectedWard] = useState('');
+
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   React.useEffect(() => {
@@ -49,15 +51,7 @@ const AddProduct = () => {
     }
 };
 
-  const fetchProvinces = async () => {
-    try {
-      const response = await fetch('https://raw.githubusercontent.com/kenzouno1/DiaGioiHanhChinhVN/master/data.json');
-      const data = await response.json();
-      setProvinces(data);
-    } catch (error) {
-      console.error('Error fetching provinces:', error);
-    }
-  };
+
 
   const handleSubmit = async () => {
     try {
@@ -127,6 +121,17 @@ const AddProduct = () => {
   
   const decreasePrice = () => {
     setPrice(prevPrice => Math.max(0, prevPrice - 1));
+  };
+
+
+  const fetchProvinces = async () => {
+    try {
+      const response = await fetch('https://raw.githubusercontent.com/kenzouno1/DiaGioiHanhChinhVN/master/data.json');
+      const data = await response.json();
+      setProvinces(data);
+    } catch (error) {
+      console.error('Error fetching provinces:', error);
+    }
   };
 
 const handleProvinceChange = (province) => {

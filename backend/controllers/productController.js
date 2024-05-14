@@ -36,11 +36,13 @@ exports.getAllProductsByUser = (req, res) => {
 
     // Kiểm tra trạng thái của người dùng
     User.findById(userId).then(user => {
+
         if (!user || user.isDeleted || user.account_status === 'locked') {
             return res.status(403).json({ error: 'User is not available' });
         }
 
-        Product.find({ author: userId, admin_approved: true })
+        //Product.find({ author: userId, admin_approved: true })
+        Product.find({ author: userId })
             .then(products => {
                 res.json(products);
             })
@@ -158,7 +160,7 @@ exports.createProduct = async (req, res) => {
         }
          // Ensure price is a non-negative number
          if (typeof price !== 'number' || price < 0) {
-            return res.status(400).json({ error: "Giá sản phẩm phải là một số không âm." });
+            return res.status(401).json({ error: "Giá sản phẩm phải là một số không âm." });
         }
         // Lấy id của sản phẩm cần cập nhật
         const productId = req.params.productId;
@@ -166,13 +168,13 @@ exports.createProduct = async (req, res) => {
         // Tìm sản phẩm cần chỉnh sửa trong cơ sở dữ liệu
         const product = await Product.findById(productId);
         if (!product) {
-            return res.status(404).json({ error: "Product not found" });
+            return res.status(402).json({ error: "Product not found" });
         }
 
         // Kiểm tra xem người dùng hiện tại có phải là tác giả của sản phẩm không
         const userId = req.user.id;
         if (product.author.toString() !== userId) {
-            return res.status(401).json({ error: "Unauthorized" });
+            return res.status(403).json({ error: "Unauthorized" });
         }
         // const product = new Product({
         //     name,

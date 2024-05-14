@@ -10,7 +10,7 @@ const productRoutes = require("./routes/productRoutes");
 const adminRoutes = require('./routes/adminRoutes');
 const userRoutes = require('./routes/userRoutes'); 
 
-require('dotenv').config();
+// require('dotenv').config();
 
 require("./models/Product");
 require("./models/User"); 
