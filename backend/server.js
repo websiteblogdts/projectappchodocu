@@ -5,7 +5,7 @@ const server = express();
 const config = require('./config/config');
 
 const authMiddleware = require('./middlewares/authMiddleware');
-
+const messageRoutes = require('./routes/messageRoutes');
 const productRoutes = require("./routes/productRoutes");
 const adminRoutes = require('./routes/adminRoutes');
 const userRoutes = require('./routes/userRoutes'); 
@@ -28,7 +28,7 @@ mongoose.connect(config.mongoURI, {
   console.log("Không thể kết nối rùi", err);
 });
 
-
+server.use('/mess', messageRoutes);
 server.use('/product', productRoutes); 
 server.use('/admin', adminRoutes); 
 server.use("/user", userRoutes); 
