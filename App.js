@@ -1,6 +1,6 @@
 import React from 'react';
 import 'react-native-get-random-values';
-import { View, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
@@ -19,12 +19,13 @@ import UserProfileScreen from './src/screens/User/UserProfileScreen';
 import RegisterUser from './src/screens/Register/RegisterUser';
 import ProductListByUser from './src/screens/Product/ProductListByUser';
 import CategoryManager from './src/screens/Admin/CategoryManager';
+import ListMess from './src/screens/Chat/ListMess';
+import MessagesScreen from './src/screens/Chat/MessagesScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
 
-// Màn hình Home Stack khai báo gì thì dùng được cái đó, khai báo mới hiển thị được.
 //dành cho user
 function HomeStack() {
   return (
@@ -42,6 +43,14 @@ function CreateProduct(){
         <Stack.Screen name="AddProduct" component={AddProduct} options={{ headerShown: true }} />
       </Stack.Navigator>
     );
+}
+function Chat(){
+  return(
+
+    <Stack.Navigator screenOptions={defaultHeaderOptions}>
+      <Stack.Screen name="ListMess" component={ListMess} options={{ headerShown: true }} />
+    </Stack.Navigator>
+  );
 }
 function ViewPostProduct() {
   return (
@@ -64,13 +73,17 @@ function BottomTabsForUser() {
         name="CreateProduct" 
         component={CreateProduct}
         options={{headerShown: false, tabBarIcon: ({ color, size }) => (<FontAwesome6 name="circle-plus" size={size} color={color} />)}} />
-     
+      
+      <Tab.Screen name="Chat" component={Chat}
+        options={{ headerShown: false, tabBarIcon: ({ color, size }) => (<FontAwesome6 name="list-check" size={size} color={color} />)}} />
+  
       <Tab.Screen name="ViewPostProduct" component={ViewPostProduct}
         options={{ headerShown: false, tabBarIcon: ({ color, size }) => (<FontAwesome6 name="list-check" size={size} color={color} />)}} />
   
       <Tab.Screen name="UserProfileScreen" component={UserProfile} 
       options={{ headerShown: false, tabBarIcon: ({ color, size }) => ( <FontAwesome6 name="circle-user" size={size} color={color} />)}} />
       
+
     </Tab.Navigator>
   );
 }

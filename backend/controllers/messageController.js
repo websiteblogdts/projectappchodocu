@@ -92,22 +92,38 @@ exports.getMessages = async (req, res) => {
 };
 
 exports.getUsersWhoMessaged = async (req, res) => {
-    const { userId } = req.params;
+    const userId = req.user.id; // Lấy userId từ thông tin người dùng đã xác thực
+
 
     try {
         const chatsMess = await Chat.find({ participants: userId })
-            .populate('participants', 'username')
-            .populate('product', 'name');
+            .populate('participants', 'name avatar_image')
+            // .populate('product', 'name');
+            .populate('lastMessage', 'content'); // Populate lastMessage content
+
 
         if (!chatsMess) {
             return res.status(404).json({ message: 'No chats found' });
         }
 
+        // const users = [];
+        // chatsMess.forEach(chat => {
+        //     chat.participants.forEach(participant => {
+        //         if (participant._id.toString() !== userId && !users.some(user => user._id.toString() === participant._id.toString())) {
+        //             users.push(participant);
+        //         }
+        //     });
+        // });
         const users = [];
         chatsMess.forEach(chat => {
             chat.participants.forEach(participant => {
                 if (participant._id.toString() !== userId && !users.some(user => user._id.toString() === participant._id.toString())) {
-                    users.push(participant);
+                    users.push({
+                        _id: participant._id,
+                        name: participant.name,
+                        avatar_image: participant.avatar_image,
+                        lastMessage: chat.lastMessage ? chat.lastMessage.content : ''
+                    });
                 }
             });
         });
