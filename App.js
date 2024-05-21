@@ -75,7 +75,7 @@ function BottomTabsForUser() {
         options={{headerShown: false, tabBarIcon: ({ color, size }) => (<FontAwesome6 name="circle-plus" size={size} color={color} />)}} />
       
       <Tab.Screen name="Chat" component={Chat}
-        options={{ headerShown: false, tabBarIcon: ({ color, size }) => (<FontAwesome6 name="list-check" size={size} color={color} />)}} />
+        options={{ headerShown: false, tabBarIcon: ({ color, size }) => (<FontAwesome6 name="message" size={size} color={color} />)}} />
   
       <Tab.Screen name="ViewPostProduct" component={ViewPostProduct}
         options={{ headerShown: false, tabBarIcon: ({ color, size }) => (<FontAwesome6 name="list-check" size={size} color={color} />)}} />

@@ -46,6 +46,8 @@ const EditProduct = ({ route, navigation }) => {
 
   const fetchProduct = async (productId) => {
     try {
+
+      
       const userToken = await AsyncStorage.getItem('userToken');
       const response = await fetch(`${config.apiBaseURL}/product/${productId}`, {
         headers: {
@@ -53,23 +55,29 @@ const EditProduct = ({ route, navigation }) => {
         }
       });
       const data = await response.json();
-      console.log('Fetched Product Data:', data);
 
         const provinceData = await fetchProvinces();        ;
         const districtData = await fetchDistrict(data.address.provinces);
         const wardData = await fetchWard(data.address.districts);
 
       setProduct(data);
-      // Điền thông tin sản phẩm vào các trường biểu mẫu chỉnh sửa
+
       setName(data.name);
-      setPrice(data.price.toString());
+      setPrice(data.price);
       setDescription(data.description);
       setCategory(data.category);
       setImages(data.images || []);
-        setUploadedImage(data.images ? data.images[0] : '');
-        setProvince(provinceData);
-        setDistrict(districtData);
-        setWard(wardData);
+      setUploadedImage(data.images ? data.images[0] : '');
+
+      setSelectedProvince(data.address.province);
+      setSelectedDistrict(data.address.district);
+      setSelectedWard(data.address.ward);
+
+      setProvince(provinceData);
+      setDistrict(districtData);
+      setWard(wardData);
+            console.log('Fetched Product Data:', data);
+
     } catch (error) {
       console.error('Error fetching product:', error);
     }
@@ -87,18 +95,7 @@ const EditProduct = ({ route, navigation }) => {
 
   const updateData = async () => {
     try {
-      console.log('Updating product data:', {
-        name,
-        price,
-        description,
-        images,
-        category,
-        address: {
-          province,
-          district,
-          ward
-        }
-      });
+    
       const userToken = await AsyncStorage.getItem('userToken');
       const response = await fetch(`${config.apiBaseURL}/product/editproduct/${productId}`, {
         method: 'PUT',
@@ -120,7 +117,8 @@ const EditProduct = ({ route, navigation }) => {
         })
       });
       const data = await response.json();
-      
+      console.log(data);
+
       if (!response.ok) {
         throw new Error(data.error || `HTTP error ${response.status}`);
       }
@@ -128,48 +126,12 @@ const EditProduct = ({ route, navigation }) => {
       navigation.navigate('ProductListByUser');
       // Trigger reload products list in parent component
       reloadProducts();
+      
     } catch (error) {
-      console.error('Error updating product:', error);
+      // console.error('Error updating product:', error);
       Alert.alert('Error', 'Failed to update product. Please try again.');
     }
   };
-  //   try {
-  //     const userToken = await AsyncStorage.getItem('userToken');
-
-  //     const response = await fetch(`${config.apiBaseURL}/product/editproduct/${route.params.productId}`, {
-  //       method: 'PUT',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //         'Authorization': `${userToken}`
-  //       },
-  //       body: JSON.stringify({
-  //         name,
-  //         price,
-  //         description,
-  //         images,
-  //         category,
-  //         address: {
-  //           province: selectedProvince,
-  //           district: selectedDistrict,
-  //           ward: selectedWard
-  //         }
-  //       })
-  //     });
-
-  //     if (!response.ok) {
-  //       throw new Error(`HTTP error ${response.status}`);
-  //     }
-
-  //     const data = await response.json();
-  //     console.log(data);
-  //     Alert.alert(`${data.name} is Updated successfully!!`);
-  //     navigation.navigate("ProductList");
-  //   } catch (error) {
-  //     console.error('Error updating product:', error);
-  //     Alert.alert('Failed to update product');
-  //   }
-  // };
-
 
   const fetchProvinces = async () => {
     try {
@@ -429,7 +391,7 @@ const EditProduct = ({ route, navigation }) => {
             >
               <Picker.Item label="Select District" value="" />
               {districts.map((district) => (
-                <Picker.Item key={district.id} label={district.Name} value={district.Name} />
+                <Picker.Item key={district.Name} label={district.Name} value={district.Name} />
               ))}
             </Picker>
 
@@ -440,7 +402,7 @@ const EditProduct = ({ route, navigation }) => {
             >
               <Picker.Item label="Select Ward" value="" />
               {wards.map((ward) => (
-                <Picker.Item key={ward.id} label={ward.Name} value={ward.Name} />
+                <Picker.Item key={ward.Name} label={ward.Name} value={ward.Name} />
               ))}
             </Picker>
           </View>

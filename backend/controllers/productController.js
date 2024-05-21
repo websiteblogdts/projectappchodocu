@@ -162,6 +162,7 @@ exports.createProduct = async (req, res) => {
          if (typeof price !== 'number' || price < 0) {
             return res.status(401).json({ error: "Giá sản phẩm phải là một số không âm." });
         }
+
         // Lấy id của sản phẩm cần cập nhật
         const productId = req.params.productId;
 

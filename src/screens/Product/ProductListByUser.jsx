@@ -33,7 +33,7 @@ const ProductListByUser = () => {
       }
   
       const data = await response.json();
-      console.log('Dữ liệu sản phẩm:', data);
+      // console.log('Dữ liệu sản phẩm:', data);
       setProducts(data);
     } catch (error) {
       console.error('Error fetching products:', error);
