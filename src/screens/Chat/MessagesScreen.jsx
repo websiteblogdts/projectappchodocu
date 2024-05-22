@@ -17,6 +17,8 @@ const MessagesScreen = ({ route }) => {
   const [currentUserId, setCurrentUserId] = useState('');
   const [refreshing, setRefreshing] = useState(false);
   const [messageInput, setMessageInput] = useState('');
+  const [productName, setProductName] = useState('');
+  const [productPrice, setProductPrice] = useState('');
 
   useEffect(() => {
     // Listen for incoming messages
@@ -28,6 +30,15 @@ const MessagesScreen = ({ route }) => {
       socket.off('receiveMessage'); // Clean up listener when component unmounts
     };
   }, []);
+
+  useEffect(() => {
+    if (chatId) {
+      fetchMessages();
+    } else {
+      console.error('chatId is undefined');
+      setLoading(false);
+    }
+  }, [chatId]);
 
   const fetchMessages = async () => {
     try {
@@ -41,7 +52,8 @@ const MessagesScreen = ({ route }) => {
       console.log('Fetched Messages:', data); // Log fetched messages
       setMessages(data.messages); // Assuming data has a messages property which is an array of messages
       setCurrentUserId(data.currentUserId); // Assuming data has a currentUserId property
-      
+      setProductName(data.productName); // Assuming data has a productName property
+      setProductPrice(data.productPrice);
     } catch (error) {
       console.error('Error fetching messages:', error);
     } finally {
@@ -50,14 +62,6 @@ const MessagesScreen = ({ route }) => {
     }
   };
 
-  useEffect(() => {
-    if (chatId) {
-      fetchMessages();
-    } else {
-      console.error('chatId is undefined');
-      setLoading(false);
-    }
-  }, [chatId]);
 
   const sendMessage = async () => {
     try {
@@ -100,12 +104,14 @@ const MessagesScreen = ({ route }) => {
     const styles = isSender ? SenderMessageStyles : ReceiverMessageStyles;
 
     return (
+      
       <View style={styles.messageContainer}>
+
         <View style={styles.userContainer}>
           <Image source={{ uri: item.sender.avatar_image }} style={styles.avatar} />
           <View style={styles.textContainer}>
             <Text style={styles.username}>{item.sender.name}</Text>
-            
+
             <Text style={styles.content}>{item.content}</Text>
           </View>
         </View>
@@ -115,6 +121,10 @@ const MessagesScreen = ({ route }) => {
 
    return (
     <View style={styles.container}>
+      <View style={styles.productInfoContainer}>
+        <Text style={styles.productNameText}>Product: {productName}</Text>
+        <Text style={styles.productPriceText}>Price: {productPrice}</Text>
+      </View>
       <FlatList
         data={messages}
         keyExtractor={(item) => item._id}
@@ -172,6 +182,21 @@ const styles = StyleSheet.create({
   sendButtonText: {
     color: '#fff',
     fontWeight: 'bold',
+  },
+  productInfoContainer: {
+    flexDirection: 'cow',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  productNameText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: 'white',
+  },
+  productPriceText: {
+    fontSize: 14,
+    color: 'white',
   },
 });
 
