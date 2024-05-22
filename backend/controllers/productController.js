@@ -42,7 +42,7 @@ exports.getAllProductsByUser = (req, res) => {
         }
 
         //Product.find({ author: userId, admin_approved: true })
-        Product.find({ author: userId })
+        Product.find({ author: userId, isDeleted: false })
             .then(products => {
                 res.json(products);
             })
@@ -56,34 +56,20 @@ exports.getAllProductsByUser = (req, res) => {
 
 exports.getproductdaduyet = (req, res) => {
     try {
-        Product.find({ admin_approved: true })
+        Product.find({ admin_approved: true, isDeleted: false })  // Ensure products are not soft deleted
             .populate({
                 path: 'author',
-                match: { isDeleted: false }  // Chỉ lấy sản phẩm nếu người dùng không bị xóa mềm
-               // match: { isDeleted: false, account_status: 'active' }  // Chỉ lấy sản phẩm nếu người dùng không bị xóa mềm và tài khoản đang hoạt động
-
+                match: { isDeleted: false, account_status: 'active' }  // Ensure authors are not soft deleted and their account is active
             })
             .then(products => {
-                // Lọc ra các sản phẩm mà người dùng không bị khóa hoặc xóa
-                const filteredProducts = products.filter(product => product.author && !product.author.isDeleted);
+                // Filter out products whose author is not soft deleted and has an active account
+                const filteredProducts = products.filter(product => product.author);
                 if (filteredProducts.length === 0) {
                     return res.status(404).json({ message: 'Không có sản phẩm phù hợp.' });
                 }
-                // Trả về danh sách các sản phẩm
+                // Return the filtered list of products
                 res.json(filteredProducts);
             })
-
-            // .then(products => {
-            //     // Lọc ra các sản phẩm mà người dùng không bị khóa hoặc xóa và tài khoản đang hoạt động
-            //     const filteredProducts = products.filter(product => product.author && !product.author.isDeleted && product.author.account_status === 'active');
-            //     if (filteredProducts.length === 0) {
-            //         return res.status(404).json({ message: 'Không có sản phẩm phù hợp.' });
-            //     }
-            //     // Trả về danh sách các sản phẩm
-            //     res.json(filteredProducts);
-            // })
-
-
             .catch(error => {
                 console.error('Error fetching products:', error);
                 res.status(500).json({ error: 'Internal server error' });
@@ -94,9 +80,11 @@ exports.getproductdaduyet = (req, res) => {
     }
 };
 
+
 // Hàm xử lý hiển thị tất cả các sản phẩm giá trị true cho trang listproduct
+// chức năng này chưa được sử dụng
 exports.getAllProducts = (req, res) => {
-    Product.find({ admin_approved: true,  })
+    Product.find({ admin_approved: true, isdeleted: false })
         .then(products => {
             res.send(products);
         })
@@ -105,6 +93,7 @@ exports.getAllProducts = (req, res) => {
             res.status(500).json({ error: 'Internal server error' });
         });
 };
+
 
 
 exports.createProduct = async (req, res) => {

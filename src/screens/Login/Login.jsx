@@ -23,12 +23,14 @@ const handleLogin = async () => {
       console.log('API URL:', apiURL);
 
       const response = await axios.post(`${config.apiBaseURL}/user/login`, userData);
-      const { token, role } = response.data; // Lấy cả role từ response data
-
-      console.log('Login successful! Role:', role, 'Token:', token); // Hiển thị role và token trong terminal
+      const { token, role, user } = response.data; // Lấy user từ response data
+      const userId = user._id;
+      
+      console.log('Login successful! Role:', role, 'UserId:', userId, 'Token:', token); // Hiển thị role, token và userId trong terminal
 
       await AsyncStorage.setItem('userToken', token);
       await AsyncStorage.setItem('userRole', role); // Lưu role vào AsyncStorage
+      await AsyncStorage.setItem('userId', userId); // Lưu userId vào AsyncStorage
 
       navigation.navigate(role === 'admin' ? 'Admin' : 'Root'); // Navigation dựa trên role
   } catch (error) {

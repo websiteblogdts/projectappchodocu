@@ -3,6 +3,7 @@ import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, RefreshContr
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import config from '../../config/config';
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 
 const ViewPostsMain = () => {
   const navigation = useNavigation();
@@ -25,7 +26,8 @@ const ViewPostsMain = () => {
   useEffect(() => {
     navigation.setOptions({
       headerRight: () => (
-       <Button
+       <FontAwesome5
+          name="exchange-alt" 
           title={approved ? "Show Unapproved" : "Show Approved"}
           onPress={toggleApproved}
           style={styles.buttonshowhide}
@@ -56,13 +58,9 @@ const ViewPostsMain = () => {
       }
     } catch (error) {
       console.error('Error fetching products:', error);
-      showAlert("Lỗi", "Không thể tải sản phẩm. Vui lòng thử lại.");
     }
   };
   
-  const showAlert = (title, message) => {
-    Alert.alert(title, message);
-  };
   
   const toggleProductApproval = async (productId) => {
     try {
@@ -87,7 +85,6 @@ const ViewPostsMain = () => {
                   'Content-Type': 'application/json'
                 }
               });
-  
               // Tải lại danh sách sản phẩm sau khi cập nhật
               fetchProducts(approved);
             },
@@ -153,12 +150,7 @@ const ViewPostsMain = () => {
 
   return (
     <View style={styles.container}>
-{/* <Button
-  title={approved ? "Show Unapproved" : "Show Approved"}
-  onPress={toggleApproved}
-  style={styles.buttonshowhide}
-  color={approved ? "#FF5733" : "#4CAF50"}
-/> */}
+
       {products.length === 0 ? (
         <Text style={styles.emptyText}>Danh sách trống</Text>
       ) : (

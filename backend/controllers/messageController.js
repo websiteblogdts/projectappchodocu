@@ -75,23 +75,6 @@ exports.sendMess = async (req, res) => {
     }
 };
 
-
-// exports.getMessages = async (req, res) => {
-//     const { chatId } = req.params;
-
-//     try {
-//         const messages = await Message.find({ chat: chatId })
-//         .populate('sender', 'name avatar_image');
-//         if (!messages) {
-//             return res.status(404).json({ message: 'No messages found' });
-//         }
-
-//         res.status(200).json(messages);
-//     } catch (error) {
-//         res.status(500).json({ message: error.message });
-//     }
-// };
-
 exports.getMessages = async (req, res) => {
     const { chatId } = req.params;
     const currentUserId = req.user.id; // Lấy userId từ thông tin người dùng đã xác thực
@@ -112,33 +95,43 @@ exports.getMessages = async (req, res) => {
 exports.getUsersWhoMessaged = async (req, res) => {
     const userId = req.user.id; // Lấy userId từ thông tin người dùng đã xác thực
 
-
     try {
-        const chatsMess = await Chat.find({ participants: userId })
-            .populate('participants', 'name avatar_image')
-            // .populate('product', 'name');
-            .populate('lastMessage', 'content'); // Populate lastMessage content
+        // Tìm tất cả cuộc trò chuyện mà người dùng tham gia
+        const allChats = await Chat.find({ participants: userId })
+            .populate('lastMessage', 'content');
 
-
-        if (!chatsMess) {
+        if (!allChats) {
             return res.status(404).json({ message: 'No chats found' });
         }
 
-        const users = [];
-        chatsMess.forEach(chat => {
-            chat.participants.forEach(participant => {
-                if (participant._id.toString() !== userId && !users.some(user => user._id.toString() === participant._id.toString())) {
-                    users.push({
-                        _id: participant._id,
-                        name: participant.name,
-                        avatar_image: participant.avatar_image,
-                        chatId: chat._id,
-                        lastMessage: chat.lastMessage ? chat.lastMessage.content : ''
-                    });
-                }
-            });
-        });
+        // Tạo một object để lưu danh sách người dùng, được sắp xếp theo productId
+        const usersByProduct = {};
 
+        // Duyệt qua mỗi cuộc trò chuyện
+        for (const chat of allChats) {
+            // Lấy thông tin của sản phẩm từ cuộc trò chuyện
+            const productId = chat.product;
+
+            // Kiểm tra xem sản phẩm đã được thêm vào danh sách chưa
+            if (!usersByProduct[productId]) {
+                // Lấy thông tin chi tiết của sản phẩm từ cơ sở dữ liệu
+                const product = await Product.findById(productId);
+                if (product) {
+                    // Thêm thông tin sản phẩm vào đối tượng người dùng
+                    usersByProduct[productId] = {
+                        _id: product._id,
+                        name: req.user.name, // Lấy tên người dùng từ req.user
+                        avatar_image: product.images[0], // Sử dụng hình ảnh đầu tiên của sản phẩm
+                        chatId: chat._id,
+                        lastMessage: chat.lastMessage ? chat.lastMessage : null,
+                        productName: product.name
+                    };
+                }
+            }
+        }
+
+        // Chuyển đổi object thành mảng và trả về
+        const users = Object.values(usersByProduct);
         res.status(200).json(users);
     } catch (error) {
         res.status(500).json({ message: error.message });

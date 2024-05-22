@@ -5,6 +5,9 @@ import config from '../../config/config';
 import SenderMessageStyles from "../../components/SenderMessageStyles"
 import ReceiverMessageStyles from '../../components/ReceiverMessageStyles';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import io from 'socket.io-client';
+
+const socket = io(config.socketServerURL); // Connect to Socket.IO server
 
 const MessagesScreen = ({ route }) => {
   const { chatId } = route.params;
@@ -14,6 +17,17 @@ const MessagesScreen = ({ route }) => {
   const [currentUserId, setCurrentUserId] = useState('');
   const [refreshing, setRefreshing] = useState(false);
   const [messageInput, setMessageInput] = useState('');
+
+  useEffect(() => {
+    // Listen for incoming messages
+    socket.on('receiveMessage', (message) => {
+      setMessages((prevMessages) => [...prevMessages, message]);
+    });
+
+    return () => {
+      socket.off('receiveMessage'); // Clean up listener when component unmounts
+    };
+  }, []);
 
   const fetchMessages = async () => {
     try {
@@ -66,6 +80,7 @@ const MessagesScreen = ({ route }) => {
       fetchMessages();
       // Clear message input after sending
       setMessageInput('');
+    socket.emit('sendMessage', { chatId, senderId: currentUserId, content: messageInput });
     } catch (error) {
       console.error('Error sending message:', error);
     }
@@ -89,7 +104,8 @@ const MessagesScreen = ({ route }) => {
         <View style={styles.userContainer}>
           <Image source={{ uri: item.sender.avatar_image }} style={styles.avatar} />
           <View style={styles.textContainer}>
-            {/* <Text style={styles.username}>{item.sender.name}</Text> */}
+            <Text style={styles.username}>{item.sender.name}</Text>
+            
             <Text style={styles.content}>{item.content}</Text>
           </View>
         </View>

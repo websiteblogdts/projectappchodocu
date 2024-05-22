@@ -56,30 +56,36 @@ const ListMess = ({ navigation }) => {
       <Image source={{ uri: item.avatar_image }} style={styles.avatar} />
       <View style={styles.textContainer}>
         <Text style={styles.username}>{item.name}</Text>
-        <Text style={styles.lastMessage}>{item.content}</Text>
-        {item.chatId ? (
+        <Text style={styles.productName}>Product: {item.productName}</Text>
+        <Text style={styles.lastMessage}>{item.lastMessage}</Text>
+        {item.productName ? ( 
           <TouchableOpacity onPress={() => messages(item.chatId)}>
             <Text style={styles.viewMessages}>Xem tin nhắn</Text>
           </TouchableOpacity>
-        ) : (
-          <Text style={styles.viewMessages}>ChatId không hợp lệ</Text>
-        )}
+       ) : (
+        <Text style={styles.viewMessages}>Tên sản phẩm không hợp lệ</Text>
+      )}
       </View>
     </View>
   );
+
   return (
     <View style={styles.container}>
-      <FlatList
-        data={users}
-        keyExtractor={(item) => item._id}
-        renderItem={renderUser}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-          />
-        }
-      />
+      {users.length === 0 ? (
+        <Text style={styles.noMessagesText}>Hiện chưa có tin nhắn</Text>
+      ) : (
+        <FlatList
+          data={users}
+          keyExtractor={(item) => item._id}
+          renderItem={renderUser}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+            />
+          }
+        />
+      )}
     </View>
   );
 };
@@ -90,6 +96,13 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: '#414141',
   },
+  lastMessage: {
+    color: 'white',
+    fontSize: 14, // Thêm fontSize cho lastMessage
+    marginTop: 5,
+    lineHeight: 20, // Thêm lineHeight để làm cho văn bản dễ đọc hơn
+  },
+  
   userContainer: {
     flexDirection: 'row',
     padding: 10,
@@ -109,9 +122,18 @@ const styles = StyleSheet.create({
   username: {
     fontWeight: 'bold',
   },
+  // lastMessage: {
+  //   color: 'white',
+  // },
   viewMessages: {
     color: 'gray',
     marginTop: 5,
+  },
+  noMessagesText: {
+    color: 'white',
+    fontSize: 18,
+    textAlign: 'center',
+    marginTop: 20,
   },
 });
 

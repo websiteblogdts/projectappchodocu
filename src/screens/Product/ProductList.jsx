@@ -19,7 +19,10 @@ const ProductListScreen = () => {
   useEffect(() => {
     navigation.setOptions({
       headerRight: () => (
-        <MaterialCommunityIcons name={viewMode === 'grid' ? 'view-list' : 'view-grid'} title="Logout" size={30} color="#EA7575" style={styles.iconlogout} onPress={toggleViewMode} />
+        <MaterialCommunityIcons name={viewMode === 'grid' ? 'view-list' : 'view-grid'} 
+        title="Logout" size={30} color="#EA7575" 
+        style={styles.iconlogout} 
+        onPress={toggleViewMode} />
         ),
     });
   },);

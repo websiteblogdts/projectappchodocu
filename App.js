@@ -33,6 +33,8 @@ function HomeStack() {
 
       <Stack.Screen name="ProductList" component={ProductList} options={{ headerShown: true ,title: 'View Product List'}} />
       <Stack.Screen name="ProductDetail" component={ProductDetail} options={{ headerShown: true ,title: 'View Product List'}}/>
+      <Stack.Screen name="MessagesScreen" component={MessagesScreen} options={{ headerShown: true }} />
+
     </Stack.Navigator>
   );
 }

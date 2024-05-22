@@ -76,8 +76,25 @@ exports.getUserProfile = async (req, res) => {
             email: user.email,
             role: user.role
         }, JWT_SECRET, { expiresIn: '1h' }); // Token hết hạn sau 1 giờ
-
-        res.status(200).json({ message: "Login successful", token, role: user.role });
+        res.status(200).json({ 
+            message: "Login successful", 
+            token, 
+            role: user.role,
+            user: {
+                _id: user._id,
+                email: user.email,
+                phone_number: user.phone_number,
+                name: user.name,
+                avatar_image: user.avatar_image,
+                reward_points: user.reward_points,
+                role: user.role,
+                account_status: user.account_status,
+                isDeleted: user.isDeleted,
+                createdAt: user.createdAt,
+                updatedAt: user.updatedAt
+            }
+        });
+        // res.status(200).json({ message: "Login successful", token, role: user.role });
     } catch (error) {
         console.error("Error logging in:", error);
         res.status(500).json({ error: "Internal Server Error" });

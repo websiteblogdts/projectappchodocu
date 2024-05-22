@@ -61,8 +61,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: 'white', 
     backgroundColor:"#414141",
-    borderWidth:1,
-    borderColor:"black",
+    // borderWidth:1,
+    // borderColor:"black",
     // 4C4C4C
   },
   category: {
@@ -78,6 +78,12 @@ const styles = StyleSheet.create({
     color: 'white', 
 
   },
+  sendMessageButton:{
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginBottom: 20,
+    color: 'white', 
+  }
 });
 
   export default styles;
