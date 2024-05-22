@@ -76,21 +76,38 @@ exports.sendMess = async (req, res) => {
 };
 
 
+// exports.getMessages = async (req, res) => {
+//     const { chatId } = req.params;
+
+//     try {
+//         const messages = await Message.find({ chat: chatId })
+//         .populate('sender', 'name avatar_image');
+//         if (!messages) {
+//             return res.status(404).json({ message: 'No messages found' });
+//         }
+
+//         res.status(200).json(messages);
+//     } catch (error) {
+//         res.status(500).json({ message: error.message });
+//     }
+// };
+
 exports.getMessages = async (req, res) => {
     const { chatId } = req.params;
+    const currentUserId = req.user.id; // Lấy userId từ thông tin người dùng đã xác thực
 
     try {
-        const messages = await Message.find({ chat: chatId }).populate('sender', 'name avatar_image');
+        const messages = await Message.find({ chat: chatId })
+            .populate('sender', 'name avatar_image'); // Lấy thêm thông tin về name và avatar_image của người gửi
         if (!messages) {
             return res.status(404).json({ message: 'No messages found' });
         }
 
-        res.status(200).json(messages);
+        res.status(200).json({ messages, currentUserId });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
-
 
 exports.getUsersWhoMessaged = async (req, res) => {
     const userId = req.user.id; // Lấy userId từ thông tin người dùng đã xác thực

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList,CustomCardView, StyleSheet, Alert,Image,Button, TouchableOpacity, RefreshControl, Dimensions } from 'react-native';
+import { View, Text, FlatList, StyleSheet, Alert,Image, TouchableOpacity, RefreshControl, Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import config from '../../config/config';
