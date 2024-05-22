@@ -17,6 +17,7 @@ const ListMess = ({ navigation }) => {
         }
       });
       const data = await response.json();
+      console.log('API Response:', data); // Verify the API response
       setUsers(data);
     } catch (error) {
       console.error('Error fetching users:', error);
@@ -29,6 +30,17 @@ const ListMess = ({ navigation }) => {
   useEffect(() => {
     fetchlistMess();
   }, []);
+
+  const messages = (chatId) => {
+    console.log("Navigating with chatId:", chatId); // Log chatId to verify
+    if (chatId) {
+      console.log("chatId is defined. Navigating to MessagesScreen...");
+      navigation.navigate('MessagesScreen', { chatId });
+    } else {
+      console.error('chatId is undefined');
+    }
+  }
+  
 
   const onRefresh = () => {
     setRefreshing(true);
@@ -45,13 +57,16 @@ const ListMess = ({ navigation }) => {
       <View style={styles.textContainer}>
         <Text style={styles.username}>{item.name}</Text>
         <Text style={styles.lastMessage}>{item.content}</Text>
-        <TouchableOpacity onPress={() => navigation.navigate('Messages', { chatId: item.chatId })}>
-          <Text style={styles.viewMessages}>Xem tin nhắn</Text>
-        </TouchableOpacity>
+        {item.chatId ? (
+          <TouchableOpacity onPress={() => messages(item.chatId)}>
+            <Text style={styles.viewMessages}>Xem tin nhắn</Text>
+          </TouchableOpacity>
+        ) : (
+          <Text style={styles.viewMessages}>ChatId không hợp lệ</Text>
+        )}
       </View>
     </View>
   );
-
   return (
     <View style={styles.container}>
       <FlatList
@@ -93,9 +108,6 @@ const styles = StyleSheet.create({
   },
   username: {
     fontWeight: 'bold',
-  },
-  lastMessage: {
-    color: 'white',
   },
   viewMessages: {
     color: 'gray',

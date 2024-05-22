@@ -46,10 +46,11 @@ function CreateProduct(){
 }
 function Chat(){
   return(
-
-    <Stack.Navigator screenOptions={defaultHeaderOptions}>
+      <Stack.Navigator screenOptions={defaultHeaderOptions}>
       <Stack.Screen name="ListMess" component={ListMess} options={{ headerShown: true }} />
-    </Stack.Navigator>
+      <Stack.Screen name="MessagesScreen" component={MessagesScreen} options={{ headerShown: true }} />
+      </Stack.Navigator>
+
   );
 }
 function ViewPostProduct() {

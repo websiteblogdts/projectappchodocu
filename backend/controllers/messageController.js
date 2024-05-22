@@ -80,7 +80,7 @@ exports.getMessages = async (req, res) => {
     const { chatId } = req.params;
 
     try {
-        const messages = await Message.find({ chat: chatId }).populate('sender', 'username');
+        const messages = await Message.find({ chat: chatId }).populate('sender', 'name avatar_image');
         if (!messages) {
             return res.status(404).json({ message: 'No messages found' });
         }
@@ -90,6 +90,7 @@ exports.getMessages = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
 
 exports.getUsersWhoMessaged = async (req, res) => {
     const userId = req.user.id; // Lấy userId từ thông tin người dùng đã xác thực
@@ -106,14 +107,6 @@ exports.getUsersWhoMessaged = async (req, res) => {
             return res.status(404).json({ message: 'No chats found' });
         }
 
-        // const users = [];
-        // chatsMess.forEach(chat => {
-        //     chat.participants.forEach(participant => {
-        //         if (participant._id.toString() !== userId && !users.some(user => user._id.toString() === participant._id.toString())) {
-        //             users.push(participant);
-        //         }
-        //     });
-        // });
         const users = [];
         chatsMess.forEach(chat => {
             chat.participants.forEach(participant => {
@@ -122,6 +115,7 @@ exports.getUsersWhoMessaged = async (req, res) => {
                         _id: participant._id,
                         name: participant.name,
                         avatar_image: participant.avatar_image,
+                        chatId: chat._id,
                         lastMessage: chat.lastMessage ? chat.lastMessage.content : ''
                     });
                 }
