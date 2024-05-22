@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text,TextInput, FlatList, ActivityIndicator, RefreshControl, StyleSheet, Image,TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import config from '../../config/config';
-import socket from '../../config/socket';
+import socket  from '../../config/socket';
 import SenderMessageStyles from "../../components/SenderMessageStyles"
 import ReceiverMessageStyles from '../../components/ReceiverMessageStyles';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -19,26 +19,24 @@ const MessagesScreen = ({ route }) => {
   const [productPrice, setProductPrice] = useState('');
 
   useEffect(() => {
-    if (chatId) {
-      fetchMessages();
-    }
-
-    // Lắng nghe sự kiện receiveMessage để nhận tin nhắn mới từ máy chủ
-    socket.on('receiveMessage', (message) => {
-      // Thêm tin nhắn mới vào danh sách tin nhắn
-      setMessages(prevMessages => [...prevMessages, message]);
-    });
-
-    return () => {
-      socket.off('receiveMessage'); // Tắt lắng nghe khi component bị unmount
-    };
-  }, [chatId]);
+    fetchMessages();
+  }, []);
 
   useEffect(() => {
-    // Xử lý khi danh sách tin nhắn thay đổi
-    // Điều này sẽ được gọi mỗi khi messages thay đổi
-    // Cập nhật giao diện người dùng tại đây
-  }, [messages]);
+    // Lắng nghe sự kiện 'newMessage' từ máy chủ
+    socket.on('newMessage', (newMessages) => {
+      console.log('Received new messages:', newMessages); // Thêm console log ở đây
+      setMessages(newMessages);
+    });
+     // Lắng nghe sự kiện kết nối thành công
+  socket.on('connect', () => {
+    console.log('Connected to server');
+  });
+    // Hủy đăng ký lắng nghe khi component unmount
+    return () => {
+      socket.off('newMessage');
+    };
+  }, []);
   
   const fetchMessages = async () => {
     try {
@@ -49,7 +47,7 @@ const MessagesScreen = ({ route }) => {
         }
       });
       const data = await response.json();
-      console.log('Fetched Messages:', data); // Log fetched messages
+      // console.log('Fetched Messages:', data); // Log fetched messages
       setMessages(data); // Cập nhật danh sách tin nhắn
       setMessages(data.messages); // Cập nhật danh sách tin nhắn
       setCurrentUserId(data.currentUserId); // Cập nhật userId
@@ -83,7 +81,6 @@ const MessagesScreen = ({ route }) => {
       console.log('Sent message:', data); 
       setMessageInput('');
       fetchMessages();
-      socket.emit('sendMessage', { chatId, senderId: currentUserId, content: messageInput });
         } catch (error) {
       console.error('Error sending message:', error);
     }

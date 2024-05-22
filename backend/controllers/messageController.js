@@ -2,15 +2,6 @@ const { Chat, Message } = require('../models/Message'); // Ensure the path is co
 const Product = require('../models/Product');
 const User = require('../models/User');
 
-const io = require('socket.io')();
-// const http = require('http');
-// const serversocket = http.createServer(server);
-// const { Server } = require('socket.io');
-// const io = new Server(serversocket);
-
-exports.getRoutes = (req, res) => {
-    res.send('Hello son');
-};
 
 
 exports.newChat = async (req, res) => { // Added async here
@@ -46,7 +37,7 @@ exports.newChat = async (req, res) => { // Added async here
         res.status(500).json({ message: error.message });
     }
 };
-exports.sendMess = async (req, res) => {
+exports.sendMess = async ( req, res) => {
     const { chatId, senderId, content } = req.body;
 
     try {
@@ -76,8 +67,8 @@ exports.sendMess = async (req, res) => {
 
         // Lấy tất cả tin nhắn trong cuộc trò chuyện và trả về chúng
         const messages = await Message.find({ chat: chatId }).populate('sender', 'username');
-        io.emit('sendMessage', messages);
-        console.log('Received data from client:', { chatId, senderId, content });
+        // io.emit('newMessage', messages);
+        // console.log('Received data from client:', { chatId, senderId, content });
 
         res.status(200).json(messages);
     } catch (error) {
@@ -85,7 +76,7 @@ exports.sendMess = async (req, res) => {
     }
 };
 
-exports.getMessages = async (req, res) => {
+exports.getMessages = async ( req, res) => {
     const { chatId } = req.params;
     const currentUserId = req.user.id; // Lấy userId từ thông tin người dùng đã xác thực
 
@@ -150,33 +141,10 @@ exports.getUsersWhoMessaged = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
-
-io.on('connection', (socket) => {
-    console.log('A user connected');
-    console.log(`A user connected: ${socket.id}`);
-  
-    // Xử lý khi có tin nhắn mới được gửi từ client
-    socket.on('sendMessage', async (data) => {
-      // Xử lý tin nhắn ở đây
-      console.log('Received message from client:', data);
-      // Ví dụ: Lưu tin nhắn vào CSDL, sau đó gửi lại cho tất cả client khác
-    //   socket.broadcast.emit('receiveMessage', data);
-    //   io.emit('receiveMessage', data);
-      io.emit('receiveMessage', { chatId, senderId, content });
-    });
-  
-    // Xử lý khi ngắt kết nối từ client
-    socket.on('disconnect', () => {
-      console.log('User disconnected');
-      console.log(`User disconnected: ${socket.id}`);
-    });
-  });
-  
-  
-  // Thêm dòng console.log để xác nhận rằng máy chủ Socket.IO đã được tạo thành công và đang lắng nghe kết nối từ các máy khách
-  console.log('Socket.IO server is running and listening for connections.');
-  
-  
-
-// Export io để sử dụng trong ứng dụng của bạn
-module.exports.io = io;
+// module.exports = { // Export all the controllers
+//     getRoutes,
+//     newChat,
+//     sendMess,
+//     getMessages,
+//     getUsersWhoMessaged
+// };
