@@ -2,16 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { View, Text,TextInput, FlatList, ActivityIndicator, RefreshControl, StyleSheet, Image,TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import config from '../../config/config';
+import socket from '../../config/socket';
 import SenderMessageStyles from "../../components/SenderMessageStyles"
 import ReceiverMessageStyles from '../../components/ReceiverMessageStyles';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import io from 'socket.io-client';
 
-const socket = io(config.socketServerURL); // Connect to Socket.IO server
 
 const MessagesScreen = ({ route }) => {
   const { chatId } = route.params;
-  console.log("Received chatId:", chatId); // Log received chatId
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentUserId, setCurrentUserId] = useState('');
@@ -21,25 +19,27 @@ const MessagesScreen = ({ route }) => {
   const [productPrice, setProductPrice] = useState('');
 
   useEffect(() => {
-    // Listen for incoming messages
+    if (chatId) {
+      fetchMessages();
+    }
+
+    // Lắng nghe sự kiện receiveMessage để nhận tin nhắn mới từ máy chủ
     socket.on('receiveMessage', (message) => {
-      setMessages((prevMessages) => [...prevMessages, message]);
+      // Thêm tin nhắn mới vào danh sách tin nhắn
+      setMessages(prevMessages => [...prevMessages, message]);
     });
 
     return () => {
-      socket.off('receiveMessage'); // Clean up listener when component unmounts
+      socket.off('receiveMessage'); // Tắt lắng nghe khi component bị unmount
     };
-  }, []);
-
-  useEffect(() => {
-    if (chatId) {
-      fetchMessages();
-    } else {
-      console.error('chatId is undefined');
-      setLoading(false);
-    }
   }, [chatId]);
 
+  useEffect(() => {
+    // Xử lý khi danh sách tin nhắn thay đổi
+    // Điều này sẽ được gọi mỗi khi messages thay đổi
+    // Cập nhật giao diện người dùng tại đây
+  }, [messages]);
+  
   const fetchMessages = async () => {
     try {
       const userToken = await AsyncStorage.getItem('userToken');
@@ -50,10 +50,11 @@ const MessagesScreen = ({ route }) => {
       });
       const data = await response.json();
       console.log('Fetched Messages:', data); // Log fetched messages
-      setMessages(data.messages); // Assuming data has a messages property which is an array of messages
-      setCurrentUserId(data.currentUserId); // Assuming data has a currentUserId property
-      setProductName(data.productName); // Assuming data has a productName property
-      setProductPrice(data.productPrice);
+      setMessages(data); // Cập nhật danh sách tin nhắn
+      setMessages(data.messages); // Cập nhật danh sách tin nhắn
+      setCurrentUserId(data.currentUserId); // Cập nhật userId
+      setProductName(data.productName); // Cập nhật tên sản phẩm
+      setProductPrice(data.productPrice); // Cập nhật giá sản phẩm
     } catch (error) {
       console.error('Error fetching messages:', error);
     } finally {
@@ -79,13 +80,11 @@ const MessagesScreen = ({ route }) => {
         })
       });
       const data = await response.json();
-      console.log('Sent message:', data); // Log sent message
-      // Fetch messages again after sending the message
-      fetchMessages();
-      // Clear message input after sending
+      console.log('Sent message:', data); 
       setMessageInput('');
-    socket.emit('sendMessage', { chatId, senderId: currentUserId, content: messageInput });
-    } catch (error) {
+      fetchMessages();
+      socket.emit('sendMessage', { chatId, senderId: currentUserId, content: messageInput });
+        } catch (error) {
       console.error('Error sending message:', error);
     }
   };

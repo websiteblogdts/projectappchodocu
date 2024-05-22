@@ -6,8 +6,6 @@ const authMiddleware = require('../middlewares/authMiddleware');
 
 
 
-router.post('/newchat', messageController.newChat);
-router.post('/sendmess', messageController.sendMess);
 
 // đây là xem nội dung tin nhắn với 1 user được liên kết
 
@@ -17,5 +15,7 @@ router.get('/usersWhoMessaged', authMiddleware,messageController.getUsersWhoMess
 router.get('/messages/:chatId', authMiddleware,messageController.getMessages); 
 router.post('/test', authMiddleware, messageController.getRoutes);
 
+router.post('/newchat', authMiddleware,messageController.newChat);
+router.post('/sendmess', authMiddleware,messageController.sendMess);
 
 module.exports = router;
