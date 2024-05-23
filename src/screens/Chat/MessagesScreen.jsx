@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text,TextInput, FlatList, ActivityIndicator, RefreshControl, StyleSheet, Image,TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import config from '../../config/config';
@@ -17,10 +17,14 @@ const MessagesScreen = ({ route }) => {
   const [messageInput, setMessageInput] = useState('');
   const [productName, setProductName] = useState('');
   const [productPrice, setProductPrice] = useState('');
+  const flatListRef = useRef();
 
   useEffect(() => {
     fetchMessages();
   }, []);
+  useEffect(() => {
+    markMessagesAsRead(chatId);
+}, []);
 
 useEffect(() => {
   socket.on('newMessage', (newMessage) => {
@@ -56,6 +60,25 @@ useEffect(() => {
       setRefreshing(false); // Đảm bảo refreshing được cập nhật
     }
   };
+  const markMessagesAsRead = async (chatId) => {
+    try {
+        // Gửi yêu cầu PUT đến API để đánh dấu các tin nhắn đã đọc
+        const userToken = await AsyncStorage.getItem('userToken');
+        const response = await fetch(`${config.apiBaseURL}/mess/markMessagesAsRead`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `${userToken}`
+            },
+            body: JSON.stringify({ chatId })
+        });
+
+        const data = await response.json();
+        console.log('Mark as read response:', data);
+    } catch (error) {
+        console.error('Error marking messages as read:', error);
+    }
+};
 
 
   const sendMessage = async () => {
@@ -77,6 +100,7 @@ useEffect(() => {
       console.log('Sent message:', data); 
       setMessageInput('');
       fetchMessages();
+      flatListRef.current.scrollToEnd({ animated: true });
         } catch (error) {
       console.error('Error sending message:', error);
     }
@@ -118,16 +142,18 @@ useEffect(() => {
         <Text style={styles.productPriceText}>Price: {productPrice}</Text>
       </View>
       <FlatList
-        data={messages}
-        keyExtractor={(item) => item._id}
-        renderItem={renderMessage}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-          />
-        }
-      />
+  ref={flatListRef}
+  data={messages}
+  keyExtractor={(item) => item._id}
+  renderItem={renderMessage}
+  refreshControl={
+    <RefreshControl
+      refreshing={refreshing}
+      onRefresh={onRefresh}
+    />
+  }
+  onContentSizeChange={() => flatListRef.current.scrollToEnd({ animated: true })}
+/>
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.textInput}

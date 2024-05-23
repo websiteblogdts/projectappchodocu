@@ -3,6 +3,9 @@ const router = express.Router();
 const messageController = require('../controllers/messageController');
 const authMiddleware = require('../middlewares/authMiddleware'); 
 
+
+router.put('/markMessagesAsRead', messageController.markMessagesAsRead);
+
 // Middleware xác thực
 router.use(authMiddleware);
 
