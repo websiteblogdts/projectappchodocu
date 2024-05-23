@@ -92,7 +92,7 @@ const ProductDetail = ({ route, navigation }) => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${userToken}`
+          'Authorization': `${userToken}`
         },
         body: JSON.stringify({
           userId: userId,

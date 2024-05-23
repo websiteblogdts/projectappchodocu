@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, ActivityIndicator, RefreshControl, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import config from '../../config/config';
+import socket  from '../../config/socket';
 
 const ListMess = ({ navigation }) => {
   const [users, setUsers] = useState([]);
@@ -17,7 +18,7 @@ const ListMess = ({ navigation }) => {
         }
       });
       const data = await response.json();
-      console.log('API Response:', data); // Verify the API response
+      // console.log('API Response:', data); // Verify the API response
       setUsers(data);
     } catch (error) {
       console.error('Error fetching users:', error);
@@ -26,10 +27,20 @@ const ListMess = ({ navigation }) => {
       setRefreshing(false);
     }
   };
+  // useEffect(() => {
+  //   fetchlistMess();
+  // }, []);
 
   useEffect(() => {
     fetchlistMess();
-  }, []);
+    socket.on('newChat', (newChat) => {
+        // console.log('Received new chat from server:', newChat);
+        setUsers([...users, newChat]);
+    });
+    return () => {
+        socket.off('newChat');
+    };
+}, [users]); // Update the effect dependency array
 
   const messages = (chatId) => {
     console.log("Navigating with chatId:", chatId); // Log chatId to verify

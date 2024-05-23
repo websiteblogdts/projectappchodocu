@@ -22,21 +22,17 @@ const MessagesScreen = ({ route }) => {
     fetchMessages();
   }, []);
 
-  useEffect(() => {
-    // Lắng nghe sự kiện 'newMessage' từ máy chủ
-    socket.on('newMessage', (newMessages) => {
-      console.log('Received new messages:', newMessages); // Thêm console log ở đây
-      setMessages(newMessages);
-    });
-     // Lắng nghe sự kiện kết nối thành công
-  socket.on('connect', () => {
-    console.log('Connected to server');
+useEffect(() => {
+  socket.on('newMessage', (newMessage) => {
+      // console.log('Received new message from server:', newMessage);
+      setMessages([...messages, newMessage]);
   });
-    // Hủy đăng ký lắng nghe khi component unmount
-    return () => {
+
+  return () => {
       socket.off('newMessage');
-    };
-  }, []);
+  };
+}, [messages]);
+
   
   const fetchMessages = async () => {
     try {

@@ -1,17 +1,16 @@
-import io from 'socket.io-client';
-import config from '../config/config';
+import { io } from "socket.io-client";
 
-// console.log('Connecting to Socket.io server at:', config.socketServerURL);
-
-const socket = io(config.socketServerURL, {
-  transports: ['websocket'], // Đảm bảo sử dụng giao thức WebSocket
-  autoConnect: true // Tự động kết nối ngay khi khởi tạo
+const socket = io("http://appchodocu.ddns.net:4000", {
+  transports: ['websocket'],
+  autoConnect: true 
 });
-// console.log('Connecting to Socket.io server at:', config.socketServerURL);
 
 // Lắng nghe sự kiện kết nối thành công
 socket.on('connect', () => {
   console.log('Connected to server');
+  
+  // Send a test event to server
+  socket.emit('testEvent', { data: 'Hello from client!' });
 });
 
 // Lắng nghe sự kiện bị ngắt kết nối
@@ -21,7 +20,14 @@ socket.on('disconnect', () => {
 
 // Lắng nghe lỗi kết nối
 socket.on('connect_error', (error) => {
-  console.log('Connection Error:', error);
+  // console.error('Connection Error FE:', error.message);
+  // console.error('Connection Error FE:', error.stack);
+  // console.error('Connection Error FE details:', error);
+});
+
+// Listen for test response from server
+socket.on('testResponse', (data) => {
+  // console.log('Received test response from server:', data);
 });
 
 export default socket;

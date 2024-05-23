@@ -1,6 +1,7 @@
 const { Chat, Message } = require('../models/Message'); // Ensure the path is correct
 const Product = require('../models/Product');
 const User = require('../models/User');
+const io = require('../config/socket');
 
 
 
@@ -30,6 +31,8 @@ exports.newChat = async (req, res) => { // Added async here
             await chat.save();
               // Gửi sự kiện 'newChat' đến tất cả máy khách
               io.emit('newChat', chat);
+            //   console.log('Received new message from Postman:', chat);
+
         }
 
         res.status(200).json(chat);
@@ -37,7 +40,7 @@ exports.newChat = async (req, res) => { // Added async here
         res.status(500).json({ message: error.message });
     }
 };
-exports.sendMess = async ( req, res) => {
+exports.sendMess = async (req, res) => {
     const { chatId, senderId, content } = req.body;
 
     try {
@@ -61,20 +64,30 @@ exports.sendMess = async ( req, res) => {
         });
         await message.save();
 
+        // Lấy thông tin người gửi từ cơ sở dữ liệu và đính kèm vào tin nhắn mới
+        const populatedMessage = await Message.findById(message._id).populate('sender', 'name avatar_image');
+
+        // Gửi tin nhắn mới cùng với thông tin người gửi
+        io.emit('newMessage', populatedMessage);
+
         // Cập nhật tin nhắn cuối cùng trong cuộc trò chuyện
         chat.lastMessage = content;
         await chat.save();
 
         // Lấy tất cả tin nhắn trong cuộc trò chuyện và trả về chúng
         const messages = await Message.find({ chat: chatId }).populate('sender', 'username');
-        // io.emit('newMessage', messages);
-        // console.log('Received data from client:', { chatId, senderId, content });
 
+        console.log('Received data from client:', { chatId, senderId, content });
+        // console.log('Received new message from Postman:', message);
+      
+        // Phản hồi với tin nhắn đã được gửi
         res.status(200).json(messages);
+
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
+
 
 exports.getMessages = async ( req, res) => {
     const { chatId } = req.params;
@@ -141,10 +154,3 @@ exports.getUsersWhoMessaged = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
-// module.exports = { // Export all the controllers
-//     getRoutes,
-//     newChat,
-//     sendMess,
-//     getMessages,
-//     getUsersWhoMessaged
-// };
