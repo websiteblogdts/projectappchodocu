@@ -11,8 +11,8 @@ const userSchema = new mongoose.Schema({
     role: {  type: String,  enum: ['user', 'moderator', 'admin'],   default: 'user'  },
     account_status: {   type: String,  enum: ['active', 'locked'], default: 'active'  },
     isDeleted: {   type: Boolean,   default: false  } ,
-    deletedAt: { type: Date, default: null }
-
+    deletedAt: { type: Date, default: null },
+    vipExpiryDate: { type: Date, default: null }
 }, { timestamps: true 
 
 });

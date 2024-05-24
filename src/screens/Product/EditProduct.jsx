@@ -117,21 +117,21 @@ const EditProduct = ({ route, navigation }) => {
         })
       });
       const data = await response.json();
-      console.log(data);
+      // console.log(data);
 
       if (!response.ok) {
         throw new Error(data.error || `HTTP error ${response.status}`);
       }
-      // Nếu cập nhật thành công, điều hướng trở lại trang danh sách sản phẩm
-      navigation.navigate('ProductListByUser');
-      // Trigger reload products list in parent component
-      reloadProducts();
-      
+      Alert.alert('Success', 'Product Update successfully!');
+       // Nếu cập nhật thành công, điều hướng trở lại trang danh sách sản phẩm
+       navigation.navigate('ProductListByUser');
+       // Trigger reload products list in parent component
+       reloadProducts();
     } catch (error) {
-      // console.error('Error updating product:', error);
-      Alert.alert('Error', 'Failed to update product. Please try again.');
-    }
-  };
+      // console.error('Error adding product:', error);
+      Alert.alert('Error rui son oi', error.message || 'Failed to add product');
+  }  
+};
 
   const fetchProvinces = async () => {
     try {

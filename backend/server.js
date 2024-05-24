@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const express = require('express');
 const mongoose = require('mongoose');
 const app = express();
@@ -11,6 +13,8 @@ const messageRoutes = require('./routes/messageRoutes');
 const productRoutes = require("./routes/productRoutes");
 const adminRoutes = require('./routes/adminRoutes');
 const userRoutes = require('./routes/userRoutes');
+// const paymentRoutes = require('./routes/paymentRoutes');
+const vipRoutes = require('./routes/vipRoutes');
 require("./models/Product");
 require("./models/User");
 
@@ -29,6 +33,8 @@ app.use('/mess', messageRoutes);
 app.use('/product', productRoutes);
 app.use('/admin', adminRoutes);
 app.use("/user", userRoutes);
+// app.use('/payments', paymentRoutes);
+app.use('/vip', vipRoutes);
 app.use(authMiddleware);
 
 

@@ -75,7 +75,7 @@ const AddProduct = () => {
         return;
       }
       if (isSubmitting) {
-        console.log("Submitting data, please wait...");
+        // console.log("Submitting data, please wait...");
         return; 
       }
         setIsSubmitting(true);
@@ -102,11 +102,12 @@ const AddProduct = () => {
       if (!response.ok) {
         throw new Error(data.error || `HTTP error ${response.status}`);
        }
-      console.log("Data submitted successfully!");
-      console.log(data);
+      // console.log("Data submitted successfully!");
+      // console.log(data);
+      
       Alert.alert('Success', 'Product added successfully!');
       } catch (error) {
-        console.error('Error adding product:', error);
+        // console.error('Error adding product:', error);
         Alert.alert('Error rui son oi', error.message || 'Failed to add product');
     }
     finally {
@@ -130,7 +131,7 @@ const AddProduct = () => {
       const data = await response.json();
       setProvinces(data);
     } catch (error) {
-      console.error('Error fetching provinces:', error);
+      // console.error('Error fetching provinces:', error);
     }
   };
 
@@ -183,15 +184,15 @@ const handleUploadNhieuAnh = async (image) => {
       setImages(prevImages => [...prevImages, response.data.secure_url]);
       setUploadedImage(response.data.secure_url);
       Alert.alert('Upload Successful', 'Your image has been uploaded successfully!');
-      console.log("Uploaded image:", image); // Log ra ảnh được chọn để upload
+      // console.log("Uploaded image:", image); // Log ra ảnh được chọn để upload
       setModal(false)
     } else {
       setModal(false)
       throw new Error("Failed to upload image");
     }
   } catch (error) {
-    console.error("Error uploading image: ", error);
-    Alert.alert('Upload Failed', 'Failed to upload image.');
+    // console.error("Error uploading image: ", error);
+    Alert.alert('Upload Failed', 'Failed to upload image.' );
   }
 };
 
