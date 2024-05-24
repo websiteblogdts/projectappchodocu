@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text,TextInput, FlatList, ActivityIndicator, RefreshControl, StyleSheet, Image,TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, FlatList, ActivityIndicator, RefreshControl, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import config from '../../config/config';
-import socket  from '../../config/socket';
-import SenderMessageStyles from "../../components/SenderMessageStyles"
+import socket from '../../config/socket';
+import SenderMessageStyles from "../../components/SenderMessageStyles";
 import ReceiverMessageStyles from '../../components/ReceiverMessageStyles';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-
 
 const MessagesScreen = ({ route }) => {
   const { chatId } = route.params;
@@ -17,42 +16,41 @@ const MessagesScreen = ({ route }) => {
   const [messageInput, setMessageInput] = useState('');
   const [productName, setProductName] = useState('');
   const [productPrice, setProductPrice] = useState('');
+  const [productImage, setProductImage] = useState('');
   const flatListRef = useRef();
 
   useEffect(() => {
     fetchMessages();
   }, []);
+
   useEffect(() => {
     markMessagesAsRead(chatId);
-}, []);
+  }, []);
 
-useEffect(() => {
-  socket.on('newMessage', (newMessage) => {
-      // console.log('Received new message from server:', newMessage);
+  useEffect(() => {
+    socket.on('newMessage', (newMessage) => {
       setMessages([...messages, newMessage]);
-  });
+    });
 
-  return () => {
+    return () => {
       socket.off('newMessage');
-  };
-}, [messages]);
+    };
+  }, [messages]);
 
-  
   const fetchMessages = async () => {
     try {
       const userToken = await AsyncStorage.getItem('userToken');
       const response = await fetch(`${config.apiBaseURL}/mess/messages/${chatId}`, {
         headers: {
-          'Authorization': `${userToken}` // Thêm Bearer vào trước token
+          'Authorization': `${userToken}`
         }
       });
       const data = await response.json();
-      // console.log('Fetched Messages:', data); // Log fetched messages
-      setMessages(data); // Cập nhật danh sách tin nhắn
       setMessages(data.messages); // Cập nhật danh sách tin nhắn
       setCurrentUserId(data.currentUserId); // Cập nhật userId
       setProductName(data.productName); // Cập nhật tên sản phẩm
       setProductPrice(data.productPrice); // Cập nhật giá sản phẩm
+      setProductImage(data.productImage); // Cập nhật hình ảnh sản phẩm
     } catch (error) {
       console.error('Error fetching messages:', error);
     } finally {
@@ -60,26 +58,25 @@ useEffect(() => {
       setRefreshing(false); // Đảm bảo refreshing được cập nhật
     }
   };
+
   const markMessagesAsRead = async (chatId) => {
     try {
-        // Gửi yêu cầu PUT đến API để đánh dấu các tin nhắn đã đọc
-        const userToken = await AsyncStorage.getItem('userToken');
-        const response = await fetch(`${config.apiBaseURL}/mess/markMessagesAsRead`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `${userToken}`
-            },
-            body: JSON.stringify({ chatId })
-        });
+      const userToken = await AsyncStorage.getItem('userToken');
+      const response = await fetch(`${config.apiBaseURL}/mess/markMessagesAsRead`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `${userToken}`
+        },
+        body: JSON.stringify({ chatId })
+      });
 
-        const data = await response.json();
-        console.log('Mark as read response:', data);
+      const data = await response.json();
+      console.log('Mark as read response:', data);
     } catch (error) {
-        console.error('Error marking messages as read:', error);
+      console.error('Error marking messages as read:', error);
     }
-};
-
+  };
 
   const sendMessage = async () => {
     try {
@@ -101,7 +98,7 @@ useEffect(() => {
       setMessageInput('');
       fetchMessages();
       flatListRef.current.scrollToEnd({ animated: true });
-        } catch (error) {
+    } catch (error) {
       console.error('Error sending message:', error);
     }
   };
@@ -120,14 +117,11 @@ useEffect(() => {
     const styles = isSender ? SenderMessageStyles : ReceiverMessageStyles;
 
     return (
-      
       <View style={styles.messageContainer}>
-
         <View style={styles.userContainer}>
           <Image source={{ uri: item.sender.avatar_image }} style={styles.avatar} />
           <View style={styles.textContainer}>
             <Text style={styles.username}>{item.sender.name}</Text>
-
             <Text style={styles.content}>{item.content}</Text>
           </View>
         </View>
@@ -135,25 +129,28 @@ useEffect(() => {
     );
   };
 
-   return (
+  return (
     <View style={styles.container}>
       <View style={styles.productInfoContainer}>
-        <Text style={styles.productNameText}>Product: {productName}</Text>
-        <Text style={styles.productPriceText}>Price: {productPrice}</Text>
+        <Image source={{ uri: productImage }} style={styles.productImage} />
+        <View style={styles.productTextContainer}>
+          <Text style={styles.productNameText}>Product: {productName}</Text>
+          <Text style={styles.productPriceText}>Price: {productPrice}</Text>
+        </View>
       </View>
       <FlatList
-  ref={flatListRef}
-  data={messages}
-  keyExtractor={(item) => item._id}
-  renderItem={renderMessage}
-  refreshControl={
-    <RefreshControl
-      refreshing={refreshing}
-      onRefresh={onRefresh}
-    />
-  }
-  onContentSizeChange={() => flatListRef.current.scrollToEnd({ animated: true })}
-/>
+        ref={flatListRef}
+        data={messages}
+        keyExtractor={(item) => item._id}
+        renderItem={renderMessage}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+          />
+        }
+        onContentSizeChange={() => flatListRef.current.scrollToEnd({ animated: true })}
+      />
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.textInput}
@@ -161,9 +158,7 @@ useEffect(() => {
           onChangeText={setMessageInput}
           placeholder="Nhập tin nhắn..."
         />
-        {/* <Ionicons name="send" style={styles.sendButton} onPress={sendMessage}
-        /> */}
-         <TouchableOpacity onPress={sendMessage}>
+        <TouchableOpacity onPress={sendMessage}>
           <Ionicons name="send" size={30} color="gray" style={styles.sendIcon} />
         </TouchableOpacity>
       </View>
@@ -202,10 +197,13 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   productInfoContainer: {
-    flexDirection: 'cow',
+    flexDirection: 'row', // Fix typo here
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 10,
+  },
+  productTextContainer: { // Add this block
+    flex: 1,
   },
   productNameText: {
     fontSize: 16,
@@ -215,6 +213,11 @@ const styles = StyleSheet.create({
   productPriceText: {
     fontSize: 14,
     color: 'white',
+  },
+  productImage: {
+    width: 50, // Set appropriate width
+    height: 50, // Set appropriate height
+    marginRight: 10,
   },
 });
 

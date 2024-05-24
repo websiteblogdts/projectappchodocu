@@ -4,7 +4,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import config from '../../config/config';
 import socket  from '../../config/socket';
 import  styles from '../../components/unmess';
-
 const ListMess = ({ navigation }) => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -13,16 +12,15 @@ const ListMess = ({ navigation }) => {
 
   const fetchlistMess = async () => {
     try {
-     const userToken = await AsyncStorage.getItem('userToken');
-      const userId = await AsyncStorage.getItem('userId'); // Retrieve userId from AsyncStorage
-      setCurrentUserId(userId); // Set currentUserId state
+      const userToken = await AsyncStorage.getItem('userToken');
+      const userId = await AsyncStorage.getItem('userId');
+      setCurrentUserId(userId);
       const response = await fetch(`${config.apiBaseURL}/mess/usersWhoMessaged`, {
         headers: {
           'Authorization': `${userToken}`
         }
       });
       const data = await response.json();
-      // console.log('API Response:', data); // Verify the API response
       setUsers(data);
     } catch (error) {
       console.error('Error fetching users:', error);
@@ -32,31 +30,24 @@ const ListMess = ({ navigation }) => {
     }
   };
 
-  // useEffect(() => {
-  //   fetchlistMess();
-  // }, []);
-
   useEffect(() => {
     fetchlistMess();
     socket.on('newChat', (newChat) => {
-        // console.log('Received new chat from server:', newChat);
         setUsers([...users, newChat]);
     });
     return () => {
         socket.off('newChat');
     };
-}, [users]); // Update the effect dependency array
+  }, [users]);
 
   const messages = (chatId) => {
-    console.log("Navigating with chatId:", chatId); // Log chatId to verify
     if (chatId) {
-      console.log("chatId is defined. Navigating to MessagesScreen...");
       navigation.navigate('MessagesScreen', { chatId });
     } else {
       console.error('chatId is undefined');
     }
   }
-  
+
   const onRefresh = () => {
     setRefreshing(true);
     fetchlistMess();
@@ -65,13 +56,10 @@ const ListMess = ({ navigation }) => {
   if (loading) {
     return <ActivityIndicator size="large" color="#0000ff" />;
   }
-const renderUser = ({ item }) => {
-    console.log("Item read status:", item.read); // In giá trị của trường read để kiểm tra
-    console.log("Unread message count:", item.unreadCount); // Log số lượng tin nhắn chưa đọc
 
-    // Kiểm tra xem tin nhắn cuối cùng có phải từ người dùng hiện tại hay không
+  const renderUser = ({ item }) => {
+        // Kiểm tra xem tin nhắn cuối cùng có phải từ người dùng hiện tại hay không
     const isMessageFromCurrentUser = item.senderId === currentUserId;
-    console.log(`Tin nhắn cuối cùng từ ${isMessageFromCurrentUser ? "người dùng hiện tại" : "người dùng khác"}`);
 
     return (
       <View style={styles.userContainer}>
@@ -87,13 +75,11 @@ const renderUser = ({ item }) => {
           >
             {item.lastMessage}
           </Text>
-          {/* Hiển thị số lượng tin nhắn chưa đọc */}
           {item.unreadCount > 0 && (
             <Text style={styles.unreadCount}>{item.unreadCount}</Text>
           )}
           {item.productName ? (
             <TouchableOpacity onPress={() => messages(item.chatId)}>
-              {/* Hiển thị tin nhắn của đối phương in đậm nếu real là false */}
               <Text
                 style={[
                   styles.viewMessages,
