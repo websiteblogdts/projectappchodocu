@@ -1,5 +1,4 @@
 import { StyleSheet } from 'react-native';
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -13,18 +12,34 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   unreadMessage: {
-    fontWeight: 'bold', // Set font weight to bold for unread messages
+    fontWeight: 'bold',
     fontSize: 14,
     marginTop: 5,
     lineHeight: 20,
-    color: 'white', // Set default text color
+    color: 'white',
   },
   readMessage: {
-    fontWeight: 'normal', // Set font weight to bold for unread messages
+    fontWeight: 'normal',
     fontSize: 14,
     marginTop: 5,
     lineHeight: 20,
-    color: 'white', // Set default text color
+    color: 'white',
+  },
+  unreadCount: {
+    position: 'absolute',
+    top: 5,
+    right: 5,
+    backgroundColor: 'pink',
+    borderRadius: 10,
+    width: 20,
+    height: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  unreadCountText: {
+    color: 'white',
+    fontSize: 12,
+    fontWeight: 'bold',
   },
   userContainer: {
     flexDirection: 'row',

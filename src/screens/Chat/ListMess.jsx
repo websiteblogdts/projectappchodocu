@@ -9,10 +9,13 @@ const ListMess = ({ navigation }) => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState(null);
 
   const fetchlistMess = async () => {
     try {
-      const userToken = await AsyncStorage.getItem('userToken');
+     const userToken = await AsyncStorage.getItem('userToken');
+      const userId = await AsyncStorage.getItem('userId'); // Retrieve userId from AsyncStorage
+      setCurrentUserId(userId); // Set currentUserId state
       const response = await fetch(`${config.apiBaseURL}/mess/usersWhoMessaged`, {
         headers: {
           'Authorization': `${userToken}`
@@ -28,6 +31,7 @@ const ListMess = ({ navigation }) => {
       setRefreshing(false);
     }
   };
+
   // useEffect(() => {
   //   fetchlistMess();
   // }, []);
@@ -53,7 +57,6 @@ const ListMess = ({ navigation }) => {
     }
   }
   
-
   const onRefresh = () => {
     setRefreshing(true);
     fetchlistMess();
@@ -62,20 +65,43 @@ const ListMess = ({ navigation }) => {
   if (loading) {
     return <ActivityIndicator size="large" color="#0000ff" />;
   }
-  const renderUser = ({ item }) => {
+const renderUser = ({ item }) => {
     console.log("Item read status:", item.read); // In giá trị của trường read để kiểm tra
+    console.log("Unread message count:", item.unreadCount); // Log số lượng tin nhắn chưa đọc
+
+    // Kiểm tra xem tin nhắn cuối cùng có phải từ người dùng hiện tại hay không
+    const isMessageFromCurrentUser = item.senderId === currentUserId;
+    console.log(`Tin nhắn cuối cùng từ ${isMessageFromCurrentUser ? "người dùng hiện tại" : "người dùng khác"}`);
+
     return (
       <View style={styles.userContainer}>
         <Image source={{ uri: item.product_image }} style={styles.avatar} />
         <View style={styles.textContainer}>
           <Text style={styles.username}>{item.name}</Text>
           <Text style={styles.productName}>Product: {item.productName}</Text>
-          <Text style={[styles.lastMessage, !item.read ? styles.unreadMessage : styles.readMessage]}>
+          <Text
+            style={[
+              styles.lastMessage,
+              !item.read && !isMessageFromCurrentUser ? styles.unreadMessage : styles.readMessage
+            ]}
+          >
             {item.lastMessage}
           </Text>
+          {/* Hiển thị số lượng tin nhắn chưa đọc */}
+          {item.unreadCount > 0 && (
+            <Text style={styles.unreadCount}>{item.unreadCount}</Text>
+          )}
           {item.productName ? (
             <TouchableOpacity onPress={() => messages(item.chatId)}>
-              <Text style={styles.viewMessages}>Xem tin nhắn</Text>
+              {/* Hiển thị tin nhắn của đối phương in đậm nếu real là false */}
+              <Text
+                style={[
+                  styles.viewMessages,
+                  !item.read && !isMessageFromCurrentUser ? styles.unreadMessage : null
+                ]}
+              >
+                Xem tin nhắn
+              </Text>
             </TouchableOpacity>
           ) : (
             <Text style={styles.viewMessages}>Tên sản phẩm không hợp lệ</Text>
@@ -84,7 +110,6 @@ const ListMess = ({ navigation }) => {
       </View>
     );
   };
-  
 
   return (
     <View style={styles.container}>
