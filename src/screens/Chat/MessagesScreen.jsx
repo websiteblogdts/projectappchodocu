@@ -19,30 +19,64 @@ const MessagesScreen = ({ route }) => {
   const [productImage, setProductImage] = useState('');
   const flatListRef = useRef();
   const [isMessageEmpty, setIsMessageEmpty] = useState(true);
+  const [showScrollToBottomButton, setShowScrollToBottomButton] = useState(false);
+  const [scrollPosition, setScrollPosition] = useState(0);
+  const [dataLoaded, setDataLoaded] = useState(false);
+  const [isScrolling, setIsScrolling] = useState(false);
+
+  // Thêm một ref để lưu trữ vị trí cuộn trước đó
+  const lastScrollOffset = useRef(0);
+  
+  // Thêm một hàm để xử lý sự kiện cuộn
+  const handleScrollBegin = () => {
+    setIsScrolling(true);
+  };
+  // Thêm một hàm để xử lý sự kiện kết thúc cuộn
+const handleScrollEnd = () => {
+  setIsScrolling(false);
+};
 
   useEffect(() => {
     fetchMessages();
   }, []);
 
   useEffect(() => {
-    setIsMessageEmpty(messageInput.trim() === ''); // Kiểm tra xem sau khi loại bỏ khoảng trắng, chuỗi còn rỗng hay không
+    if (loading) return;
+    scrollToPosition(scrollPosition);
+  }, [scrollPosition, loading]);
+  const scrollToPosition = (position) => {
+    flatListRef.current.scrollToOffset({ offset: position, animated: true });
+  };
+
+  useEffect(() => {
+    if (dataLoaded) {
+      scrollToBottom();
+    }
+  }, [dataLoaded]);
+
+  useEffect(() => {
+    setIsMessageEmpty(messageInput.trim() === '');
   }, [messageInput]);
-  
   
   
   useEffect(() => {
     markMessagesAsRead(chatId);
   }, []);
 
-  useEffect(() => {
-    socket.on('newMessage', (newMessage) => {
-      setMessages([...messages, newMessage]);
-    });
+  // Thay đổi trong useEffect khi lắng nghe sự kiện 'newMessage'
+useEffect(() => {
+  socket.on('newMessage', handleMessageReceived);
+  return () => {
+    socket.off('newMessage', handleMessageReceived);
+  };
+}, []);
 
-    return () => {
-      socket.off('newMessage');
-    };
-  }, [messages]);
+// Thay đổi việc gọi cập nhật tin nhắn mới từ useEffect khi có tin nhắn mới
+const handleMessageReceived = (newMessage) => {
+  if (!isScrolling) {
+    setMessages((prevMessages) => [...prevMessages, newMessage]);
+  }
+};
 
   const fetchMessages = async () => {
     try {
@@ -58,13 +92,17 @@ const MessagesScreen = ({ route }) => {
       setProductName(data.productName); // Cập nhật tên sản phẩm
       setProductPrice(data.productPrice); // Cập nhật giá sản phẩm
       setProductImage(data.productImage); // Cập nhật hình ảnh sản phẩm
+
     } catch (error) {
       console.error('Error fetching messages:', error);
     } finally {
       setLoading(false);
       setRefreshing(false); // Đảm bảo refreshing được cập nhật
+      setDataLoaded(true);
     }
   };
+
+
 
   const markMessagesAsRead = async (chatId) => {
     try {
@@ -104,10 +142,21 @@ const MessagesScreen = ({ route }) => {
       console.log('Sent message:', data); 
       setMessageInput('');
       fetchMessages();
-      flatListRef.current.scrollToEnd({ animated: true });
+      scrollToBottom();
     } catch (error) {
       console.error('Error sending message:', error);
     }
+  };
+
+//icon cuộn xuống dưới
+  const handleScroll = (event) => {
+    const contentHeight = event.nativeEvent.contentSize.height;
+    const offsetY = event.nativeEvent.contentOffset.y;
+    setShowScrollToBottomButton(offsetY > 100 && offsetY < contentHeight - 500); // Hiển thị nút "Xem tin nhắn trước" khi cuộn lên và chưa đến cuối danh sách (ở đây là 500)
+  };
+  
+  const scrollToBottom = () => {
+    flatListRef.current.scrollToEnd({ animated: true }); // Cuộn xuống tin nhắn cuối cùng
   };
 
   if (loading) {
@@ -118,10 +167,6 @@ const MessagesScreen = ({ route }) => {
     );
   }
   
-  const onRefresh = () => {
-    setRefreshing(true);
-    fetchMessages();
-  };
 
   const renderMessage = ({ item }) => {
   const isSender = item.sender._id === currentUserId;
@@ -156,44 +201,66 @@ const MessagesScreen = ({ route }) => {
   
 return (
   <View style={styles.container}>
-    <View style={styles.productInfoContainer}>
-      <Image source={{ uri: productImage }} style={styles.productImage} />
-      <View style={styles.productTextContainer}>
-        <Text style={styles.productNameText}>Product: {productName}</Text>
-        <Text style={styles.productPriceText}>Price: {productPrice}</Text>
+    {loading ? (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#414141" />
+      </View>
+    ) : (
+      <>
+        <View style={styles.productInfoContainer}>
+          <Image source={{ uri: productImage }} style={styles.productImage} />
+          <View style={styles.productTextContainer}>
+            <Text style={styles.productNameText}>Product: {productName}</Text>
+            <Text style={styles.productPriceText}>Price: {productPrice}</Text>
+          </View>
+        </View>
+        <FlatList
+  ref={flatListRef}
+  data={messages}
+  keyExtractor={(item) => item._id}
+  renderItem={renderMessage}
+  refreshControl={<RefreshControl refreshing={refreshing} onRefresh={fetchMessages} />}
+  onScroll={handleScroll} // Gán sự kiện onScroll thành handleScroll
+  onScrollBeginDrag={handleScrollBegin}
+  onScrollEndDrag={handleScrollEnd}
+  onMomentumScrollBegin={handleScrollBegin}
+  onMomentumScrollEnd={handleScrollEnd}
+  onContentSizeChange={(contentWidth, contentHeight) => {
+    if (!isScrolling) {
+      setScrollPosition(contentHeight);
+    }
+  }}
+  onLayout={() => {
+    if (!isScrolling && dataLoaded) scrollToPosition(scrollPosition);
+  }}
+/>
+      </>
+    )}
+      <TouchableOpacity
+        style={[styles.scrollToBottomButton, { opacity: showScrollToBottomButton ? 1 : 0 }]}
+        onPress={() => {
+          scrollToPosition(0);
+        }}>
+        <Ionicons name="arrow-down" size={24} color="black" />
+      </TouchableOpacity>
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={styles.textInput}
+          value={messageInput}
+          onChangeText={setMessageInput}
+          placeholder="Nhập tin nhắn..."
+        />
+        <TouchableOpacity onPress={sendMessage}>
+          <Ionicons
+            name="send"
+            size={30}
+            color={isMessageEmpty ? 'gray' : '#0099FF'}
+            style={styles.sendIcon}
+          />
+        </TouchableOpacity>
       </View>
     </View>
-    <FlatList
-      ref={flatListRef}
-      data={messages}
-      keyExtractor={(item) => item._id}
-      renderItem={renderMessage}
-      refreshControl={
-        <RefreshControl
-          refreshing={refreshing}
-          onRefresh={onRefresh}
-        />
-      }
-      onContentSizeChange={() => flatListRef.current.scrollToEnd({ animated: true })}
-    />
-    <View style={styles.inputContainer}>
-      <TextInput
-        style={styles.textInput}
-        value={messageInput}
-        onChangeText={setMessageInput}
-        placeholder="Nhập tin nhắn..."
-      />
-      <TouchableOpacity onPress={sendMessage}>
-        <Ionicons 
-          name="send" 
-          size={30} 
-          color={isMessageEmpty ? 'gray' : '#0099FF'} 
-          style={styles.sendIcon} 
-        />
-      </TouchableOpacity>
-    </View>
-  </View>
-);
+  );
 };
 
 const styles = StyleSheet.create({
@@ -254,6 +321,14 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: 'gray',
     marginTop: 5,
+  },
+  scrollToBottomButton: {
+    position: 'absolute',
+    bottom: 80,
+    right: 20,
+    backgroundColor: 'gray',
+    borderRadius: 20,
+    padding: 10,
   },
 });
 
