@@ -4,6 +4,25 @@ const jwt = require('jsonwebtoken');
 const JWT_SECRET = "Gcd191140";
 const { isValidPassword } = require('../middlewares/validator');
 
+exports.getRoutes = (req, res) => {
+    res.send('test user');
+};
+
+exports.upgradeToVip = async (req, res) => {
+    const { userId } = req.body;
+    const user = await User.findById(userId);
+
+    if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+    }
+
+    user.accountStatusVip = true;
+    user.vipExpiryDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 ngày VIP
+    await user.save();
+
+    res.status(200).json({ message: 'Account upgraded to VIP', vipExpiryDate: user.vipExpiryDate });
+};
+
 //chỉ lấy id của user đã login
 exports.getUserId = async (req, res) => {
     try {
@@ -19,9 +38,7 @@ exports.getUserId = async (req, res) => {
     }
   };
   
-exports.getRoutes = (req, res) => {
-    res.send('test user');
-};
+
 
 //giống detail user nhưng là lấy của user đã login
 exports.getUserProfile = async (req, res) => {
