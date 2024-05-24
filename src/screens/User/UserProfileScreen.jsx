@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, View, Alert, Text, TextInput, TouchableOpacity, StyleSheet, Button, Image, KeyboardAvoidingView, Platform } from 'react-native';
+import { Modal, View, Alert, Text, TextInput, TouchableOpacity, ActivityIndicator, Image,  } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 import axios from 'axios';
@@ -20,7 +20,7 @@ function UserProfileScreen({ navigation }) {
   const [newAvatarImage, setImages] = useState([]);
   const [originalAvatar, setOriginalAvatar] = useState(null);
   const [currentAvatar, setCurrentAvatar] = useState(null);
-  //bên dưới là mắt xem pass  tham khảo internet nhé
+  const [loading, setLoading] = useState(true);
   const [isOldPasswordVisible, setIsOldPasswordVisible] = useState(false);
   const [isNewPasswordVisible, setIsNewPasswordVisible] = useState(false);
   const [modal, setModal] = useState(false);
@@ -52,6 +52,8 @@ function UserProfileScreen({ navigation }) {
             },
           });
           setUserData(response.data);
+          setLoading(false);
+
         } else {
           console.log('Token not found');
         }
@@ -61,6 +63,7 @@ function UserProfileScreen({ navigation }) {
     };
 
     fetchUserData();
+    
   }, []);
 
   const openChangePasswordModal = () => {
@@ -241,14 +244,20 @@ Alert.alert('Upload Failed', 'Failed to upload image.');
     }
   };
   
-  if (!userData) {
+  // if (!userData) {
+  //   return (
+  //     <View style={styles.container}>
+  //       <Text>Loading...</Text>
+  //     </View>
+  //   );
+  // }
+  if (loading) {
     return (
       <View style={styles.container}>
-        <Text>Loading...</Text>
+        <ActivityIndicator size="large" color="gray" />
       </View>
     );
   }
-
   return (
     <KeyboardAwareScrollView
     style={{ flex: 1}}

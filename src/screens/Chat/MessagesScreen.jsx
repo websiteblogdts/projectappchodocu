@@ -18,11 +18,18 @@ const MessagesScreen = ({ route }) => {
   const [productPrice, setProductPrice] = useState('');
   const [productImage, setProductImage] = useState('');
   const flatListRef = useRef();
+  const [isMessageEmpty, setIsMessageEmpty] = useState(true);
 
   useEffect(() => {
     fetchMessages();
   }, []);
 
+  useEffect(() => {
+    setIsMessageEmpty(messageInput.trim() === ''); // Kiểm tra xem sau khi loại bỏ khoảng trắng, chuỗi còn rỗng hay không
+  }, [messageInput]);
+  
+  
+  
   useEffect(() => {
     markMessagesAsRead(chatId);
   }, []);
@@ -104,66 +111,89 @@ const MessagesScreen = ({ route }) => {
   };
 
   if (loading) {
-    return <ActivityIndicator size="large" color="#414141" />;
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size="large" color="#414141" />
+      </View>
+    );
   }
-
+  
   const onRefresh = () => {
     setRefreshing(true);
     fetchMessages();
   };
 
   const renderMessage = ({ item }) => {
-    const isSender = item.sender._id === currentUserId;
-    const styles = isSender ? SenderMessageStyles : ReceiverMessageStyles;
+  const isSender = item.sender._id === currentUserId;
+  const styles = isSender ? SenderMessageStyles : ReceiverMessageStyles;
 
-    return (
+  return (
+    <View >
       <View style={styles.messageContainer}>
         <View style={styles.userContainer}>
           <Image source={{ uri: item.sender.avatar_image }} style={styles.avatar} />
+          <View>
+        {isSender && (
+          <Ionicons 
+            name={item.read ? 'eye' : 'eye-off-outline'}
+            size={18} 
+            color={item.read ? '#BEBEBE' : '#BEBEBE'}
+            style={styles.readReceiptIcon}
+          />
+        )}
+      </View>
           <View style={styles.textContainer}>
             <Text style={styles.username}>{item.sender.name}</Text>
             <Text style={styles.content}>{item.content}</Text>
           </View>
         </View>
       </View>
-    );
-  };
-
-  return (
-    <View style={styles.container}>
-      <View style={styles.productInfoContainer}>
-        <Image source={{ uri: productImage }} style={styles.productImage} />
-        <View style={styles.productTextContainer}>
-          <Text style={styles.productNameText}>Product: {productName}</Text>
-          <Text style={styles.productPriceText}>Price: {productPrice}</Text>
-        </View>
-      </View>
-      <FlatList
-        ref={flatListRef}
-        data={messages}
-        keyExtractor={(item) => item._id}
-        renderItem={renderMessage}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-          />
-        }
-        onContentSizeChange={() => flatListRef.current.scrollToEnd({ animated: true })}
-      />
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.textInput}
-          value={messageInput}
-          onChangeText={setMessageInput}
-          placeholder="Nhập tin nhắn..."
-        />
-        <TouchableOpacity onPress={sendMessage}>
-          <Ionicons name="send" size={30} color="gray" style={styles.sendIcon} />
-        </TouchableOpacity>
-      </View>
+      
     </View>
   );
+};
+
+  
+return (
+  <View style={styles.container}>
+    <View style={styles.productInfoContainer}>
+      <Image source={{ uri: productImage }} style={styles.productImage} />
+      <View style={styles.productTextContainer}>
+        <Text style={styles.productNameText}>Product: {productName}</Text>
+        <Text style={styles.productPriceText}>Price: {productPrice}</Text>
+      </View>
+    </View>
+    <FlatList
+      ref={flatListRef}
+      data={messages}
+      keyExtractor={(item) => item._id}
+      renderItem={renderMessage}
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+        />
+      }
+      onContentSizeChange={() => flatListRef.current.scrollToEnd({ animated: true })}
+    />
+    <View style={styles.inputContainer}>
+      <TextInput
+        style={styles.textInput}
+        value={messageInput}
+        onChangeText={setMessageInput}
+        placeholder="Nhập tin nhắn..."
+      />
+      <TouchableOpacity onPress={sendMessage}>
+        <Ionicons 
+          name="send" 
+          size={30} 
+          color={isMessageEmpty ? 'gray' : '#0099FF'} 
+          style={styles.sendIcon} 
+        />
+      </TouchableOpacity>
+    </View>
+  </View>
+);
 };
 
 const styles = StyleSheet.create({
@@ -172,6 +202,7 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: '#414141',
   },
+ 
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -197,12 +228,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   productInfoContainer: {
-    flexDirection: 'row', // Fix typo here
+    flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 10,
   },
-  productTextContainer: { // Add this block
+  productTextContainer: {
     flex: 1,
   },
   productNameText: {
@@ -215,9 +246,14 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   productImage: {
-    width: 50, // Set appropriate width
-    height: 50, // Set appropriate height
+    width: 50,
+    height: 50,
     marginRight: 10,
+  },
+  readReceipt: {
+    fontSize: 12,
+    color: 'gray',
+    marginTop: 5,
   },
 });
 

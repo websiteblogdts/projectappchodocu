@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import config from '../../config/config';
 import socket  from '../../config/socket';
 import  styles from '../../components/unmess';
+
 const ListMess = ({ navigation }) => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -54,11 +55,14 @@ const ListMess = ({ navigation }) => {
   };
 
   if (loading) {
-    return <ActivityIndicator size="large" color="#0000ff" />;
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size="large" color="gray" />
+      </View>
+    );
   }
 
   const renderUser = ({ item }) => {
-        // Kiểm tra xem tin nhắn cuối cùng có phải từ người dùng hiện tại hay không
     const isMessageFromCurrentUser = item.senderId === currentUserId;
 
     return (
@@ -78,6 +82,7 @@ const ListMess = ({ navigation }) => {
           {item.unreadCount > 0 && (
             <Text style={styles.unreadCount}>{item.unreadCount}</Text>
           )}
+
           {item.productName ? (
             <TouchableOpacity onPress={() => messages(item.chatId)}>
               <Text

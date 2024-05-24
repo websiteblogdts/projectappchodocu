@@ -7,8 +7,13 @@ const SenderMessageStyles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#ccc',
     borderRadius: 10,
-    maxWidth: '95%',
+    maxWidth: '94%',
     marginBottom: 10,
+  },
+  //vi tri icon send
+  readReceiptIcon: {
+  top:30,
+    left:92,
   },
   userContainer: {
     flexDirection: 'row-reverse', // Đảo ngược hướng của flex-direction

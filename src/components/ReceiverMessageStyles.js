@@ -11,6 +11,11 @@ const ReceiverMessageStyles = StyleSheet.create({
     maxWidth: '95%',
     marginBottom: 10,
   },
+  iconContainer: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    marginLeft: 10,
+  },
   userContainer: {
     flexDirection: 'row',
     alignItems: 'center',

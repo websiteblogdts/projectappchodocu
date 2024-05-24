@@ -88,31 +88,31 @@ exports.sendMess = async (req, res) => {
     }
 };
 
-
-exports.getMessages = async ( req, res) => {
+exports.getMessages = async (req, res) => {
     const { chatId } = req.params;
     const currentUserId = req.user.id; // Lấy userId từ thông tin người dùng đã xác thực
-
+  
     try {
-        // Tìm cuộc trò chuyện
-        const chat = await Chat.findById(chatId).populate('product', 'name price images');
-        if (!chat) {
-            return res.status(404).json({ message: 'Chat not found' });
-        }
-
-        // Lấy tất cả tin nhắn trong cuộc trò chuyện và trả về chúng, bao gồm cả tên sản phẩm
-        const messages = await Message.find({ chat: chatId }).populate('sender', 'name avatar_image');
-        res.status(200).json({ 
-            messages, 
-            currentUserId, 
-            productName: chat.product.name, 
-            productPrice: chat.product.price,
-            productImage: chat.product.images[0] // Add this line to include the product image
-        });
+      // Tìm cuộc trò chuyện
+      const chat = await Chat.findById(chatId).populate('product', 'name price images');
+      if (!chat) {
+        return res.status(404).json({ message: 'Chat not found' });
+      }
+  
+      // Lấy tất cả tin nhắn trong cuộc trò chuyện và trả về chúng, bao gồm cả tên sản phẩm
+      const messages = await Message.find({ chat: chatId }).populate('sender', 'name avatar_image');
+      res.status(200).json({
+        messages,
+        currentUserId,
+        productName: chat.product.name,
+        productPrice: chat.product.price,
+        productImage: chat.product.images[0] // Add this line to include the product image
+      });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+      res.status(500).json({ message: error.message });
     }
-};
+  };
+  
 
 exports.getUsersWhoMessaged = async (req, res) => {
     const userId = req.user.id;
