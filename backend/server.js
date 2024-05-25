@@ -1,4 +1,5 @@
 require('dotenv').config();
+// console.log(process.env);
 
 const express = require('express');
 const mongoose = require('mongoose');
@@ -13,7 +14,7 @@ const messageRoutes = require('./routes/messageRoutes');
 const productRoutes = require("./routes/productRoutes");
 const adminRoutes = require('./routes/adminRoutes');
 const userRoutes = require('./routes/userRoutes');
-// const paymentRoutes = require('./routes/paymentRoutes');
+const paymentRoutes = require('./routes/paymentRoutes');
 const vipRoutes = require('./routes/vipRoutes');
 require("./models/Product");
 require("./models/User");
@@ -28,15 +29,13 @@ mongoose.connect(config.mongoURI, {
   console.log("Không thể kết nối rùi", err);
 });
 
-
 app.use('/mess', messageRoutes);
 app.use('/product', productRoutes);
 app.use('/admin', adminRoutes);
 app.use("/user", userRoutes);
-// app.use('/payments', paymentRoutes);
+app.use('/payments', paymentRoutes);
 app.use('/vip', vipRoutes);
 app.use(authMiddleware);
-
 
 app.listen(config.port, () => {
   console.log(`Listening on ${config.port}`);

@@ -21,6 +21,8 @@ import ProductListByUser from './src/screens/Product/ProductListByUser';
 import CategoryManager from './src/screens/Admin/CategoryManager';
 import ListMess from './src/screens/Chat/ListMess';
 import MessagesScreen from './src/screens/Chat/MessagesScreen';
+import PackageScreen from './src/screens/PackagesPayment/PackageScreen';
+import PayPalPayment from './src/screens/PackagesPayment/PayPalPayment';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -65,6 +67,15 @@ function ViewPostProduct() {
     </Stack.Navigator>
   );
 }
+function Package() {
+  return (
+    <Stack.Navigator screenOptions={defaultHeaderOptions}>
+      <Stack.Screen name="PackageScreen" component={PackageScreen}  options={{ title: 'PackageScreen'}} />
+      <Stack.Screen name="PayPalPayment" component={PayPalPayment}  options={{ title: 'PayPalPayment'}} />
+
+    </Stack.Navigator>
+  );
+}
 function BottomTabsForUser() {
   return (
     <Tab.Navigator screenOptions={{tabBarActiveTintColor: '#CB75EA', tabBarInactiveTintColor: 'gray',tabBarStyle: {backgroundColor: '#3B3B3B', }, tabBarShowLabel: false, tabBarIconStyle: { display: 'flex' }}} >
@@ -85,8 +96,10 @@ function BottomTabsForUser() {
   
       <Tab.Screen name="UserProfileScreen" component={UserProfile} 
       options={{ headerShown: false, tabBarIcon: ({ color, size }) => ( <FontAwesome6 name="circle-user" size={size} color={color} />)}} />
+     
+       <Tab.Screen name="Package" component={Package} 
+      options={{ headerShown: false, tabBarIcon: ({ color, size }) => ( <FontAwesome6 name="paypal" size={size} color={color} />)}} />
       
-
     </Tab.Navigator>
   );
 }
@@ -152,7 +165,10 @@ function BottomTabsForAdmin() {
  
   <Tab.Screen name="UserProfileScreen" component={UserProfile} 
   options={{ headerShown: false, tabBarIcon: ({ color, size }) => ( <FontAwesome6 name="user-secret" size={size} color={color} />)}} />
-  
+ 
+   <Tab.Screen name="Package" component={Package} 
+      options={{ headerShown: false, tabBarIcon: ({ color, size }) => ( <FontAwesome6 name="paypal" size={size} color={color} />)}} />
+      
 </Tab.Navigator>
   );
 }
