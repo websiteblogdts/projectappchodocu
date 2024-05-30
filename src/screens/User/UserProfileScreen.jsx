@@ -48,7 +48,7 @@ function UserProfileScreen({ navigation }) {
         if (token) {
           const response = await axios.get(`${config.apiBaseURL}/user/profile`, {
             headers: {
-              Authorization: `${token}`, 
+              Authorization: `Bearer ${token}`, 
             },
           });
           setUserData(response.data);
@@ -89,7 +89,7 @@ function UserProfileScreen({ navigation }) {
         newPassword
       }, {
         headers: {
-          Authorization: `${token}`, 
+          Authorization: `Bearer ${token}`, 
         },
       });
       console.log(response.data);
@@ -129,7 +129,7 @@ function UserProfileScreen({ navigation }) {
         newAvatarImage: currentAvatar
       }, {
         headers: {
-          Authorization: `${token}`, 
+          Authorization: `Bearer ${token}`, 
         },
       });
       console.log(response.data);

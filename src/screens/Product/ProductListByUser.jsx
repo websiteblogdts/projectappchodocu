@@ -18,7 +18,7 @@ const ProductListByUser = () => {
   
       const response = await fetch(`${config.apiBaseURL}/product/productlistbyuser`, {
         headers: {
-          'Authorization': `${userToken}` // Thêm token vào header
+          'Authorization': `Bearer ${userToken}` // Thêm token vào header
         }
       });
   

@@ -83,7 +83,7 @@ const handleMessageReceived = (newMessage) => {
       const userToken = await AsyncStorage.getItem('userToken');
       const response = await fetch(`${config.apiBaseURL}/mess/messages/${chatId}`, {
         headers: {
-          'Authorization': `${userToken}`
+          'Authorization': `Bearer ${userToken}`
         }
       });
       const data = await response.json();
@@ -111,7 +111,7 @@ const handleMessageReceived = (newMessage) => {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `${userToken}`
+          'Authorization': `Bearer ${userToken}`
         },
         body: JSON.stringify({ chatId })
       });
@@ -130,7 +130,7 @@ const handleMessageReceived = (newMessage) => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `${userToken}`
+          'Authorization': `Bearer ${userToken}`
         },
         body: JSON.stringify({
           chatId: chatId,

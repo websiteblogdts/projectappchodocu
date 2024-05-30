@@ -18,7 +18,7 @@ const UserDetail = () => {
       console.log('Token from AsyncStorage:', userToken);
       const response = await fetch(`${config.apiBaseURL}/admin/userbyid/${userId}`, {
       headers: {
-        'Authorization': `${userToken}` // Ensure you're using Bearer token if required by your backend
+        'Authorization': `Bearer ${userToken}` // Ensure you're using Bearer token if required by your backend
       }
     });
       const data = await response.json();

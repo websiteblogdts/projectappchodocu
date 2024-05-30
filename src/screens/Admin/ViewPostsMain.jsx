@@ -44,7 +44,7 @@ const ViewPostsMain = () => {
       const endpoint = approved ? 'approved=true' : 'approved=false';
       const response = await fetch(`${config.apiBaseURL}/admin/products/?${endpoint}`,{
         headers: {
-          'Authorization': `${userToken}`
+          'Authorization': `Bearer ${userToken}`
         }
       });
       const data = await response.json();
@@ -81,7 +81,7 @@ const ViewPostsMain = () => {
               await fetch(`${config.apiBaseURL}/admin/product/${productId}/approved`, {
                 method: 'PUT',
                 headers: {
-                  'Authorization': `${userToken}`,
+                  'Authorization': `Bearer ${userToken}`,
                   'Content-Type': 'application/json'
                 }
               });

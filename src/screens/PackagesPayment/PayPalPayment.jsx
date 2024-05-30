@@ -1,50 +1,77 @@
-import React, { useEffect } from 'react';
-import { View, Alert, Button } from 'react-native';
+import React, { useState, useEffect } from 'react';
 import { WebView } from 'react-native-webview';
-import { useNavigation, useRoute } from '@react-navigation/native';
 
-const PayPalPaymentScreen = () => {
-  const route = useRoute();
-  const navigation = useNavigation();
-  const { orderId, approvalUrl } = route.params;
+// Trong component PayPalPayment
 
-  const handleNavigationStateChange = async (navState) => {
-    if (navState.url.includes('success')) {
-      try {
-        const response = await fetch(`${config.apiBaseURL}/payments/capture-payment`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ orderId }),
-        });
+const PayPalPayment = ({ navigation, route }) => {
+  const { approvalUrl } = route.params;
+  const [paymentStatus, setPaymentStatus] = useState(null);
 
-        const data = await response.json();
-        console.log(data);
-        if (response.status === 200) {
-          Alert.alert('Payment Successful', 'Your payment was successful!');
-          navigation.navigate('UserProfileScreen');
-        } else {
-          Alert.alert('Payment Error', data.error || 'Something went wrong');
-        }
-      } catch (error) {
-        console.error('Error capturing payment:', error);
-        Alert.alert('Payment Error', 'Something went wrong');
+  const onNavigationStateChange = (navState) => {
+    const { url, loading } = navState;
+    if (!loading) {
+      if (url.includes('payment/success')) {
+        setPaymentStatus('success');
+        capturePayment(route.params.orderId); // Gọi hàm capturePayment khi thanh toán thành công
+      } else if (url.includes('payment/cancel')) {
+        setPaymentStatus('cancel');
       }
-    } else if (navState.url.includes('cancel')) {
-      Alert.alert('Payment Cancelled', 'Your payment was cancelled.');
-      navigation.goBack();
     }
   };
+  const capturePayment = async (orderId) => {
+    try {
+      const response = await fetch(`${config.apiBaseURL}/payments/capture-payment`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ orderId }),
+      });
 
+      const data = await response.json();
+      console.log('Capture payment response:', data);
+    } catch (error) {
+      console.error('Error capturing payment:', error);
+    }
+  };
+  const handleContinueToReviewOrder = async () => {
+    try {
+      const response = await fetch(`${config.apiBaseURL}/payments/capture-payment`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ orderId: route.params.orderId }),
+      });
+
+      const data = await response.json();
+      console.log('Capture payment response:', data);
+      navigation.navigate('SuccessScreen');
+    } catch (error) {
+      console.error('Error capturing payment:', error);
+    }
+  };
+  const injectedJavaScript = `
+  document.querySelector('[data-testid="continue-to-review-order"]').onclick = () => {
+    console.log('Continue to review order button clicked');
+    window.ReactNativeWebView.postMessage('continueToReviewOrderClicked');
+    return false; // Ngăn chặn hành động mặc định của nút
+  };
+`;
   return (
-    <View style={{ flex: 1 }}>
-      <WebView
-        source={{ uri: approvalUrl }}
-        onNavigationStateChange={handleNavigationStateChange}
-      />
-    </View>
+    <WebView
+    source={{ uri: approvalUrl }}
+    onNavigationStateChange={onNavigationStateChange}
+    javaScriptEnabled={true}
+    injectedJavaScript={injectedJavaScript}
+    onMessage={(event) => {
+      if (event.nativeEvent.data === 'continueToReviewOrderClicked') {
+        console.log('Continue to review order event received');
+        handleContinueToReviewOrder();
+      }
+    }}
+  />
   );
 };
 
-export default PayPalPaymentScreen;
+export default PayPalPayment;

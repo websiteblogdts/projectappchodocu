@@ -13,9 +13,11 @@ const PackageScreen = () => {
   }, []);
 
   const fetchPackages = async () => {
+    console.log('Fetching packages from:', `${config.apiBaseURL}/payments/packages`);
     try {
       const response = await fetch(`${config.apiBaseURL}/payments/packages`);
       const data = await response.json();
+      console.log('Fetched packages:', data);
       setPackages(data);
     } catch (error) {
       console.error('Error fetching packages:', error);
@@ -23,6 +25,7 @@ const PackageScreen = () => {
   };
 
   const handleBuyPackage = async (packageId) => {
+    console.log('Creating payment for packageId:', packageId);
     try {
       const response = await fetch(`${config.apiBaseURL}/payments/create-payment`, {
         method: 'POST',
@@ -33,10 +36,11 @@ const PackageScreen = () => {
       });
 
       const data = await response.json();
+      console.log('Create payment response:', data);
 
       if (response.status === 200) {
         const { orderId, approvalUrl } = data;
-        console.log(data);
+        console.log('Navigating to PayPalPayment with orderId and approvalUrl:', orderId, approvalUrl);
         navigation.navigate('PayPalPayment', { orderId, approvalUrl });
       } else {
         Alert.alert('Error', data.error || 'Something went wrong');
@@ -73,6 +77,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
+    backgroundColor: '#3B3B3B',
   },
   itemContainer: {
     backgroundColor: '#f9c2ff',

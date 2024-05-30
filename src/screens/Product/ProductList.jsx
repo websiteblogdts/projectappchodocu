@@ -42,7 +42,7 @@ const ProductListScreen = () => {
       // Đảm bảo rằng tham số truy vấn approved được thiết lập là true
       const response = await fetch(`${config.apiBaseURL}/product/productdaduyet`, {
         headers: {
-          'Authorization': `${userToken}`
+          'Authorization': `Bearer ${userToken}`
         }
       });
       const data = await response.json();

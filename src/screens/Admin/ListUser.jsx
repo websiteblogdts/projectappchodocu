@@ -32,7 +32,7 @@ const ListUser = () => {
       // console.log('Token from AsyncStorage:', userToken);
         const response = await axios.get(`${config.apiBaseURL}/admin/getalluser`, {
         headers: {
-          'Authorization': `${userToken}` // Ensure you're using Bearer token if required by your backend
+          'Authorization': `Bearer ${userToken}` // Ensure you're using Bearer token if required by your backend
         }
       });
   
@@ -67,7 +67,7 @@ const ListUser = () => {
       console.log('Request URL:', `${config.apiBaseURL}/admin/changstatusaccount/${userId}`);
         await axios.put(`${config.apiBaseURL}/admin/changstatusaccount/${userId}`, null, {
         headers: {
-          'Authorization': `${userToken}`
+          'Authorization': `Bearer ${userToken}`
         }
       });
       fetchUsers();
@@ -85,7 +85,7 @@ const ListUser = () => {
       console.log('Token from AsyncStorage:', userToken);      // Make the edit request with Authorization header
       await axios.put(`${config.apiBaseURL}/admin/edituser/${selectedUserId}`, editUserData, {
         headers: {
-          'Authorization': `${userToken}`
+          'Authorization': `Bearer ${userToken}`
         }
       });
       fetchUsers();
@@ -112,7 +112,7 @@ const ListUser = () => {
             const userToken = await AsyncStorage.getItem('userToken');
             await axios.delete(`${config.apiBaseURL}/admin/user/delete/${id}`, {
               headers: {
-                'Authorization': `${userToken}` // Correct way to include the token
+                'Authorization': `Bearer ${userToken}` // Correct way to include the token
               }
             });
             fetchUsers();

@@ -52,7 +52,7 @@ const ProductDetail = ({ route, navigation }) => {
       const userToken = await AsyncStorage.getItem('userToken');
       const response = await fetch(`${config.apiBaseURL}/product/${productId}`, {
         headers: {
-          'Authorization': `${userToken}`
+          'Authorization': `Bearer ${userToken}`
         }
       });
       const data = await response.json();
@@ -92,7 +92,7 @@ const ProductDetail = ({ route, navigation }) => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `${userToken}`
+          'Authorization': `Bearer ${userToken}`
         },
         body: JSON.stringify({
           userId: userId,

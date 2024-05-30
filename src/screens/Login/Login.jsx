@@ -6,7 +6,9 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import CustomButton from '../../components/CustomButton';
 import config from '../../config/config';
-console.log(process.env.REACT_APP_API_BASE_URL)
+// console.log(process.env.REACT_APP_API_BASE_URL)
+// import CookieManager from '@react-native-cookies/cookies';
+import styles from '../../components/Login';
 
 function LoginScreen({ navigation }) {
   const [identifier, setEmailOrPhone] = useState('');
@@ -22,7 +24,9 @@ const handleLogin = async () => {
       const apiURL = `${config.apiBaseURL}/user/login`;
       console.log('API URL:', apiURL);
 
-      const response = await axios.post(`${config.apiBaseURL}/user/login`, userData);
+      const response = await axios.post(apiURL, userData, { withCredentials: true });
+
+      // const response = await axios.post(`${config.apiBaseURL}/user/login`, userData);
       const { token, role, user } = response.data; // Lấy user từ response data
       const userId = user._id;
       
@@ -32,7 +36,7 @@ const handleLogin = async () => {
       await AsyncStorage.setItem('userRole', role); // Lưu role vào AsyncStorage
       await AsyncStorage.setItem('userId', userId); // Lưu userId vào AsyncStorage
 
-      navigation.navigate(role === 'admin' ? 'Admin' : 'Root'); // Navigation dựa trên role
+      navigation.navigate(role === 'admin' ? 'Admin' : 'User'); // Navigation dựa trên role
   } catch (error) {
       console.error("Login error:", error);
       Alert.alert('Error rui son oi', error.message);
@@ -168,76 +172,4 @@ const handleForgotPassword = () => {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: "gray",
-    flex: 0.3,
-    justifyContent: 'center',
-    alignItems: 'center',
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginTop: 10,
-    color:'white'
-  },
-  heading: {
-    fontSize: 24,
-    marginBottom: 20,
-  },
-
-  button: {
-    backgroundColor: 'blue',
-    padding: 10,
-    borderRadius: 5,
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 16,
-  },
-  registerText: {
-    marginTop: 20,
-    color: 'blue',
-  },
-  logoContainer: {
-    marginTop: 20,
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  logo: {
-    width: 250,
-    height: 220,
-    borderRadius: 60,
-  },
-  loginText: {
-    // width: 250,
-    // height: 220,
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginTop: 10,
-    color:'blue'
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
-    marginBottom: 10,
-    
-  },
-  input: {
-    color:'white',
-    flex: 1,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-  },
-  icon: {
-    marginRight: 5, // Điều chỉnh khoảng cách giữa icon và TextInput
-  },
-  forgotPassword: {
-    color: '#AD40AF',
-    marginTop: 10,
-    fontSize: 16,
-    fontWeight: '700',
-  }
-});
 export default LoginScreen;

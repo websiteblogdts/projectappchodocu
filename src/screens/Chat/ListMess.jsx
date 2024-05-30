@@ -18,7 +18,7 @@ const ListMess = ({ navigation }) => {
       setCurrentUserId(userId);
       const response = await fetch(`${config.apiBaseURL}/mess/usersWhoMessaged`, {
         headers: {
-          'Authorization': `${userToken}`
+          'Authorization': `Bearer ${userToken}`
         }
       });
       const data = await response.json();

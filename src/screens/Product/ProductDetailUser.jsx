@@ -58,7 +58,7 @@ const fetchProduct = async (productId) => {
       console.log('userToken', userToken);
       const response = await fetch(`${config.apiBaseURL}/product/${productId}`,{
         headers: {
-          'Authorization': `${userToken}`
+          'Authorization': `Bearer ${userToken}`
         }
       });
       const data = await response.json();
@@ -106,7 +106,7 @@ const deleteProduct = async (productId) => {
       const response = await fetch(`${config.apiBaseURL}/product/deleteproduct/${productId}`, {
         method: 'DELETE',
         headers: {
-          'Authorization': `${userToken}`
+          'Authorization': `Bearer ${userToken}`
         }
       });
   
