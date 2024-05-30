@@ -106,7 +106,7 @@ const handleForgotPassword = () => {
                   onChangeText={text => setPassword(text)}
                   secureTextEntry={true}
                 />
-                <TouchableOpacity onPress={() => navigation.navigate('RegisterUser')}>
+                <TouchableOpacity onPress={() => navigation.navigate('Register')}>
                       <Text style={styles.forgotPassword}>Forgot?</Text>
                 </TouchableOpacity>
               </View>
@@ -161,7 +161,7 @@ const handleForgotPassword = () => {
             marginBottom: 30,
           }}>
           <Text>New to the app?</Text>
-          <TouchableOpacity onPress={() => navigation.navigate('RegisterUser')}>
+          <TouchableOpacity onPress={() => navigation.navigate('Register')}>
             <Text style={{color: '#AD40AF', fontWeight: '700'}}> Register</Text>
           </TouchableOpacity>
         </View>

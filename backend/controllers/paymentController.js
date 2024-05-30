@@ -62,6 +62,8 @@ async function capturePayment(req, res) {
     }
 }
 
+
+
 async function packages(req, res) {
     try {
         const packages = await Package.find();
@@ -92,6 +94,7 @@ async function newpackages(req, res) {
     }
 }
 
+
 module.exports = {
-    createPayment, capturePayment, packages, newpackages
+    createPayment,  packages, newpackages, capturePayment
 };
