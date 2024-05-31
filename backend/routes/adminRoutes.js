@@ -9,7 +9,7 @@ const cacheMiddleware = require("../middlewares/cacheMiddleware");
 router.use(authMiddleware);
 // Quản lý user cho admin
 router.get('/getalluser',cacheMiddleware(60), authMiddleware, adminController.getAllUsers);
-router.get('/userbyid/:userId', authMiddleware, adminController.getUserById);
+router.get('/userbyid/:userId', cacheMiddleware(60),authMiddleware, adminController.getUserById);
 router.put('/edituser/:userId',  authMiddleware, adminController.updateUserByIdForAdmin);
 router.delete('/user/delete/:userId', authMiddleware, adminController.deleteUserById);
 router.put('/changstatusaccount/:userId', authMiddleware, adminController.changeStatusAccount);
@@ -25,6 +25,6 @@ router.delete('/categories/:id', authMiddleware, categoryController.deleteCatego
 router.patch('/categories/edit/:categoryId', authMiddleware, categoryController.updateCategory);
 
 router.put('/categories/restore/:id', authMiddleware, categoryController.restoreCategory);
-router.get('/historycategorydelete', authMiddleware, categoryController.getDeletedCategories);
+router.get('/historycategorydelete',cacheMiddleware(60), authMiddleware, categoryController.getDeletedCategories);
 
 module.exports = router;

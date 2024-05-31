@@ -2,6 +2,7 @@ const bcrypt = require('bcrypt');
 const User = require('../models/User');
 const Product = require('../models/Product');
 const { isValidEmail, isValidPassword, isValidPhoneNumber } = require('../middlewares/validator');
+const cache = require("memory-cache");
 
 //xử lý phê duyệt sản phẩm bằng cách đảo ngược giá trị.
 exports.updateApprovedStatus = (req, res) => {
@@ -13,10 +14,10 @@ exports.updateApprovedStatus = (req, res) => {
             }
             // Đảo ngược giá trị của admin_approved
             product.admin_approved = !product.admin_approved;
-
             return product.save();
         })
         .then(updatedProduct => {
+            cache.clear();
             res.json(updatedProduct);
         })
         .catch(error => {
@@ -114,11 +115,14 @@ exports.changeStatusAccount = async (req, res) => {
 
         // Đảo ngược trạng thái tài khoản
         user.account_status = user.account_status === 'active' ? 'locked' : 'active';
+
         await user.save();
+        cache.clear();
 
         // Trả về thông báo phản hồi
         const action = user.account_status === 'active' ? 'unlocked' : 'locked';
         res.json({ message: `Tài khoản đã được ${action}.` });
+        
     } catch (error) {
         console.error('Lỗi khi thực hiện hành động:', error);
         res.status(500).json({ error: 'Lỗi máy chủ nội bộ.' });
@@ -182,7 +186,7 @@ exports.updateUserByIdForAdmin = async (req, res) => {
         }
         // Cập nhật người dùng trong cơ sở dữ liệu dựa trên ID
         const updatedUser = await User.findByIdAndUpdate(userId, updateData, { new: true });
-
+            cache.clear();
         res.status(200).json(updatedUser);
     } catch (error) {
         console.error("Error updating user:", error);
@@ -204,7 +208,7 @@ exports.deleteUserById = async (req, res) => {
         if (!deletedUser) {
             return res.status(404).json({ error: "User not found" });
         }
-
+        cache.clear();
         // Trả về thông báo xác nhận xóa thành công
         res.status(200).json({ message: "User deleted successfully", user: deletedUser });
     } catch (error) {

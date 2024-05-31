@@ -1,9 +1,20 @@
 const User = require('../models/User');
-const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const JWT_SECRET = "Gcd191140";
+require('dotenv').config();
+const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET;
+const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET;
 const { isValidPassword } = require('../middlewares/validator');
-const { hashPassword, comparePassword  } = require('../utils/passwordUtils');
+const { hashPassword, comparePassword } = require('../utils/passwordUtils');
+const cache = require("memory-cache");
+// console.log(ACCESS_TOKEN_SECRET);
+
+const generateAccessToken = (payload) => {
+    return jwt.sign(payload, ACCESS_TOKEN_SECRET, { expiresIn: '24h' });
+};
+
+const generateRefreshToken = (payload) => {
+    return jwt.sign(payload, REFRESH_TOKEN_SECRET, { expiresIn: '7d' });
+};
 
 exports.getRoutes = (req, res) => {
     res.send('test user');
@@ -20,26 +31,24 @@ exports.upgradeToVip = async (req, res) => {
     user.accountStatusVip = true;
     user.vipExpiryDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 ngày VIP
     await user.save();
+    cache.clear();
 
     res.status(200).json({ message: 'Account upgraded to VIP', vipExpiryDate: user.vipExpiryDate });
 };
 
-//chỉ lấy id của user đã login
+// Chỉ lấy id của user đã login
 exports.getUserId = async (req, res) => {
     try {
-      // Lấy thông tin người dùng từ mã token trong req.user
-      const user = await User.findOne({ email: req.user.email });
-      if (!user) {
-        return res.status(404).json({ error: 'User not found' });
-      }
-      res.status(200).json({ userId: user.id });
+        const user = await User.findOne({ email: req.user.email });
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        res.status(200).json({ userId: user.id });
     } catch (error) {
-      console.error('Error fetching user profile:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
+        console.error('Error fetching user profile:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
     }
-  };
-  
-
+};
 
 //giống detail user nhưng là lấy của user đã login
 exports.getUserProfile = async (req, res) => {
@@ -56,138 +65,132 @@ exports.getUserProfile = async (req, res) => {
       res.status(500).json({ error: 'Internal Server Error' });
     }
   };
-
-  exports.login = async (req, res) => {
+exports.login = async (req, res) => {
     const { identifier, password } = req.body;
-  
+
     try {
-      const user = await User.findOne({ 
-        $or: [{ email: identifier }, { phone_number: identifier }]
-      });
-  
-      if (!user) {
-        return res.status(404).json({ error: "User not found" });
-      }
-  
-      if (user.isDeleted) {
-        return res.status(401).json({ error: "This account has been deactivated" });
-      }
-  
-      if (user.account_status === 'locked') {
-        return res.status(403).json({ error: "This account is locked" });
-      }
-  
-      const isPasswordValid = await comparePassword(password, user.password);
-      if (!isPasswordValid) {
-        return res.status(401).json({ error: "Invalid credentials" });
-      }
-  
-      const token = jwt.sign({
-        id: user._id.toString(),
-        email: user.email,
-        role: user.role
-      }, JWT_SECRET, { expiresIn: '1h' });
-  
-    //   res.cookie('token', token, { httpOnly: true, maxAge: 3600000 });
-  
-      res.status(200).json({ 
-        message: "Login successful", 
-        token, 
-        role: user.role,
-        user: {
-          _id: user._id,
-          email: user.email,
-          phone_number: user.phone_number,
-          name: user.name,
-          avatar_image: user.avatar_image,
-          reward_points: user.reward_points,
-          role: user.role,
-          account_status: user.account_status,
-          isDeleted: user.isDeleted,
-          createdAt: user.createdAt,
-          updatedAt: user.updatedAt
+        const user = await User.findOne({
+            $or: [{ email: identifier }, { phone_number: identifier }]
+        });
+
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
         }
-      });
+
+        if (user.isDeleted) {
+            return res.status(401).json({ error: "This account has been deactivated" });
+        }
+
+        if (user.account_status === 'locked') {
+            return res.status(403).json({ error: "This account is locked" });
+        }
+
+        const isPasswordValid = await comparePassword(password, user.password);
+        if (!isPasswordValid) {
+            return res.status(401).json({ error: "Invalid credentials" });
+        }
+
+        const token = generateAccessToken({ id: user._id, email: user.email, role: user.role });
+        const refreshToken = generateRefreshToken({ id: user._id, email: user.email, role: user.role });
+
+        user.refreshToken = refreshToken;
+        await user.save();
+
+        res.status(200).json({
+            message: "Login successful",
+            token,
+            refreshToken,
+            role: user.role,
+            user: {
+                _id: user._id,
+                email: user.email,
+                phone_number: user.phone_number,
+                name: user.name,
+                avatar_image: user.avatar_image,
+                reward_points: user.reward_points,
+                role: user.role,
+                account_status: user.account_status,
+                isDeleted: user.isDeleted,
+                createdAt: user.createdAt,
+                updatedAt: user.updatedAt
+            }
+        });
     } catch (error) {
-      console.error("Error logging in:", error);
-      res.status(500).json({ error: "Internal Server Error" });
+        console.error("Error logging in:", error);
+        res.status(500).json({ error: "Internal Server Error" });
     }
-  };
+};
 
 exports.register = async (req, res) => {
     const { email, password, phone_number, name, avatar_image, reward_points, otp_verified, account_status } = req.body;
-  
-    try {
-      // Check if email or phone number is already in use
-      const existingUser = await User.findOne({ $or: [{ email }, { phone_number }] });
-  
-      if (existingUser) {
-        const field = existingUser.email === email ? 'Email' : 'Phonenumber';
-        return res.status(400).json({ error: `${field} already exists` });
-      }
-  
-      // Hash the password using the utility function
-      const hashedPassword = await hashPassword(password);
-  
-      // Create a new user
-      const newUser = new User({
-        email,
-        phone_number,
-        name,
-        avatar_image,
-        reward_points,
-        otp_verified,
-        password: hashedPassword,
-        account_status
-      });
-  
-      // Save the new user to the database
-      await newUser.save();
-  
-      res.status(201).json({ message: "User registered successfully", user: newUser });
-    } catch (error) {
-      console.error("Error registering user:", error);
-      res.status(500).json({ error: "Internal Server Error, thông tin trùng lặp" });
-    }
-  };
 
-  exports.updateUserPassword = async (req, res) => {
     try {
-      const userId = req.user.id;
-      const { oldPassword, newPassword } = req.body;
-  
-      const user = await User.findById(userId);
-      if (!user) {
-        return res.status(404).json({ error: "User not found" });
-      }
-  
-      const isPasswordValid = await comparePassword(oldPassword, user.password);
-      if (!isPasswordValid) {
-        return res.status(401).json({ error: "Incorrect old password" });
-      }
-  
-      if (!isValidPassword(newPassword)) {
-        return res.status(400).json({ error: "Password must be at least 6 characters long, Do not contain whitespace and leave blank" });
-      }
-  
-      const hashedNewPassword = await hashPassword(newPassword);
-      user.password = hashedNewPassword;
-  
-      await user.save();
-  
-      res.status(200).json({ message: "Password updated successfully" });
+        const existingUser = await User.findOne({ $or: [{ email }, { phone_number }] });
+
+        if (existingUser) {
+            const field = existingUser.email === email ? 'Email' : 'Phonenumber';
+            return res.status(400).json({ error: `${field} already exists` });
+        }
+
+        const hashedPassword = await hashPassword(password);
+
+        const newUser = new User({
+            email,
+            phone_number,
+            name,
+            avatar_image,
+            reward_points,
+            otp_verified,
+            password: hashedPassword,
+            account_status
+        });
+
+        await newUser.save();
+
+        res.status(201).json({ message: "User registered successfully", user: newUser });
     } catch (error) {
-      console.error("Error updating user password:", error);
-      res.status(500).json({ error: "Internal Server Error" });
+        console.error("Error registering user:", error);
+        res.status(500).json({ error: "Internal Server Error" });
     }
-  };
-  
+};
+
+exports.updateUserPassword = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { oldPassword, newPassword } = req.body;
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        const isPasswordValid = await comparePassword(oldPassword, user.password);
+        if (!isPasswordValid) {
+            return res.status(401).json({ error: "Incorrect old password" });
+        }
+
+        if (!isValidPassword(newPassword)) {
+            return res.status(400).json({ error: "Password must be at least 6 characters long, Do not contain whitespace and leave blank" });
+        }
+
+        const hashedNewPassword = await hashPassword(newPassword);
+        user.password = hashedNewPassword;
+
+        await user.save();
+        cache.clear();
+
+        res.status(200).json({ message: "Password updated successfully" });
+    } catch (error) {
+        console.error("Error updating user password:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+};
+
 exports.updateAvatar = async (req, res) => {
     try {
-        // Xác định người dùng từ token
         const userId = req.user.id;
         const { newAvatarImage } = req.body;
-        // Tìm người dùng trong cơ sở dữ liệu
+
         const user = await User.findById(userId);
         if (!user) {
             return res.status(404).json({ error: "User not found" });
@@ -195,6 +198,7 @@ exports.updateAvatar = async (req, res) => {
         user.avatar_image = newAvatarImage;
 
         await user.save();
+        cache.clear();
 
         res.status(200).json({ message: "Avatar updated successfully" });
     } catch (error) {
@@ -203,4 +207,33 @@ exports.updateAvatar = async (req, res) => {
     }
 };
 
+exports.refreshToken = async (req, res) => {
+    // const { refreshToken } = req.body;
+    const refreshToken = req.body.refreshToken;
 
+    if (!refreshToken) {
+        return res.status(401).json({ message: 'Refresh token is missing' });
+    }
+
+    try {
+        const decoded = jwt.verify(refreshToken, REFRESH_TOKEN_SECRET);
+
+        const user = await User.findById(decoded.id);
+        if (!user || user.refreshToken !== refreshToken) {
+            return res.status(401).json({ message: 'Invalid refresh token' });
+        }
+
+        const newToken = jwt.sign({
+            id: user._id.toString(),
+            email: user.email,
+            role: user.role
+        }, ACCESS_TOKEN_SECRET, { expiresIn: '15m' });
+        res.setHeader('Authorization', `Bearer ${newToken}`);
+        next(); // Chuyển tiếp yêu cầu đến middleware tiếp theo hoặc router handler
+
+        res.status(200).json({ token: newToken });
+    } catch (error) {
+        console.error('Error refreshing token:', error);
+        res.status(403).json({ message: 'Invalid or expired refresh token' });
+    }
+};

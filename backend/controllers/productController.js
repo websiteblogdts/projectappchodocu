@@ -1,9 +1,10 @@
 const Product = require('../models/Product');
-const mongoose = require('mongoose');
-const jwt = require('jsonwebtoken');
-const JWT_SECRET = "Gcd191140";
+// const mongoose = require('mongoose');
+// const jwt = require('jsonwebtoken');
+// const JWT_SECRET = "Gcd191140";
 const User = require('../models/User');
-const { isValidimages } = require('../middlewares/validator');
+// const { isValidimages } = require('../middlewares/validator');
+const cache = require("memory-cache");
 
 exports.getRoutes = (req, res) => {
     res.send('Hello son');
@@ -117,6 +118,7 @@ exports.createProduct = async (req, res) => {
 
         // Save product to the database
         const savedProduct = await product.save();
+        cache.clear();
 
         res.status(201).json(savedProduct);
     } catch (error) {
@@ -165,6 +167,7 @@ exports.createProduct = async (req, res) => {
 
         // Lưu sản phẩm đã cập nhật vào cơ sở dữ liệu
         const updatedProduct = await product.save();
+        cache.clear();
 
         res.status(200).json(updatedProduct);
     } catch (error) {
@@ -223,7 +226,10 @@ exports.deleteProductById = (req, res) => {
             }
             // Thay vì xóa, cập nhật trạng thái isDeleted và thêm thời gian xóa
             Product.findByIdAndUpdate(productId, { isDeleted: true, deletedAt: new Date() }, { new: true })
+            
                 .then(() => {
+                    cache.clear();
+
                     res.json({ message: 'Product deleted successfully' });
                 })
                 .catch(error => {

@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "AwesomeProject",
-    "slug": "AwesomeProject",
+    "name": "appchodocu",
+    "slug": "appchodocu",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -14,17 +14,52 @@
     "assetBundlePatterns": [
       "**/*"
     ],
+    "platforms": ["ios", "android", "web"],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.yourcompany.appchodocu",
+      "infoPlist": {
+        "CFBundleURLTypes": [
+          {
+            "CFBundleURLSchemes": ["appchodocu"]
+          }
+        ]
+      }
     },
     "android": {
+      "package": "com.yourcompany.appchodocu",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "data": [
+            {
+              "scheme": "https",
+              "host": "*.appchodocu.com",
+              "pathPrefix": "/"
+            },
+            {
+              "scheme": "appchodocu"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
+        }
+      ]
     },
     "web": {
-      "favicon": "./assets/favicon.png"
-    }
+      "favicon": "./assets/favicon.png",
+      "config": {
+        "firebase": {
+        }
+      },
+      "hostname": "http://appchodocu.ddns.net:3000"
+    },
+    "scheme": "appchodocu"
   }
 }

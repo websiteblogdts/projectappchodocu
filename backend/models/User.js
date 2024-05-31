@@ -12,7 +12,9 @@ const userSchema = new mongoose.Schema({
     account_status: {   type: String,  enum: ['active', 'locked'], default: 'active'  },
     isDeleted: {   type: Boolean,   default: false  } ,
     deletedAt: { type: Date, default: null },
-    vipExpiryDate: { type: Date, default: null }
+    vipExpiryDate: { type: Date, default: null },
+   refreshToken: { type: String }, // Thêm trường refreshToken
+
 }, { timestamps: true 
 
 });

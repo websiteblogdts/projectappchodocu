@@ -1,4 +1,5 @@
 const Category = require('../models/Category');
+const cache = require("memory-cache");
 
 //tạo category
 exports.createCategory = async (req, res) => {
@@ -19,6 +20,7 @@ exports.createCategory = async (req, res) => {
          }
         const newCategory = new Category({ name });
         const savedCategory = await newCategory.save(); // Lưu category vào database
+        cache.clear();
         res.status(201).json(savedCategory); // Gửi response với thông tin category đã lưu
     } catch (error) {
         console.error("Error creating category:", error);
@@ -45,9 +47,13 @@ exports.updateCategory = async (req, res) => {
         }
         // Cập nhật danh mục
         const updatedCategory = await Category.findByIdAndUpdate(categoryId, { name: name.trim() }, { new: true, runValidators: true });
+
         if (!updatedCategory) {
             return res.status(404).json({ error: "Category not found" });
         }
+
+        cache.clear();
+
         res.status(200).json({ data: updatedCategory, message: "Category updated successfully" });
         // res.status(200).json({ message: "Category updated successfully", category: updatedCategory });
     } catch (error) {
@@ -159,6 +165,8 @@ exports.deleteCategory = async (req, res) => {
 
         // Fetch remaining categories to return updated list
         const remainingCategories = await Category.find({ isDeleted: false });
+        cache.clear();
+
         res.status(200).json(remainingCategories);
     } catch (error) {
         console.error("Error deleting category:", error);
@@ -180,6 +188,7 @@ exports.restoreCategory = async (req, res) => {
             return res.status(404).json({ error: "Category not found" });
         }
         const remainingCategories = await Category.find({ isDeleted: true });
+        cache.clear();
         res.status(200).json({
             message: "Category restored successfully",
             category: restoreCategory,

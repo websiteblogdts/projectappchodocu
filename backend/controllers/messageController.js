@@ -2,6 +2,7 @@ const { Chat, Message } = require('../models/Message'); // Ensure the path is co
 const Product = require('../models/Product');
 const User = require('../models/User');
 const io = require('../config/socket');
+const cache = require("memory-cache");
 
 
 
@@ -29,11 +30,13 @@ exports.newChat = async (req, res) => { // Added async here
                 lastMessage: ''
             });
             await chat.save();
+            
               // Gửi sự kiện 'newChat' đến tất cả máy khách
               io.emit('newChat', chat);
             //   console.log('Received new message from Postman:', chat);
 
         }
+        cache.clear();
 
         res.status(200).json(chat);
     } catch (error) {
@@ -79,7 +82,8 @@ exports.sendMess = async (req, res) => {
 
         console.log('Received data from client:', { chatId, senderId, content });
         // console.log('Received new message from Postman:', message);
-      
+        cache.clear();
+
         // Phản hồi với tin nhắn đã được gửi
         res.status(200).json(messages);
 
@@ -178,6 +182,7 @@ exports.markMessagesAsRead = async (req, res) => {
             { chat: chatId, sender: { $ne: currentUserId } },
             { $set: { read: true } }
         );
+        cache.clear();
 
         res.status(200).json({ message: 'Marked messages as read successfully' });
     } catch (error) {
