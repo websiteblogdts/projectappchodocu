@@ -5,6 +5,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const app = express();
 const http = require('http');
+const cors = require('cors'); // Thêm dòng này
+
 const io = require('../backend/config/socket'); 
 io.attach(http.createServer(app));
 
@@ -19,6 +21,7 @@ const vipRoutes = require('./routes/vipRoutes');
 require("./models/Product");
 require("./models/User");
 
+app.use(cors()); // Thêm dòng này để sử dụng middleware CORS
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

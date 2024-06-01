@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput,  FlatList, Modal, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput,  FlatList, Modal, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import Ionicons from 'react-native-vector-icons/Ionicons';

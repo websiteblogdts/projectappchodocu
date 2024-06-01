@@ -1,19 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, RefreshControl, Alert, Modal, TextInput } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, RefreshControl, Alert, Modal, TextInput, Platform } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { useNavigation } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import config from '../../config/config';
 
 const ListUser = () => {
   const navigation = useNavigation();
   const [users, setUsers] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
-
   const [modalVisible, setModalVisible] = useState(false);
-
   const [editUserData, setEditUserData] = useState({
     name: '',
     password: '',
@@ -23,20 +21,16 @@ const ListUser = () => {
     email: '',
     phone_number: ''
   });
-  
   const [selectedUserId, setSelectedUserId] = useState(null);
 
   const fetchUsers = async () => {
     try {
       const userToken = await AsyncStorage.getItem('userToken');
-      // console.log('Token from AsyncStorage:', userToken);
-        const response = await axios.get(`${config.apiBaseURL}/admin/getalluser`, {
+      const response = await axios.get(`${config.apiBaseURL}/admin/getalluser`, {
         headers: {
-          'Authorization': `Bearer ${userToken}` // Ensure you're using Bearer token if required by your backend
+          'Authorization': `Bearer ${userToken}`
         }
       });
-  
-      // Set the users data using the response data
       setUsers(response.data);
     } catch (error) {
       console.error('Error fetching users:', error);
@@ -62,27 +56,21 @@ const ListUser = () => {
 
   const handleLockUnlockAccount = async (userId) => {
     try {
-      console.log('User ID:', userId);
       const userToken = await AsyncStorage.getItem('userToken');
-      console.log('Request URL:', `${config.apiBaseURL}/admin/changstatusaccount/${userId}`);
-        await axios.put(`${config.apiBaseURL}/admin/changstatusaccount/${userId}`, null, {
+      await axios.put(`${config.apiBaseURL}/admin/changstatusaccount/${userId}`, null, {
         headers: {
           'Authorization': `Bearer ${userToken}`
         }
       });
       fetchUsers();
-      console.log('Account status changed successfully'); // In ra thông báo khi thay đổi thành công
     } catch (error) {
-      console.error('Lỗi khi khóa/mở khóa tài khoản:', error); // In ra lỗi nếu có
+      console.error('Lỗi khi khóa/mở khóa tài khoản:', error);
     }
   };
-  
 
   const editUser = async () => {
     try {
-      console.log('Edit user data:', editUserData);
       const userToken = await AsyncStorage.getItem('userToken');
-      console.log('Token from AsyncStorage:', userToken);      // Make the edit request with Authorization header
       await axios.put(`${config.apiBaseURL}/admin/edituser/${selectedUserId}`, editUserData, {
         headers: {
           'Authorization': `Bearer ${userToken}`
@@ -94,14 +82,15 @@ const ListUser = () => {
     } catch (error) {
       console.error('Failed to update user:', error);
       if (error.response && error.response.data && error.response.data.error) {
-          Alert.alert('Error rui', error.response.data.error);
+        Alert.alert('Error rui', error.response.data.error);
       } else {
         Alert.alert('Error rui son oi', error.response.data.error || 'Failed to add product');
-          Alert.alert('Error', 'Failed to update user');
+        Alert.alert('Error', 'Failed to update user');
       }
     }
-};
-  const deleteUser = async (id, token) => { // Include `token` as an argument if it's not globally available
+  };
+
+  const deleteUser = async (id) => {
     Alert.alert(
       "Confirm Deletion",
       "Are you sure you want to delete this user?",
@@ -112,7 +101,7 @@ const ListUser = () => {
             const userToken = await AsyncStorage.getItem('userToken');
             await axios.delete(`${config.apiBaseURL}/admin/user/delete/${id}`, {
               headers: {
-                'Authorization': `Bearer ${userToken}` // Correct way to include the token
+                'Authorization': `Bearer ${userToken}`
               }
             });
             fetchUsers();
@@ -129,7 +118,7 @@ const ListUser = () => {
   const renderUser = ({ item }) => {
     return (
       <TouchableOpacity onPress={() => navigateToUserDetail(item._id)}>
-            <View style={styles.userContainer}>
+        <View style={styles.userContainer}>
           <TouchableOpacity onPress={() => navigateToUserDetail(item._id)}>
             <View>
               <Text style={styles.name}>Name: {item.name}</Text>
@@ -158,10 +147,10 @@ const ListUser = () => {
               <Ionicons name="trash-bin" size={30} color="gray" />
             </TouchableOpacity>
             <TouchableOpacity onPress={() => handleLockUnlockAccount(item._id)}>
-            <Ionicons 
-                name={item.account_status === 'active' ? 'lock-open' : 'lock-closed'} 
-                size={30} 
-                color={item.account_status === 'active' ? 'green' : '#E54646'} // Màu cam nếu tài khoản đang active, màu đỏ nếu tài khoản đang bị khóa
+              <Ionicons
+                name={item.account_status === 'active' ? 'lock-open' : 'lock-closed'}
+                size={30}
+                color={item.account_status === 'active' ? 'green' : '#E54646'}
               />
             </TouchableOpacity>
           </View>
@@ -189,7 +178,7 @@ const ListUser = () => {
         />
       )}
 
-<Modal
+      <Modal
         animationType="slide"
         transparent={true}
         visible={modalVisible}
@@ -214,14 +203,14 @@ const ListUser = () => {
               value={editUserData.email}
               onChangeText={(text) => setEditUserData({ ...editUserData, email: text })}
             />
-          <TextInput 
-            style={styles.input}
-            placeholder="Phone Number"
-            placeholderTextColor="#888"
-            keyboardType="numeric"
-            value={editUserData.phone_number}
-            onChangeText={(text) => setEditUserData({ ...editUserData, phone_number: text})}
-          />
+            <TextInput
+              style={styles.input}
+              placeholder="Phone Number"
+              placeholderTextColor="#888"
+              keyboardType="numeric"
+              value={editUserData.phone_number}
+              onChangeText={(text) => setEditUserData({ ...editUserData, phone_number: text })}
+            />
             <TextInput
               style={styles.input}
               placeholder="New Password"
@@ -237,24 +226,45 @@ const ListUser = () => {
               value={editUserData.reward_points}
               onChangeText={(text) => setEditUserData({ ...editUserData, reward_points: text })}
             />
-            <Picker
-              selectedValue={editUserData.role}
-              style={styles.input}
-              onValueChange={(itemValue, itemIndex) =>
-                setEditUserData({ ...editUserData, role: itemValue })
-              }>
-              <Picker.Item label="User" value="user" />
-              <Picker.Item label="Moderator" value="moderator" />
-            </Picker>
-            <Picker
-              selectedValue={editUserData.account_status}
-              style={styles.input}
-              onValueChange={(itemValue, itemIndex) =>
-                setEditUserData({ ...editUserData, account_status: itemValue })
-              }>
-              <Picker.Item label="Active" value="active" />
-              <Picker.Item label="Locked" value="locked" />
-            </Picker>
+            {Platform.OS === 'web' ? (
+              <>
+                <select
+                  value={editUserData.role}
+                  onChange={(e) => setEditUserData({ ...editUserData, role: e.target.value })}
+                  style={styles.webSelect}
+                >
+                  <option value="user">User</option>
+                  <option value="moderator">Moderator</option>
+                </select>
+                <select
+                  value={editUserData.account_status}
+                  onChange={(e) => setEditUserData({ ...editUserData, account_status: e.target.value })}
+                  style={styles.webSelect}
+                >
+                  <option value="active">Active</option>
+                  <option value="locked">Locked</option>
+                </select>
+              </>
+            ) : (
+              <>
+                <Picker
+                  selectedValue={editUserData.role}
+                  style={styles.input}
+                  onValueChange={(itemValue) => setEditUserData({ ...editUserData, role: itemValue })}
+                >
+                  <Picker.Item label="User" value="user" />
+                  <Picker.Item label="Moderator" value="moderator" />
+                </Picker>
+                <Picker
+                  selectedValue={editUserData.account_status}
+                  style={styles.input}
+                  onValueChange={(itemValue) => setEditUserData({ ...editUserData, account_status: itemValue })}
+                >
+                  <Picker.Item label="Active" value="active" />
+                  <Picker.Item label="Locked" value="locked" />
+                </Picker>
+              </>
+            )}
             <TouchableOpacity
               style={styles.saveButton}
               onPress={() => editUser()}
@@ -304,7 +314,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 8,
   },
- 
   emptyText: {
     fontSize: 16,
     textAlign: 'center',
@@ -313,11 +322,10 @@ const styles = StyleSheet.create({
   flatListContent: {
     flexGrow: 1,
   },
-  nutchucnang:{
-  flexDirection: 'row',
-  justifyContent: 'space-between',
+  nutchucnang: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
-  // Modal styles
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -329,15 +337,14 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 20,
     width: '80%',
-    color: "white"
+    color: 'white',
   },
   modalTitle: {
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 20,
     textAlign: 'center',
-    color: "white"
-
+    color: 'white',
   },
   input: {
     borderWidth: 1,
@@ -346,7 +353,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 15,
     marginBottom: 15,
-    color: "white"
+    color: 'white',
   },
   saveButton: {
     backgroundColor: 'gray',
@@ -368,6 +375,18 @@ const styles = StyleSheet.create({
     color: '#fff',
     textAlign: 'center',
     fontSize: 16,
+  },
+  webSelect: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    marginBottom: 15,
+    color: 'white',
+    backgroundColor: '#3B3B3B',
+    // flex: 1,
+    padding: 10,
   },
 });
 

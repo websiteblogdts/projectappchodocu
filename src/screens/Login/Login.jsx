@@ -24,9 +24,9 @@ const handleLogin = async () => {
       const apiURL = `${config.apiBaseURL}/user/login`;
       console.log('API URL:', apiURL);
 
-      const response = await axios.post(apiURL, userData, { withCredentials: true });
+      // const response = await axios.post(apiURL, userData, { withCredentials: true });
 
-      // const response = await axios.post(`${config.apiBaseURL}/user/login`, userData);
+      const response = await axios.post(`${config.apiBaseURL}/user/login`, userData);
       const { token, role, user } = response.data; // Lấy user từ response data
       const userId = user._id;
       

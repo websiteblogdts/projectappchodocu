@@ -208,8 +208,7 @@ exports.updateAvatar = async (req, res) => {
 };
 
 exports.refreshToken = async (req, res) => {
-    // const { refreshToken } = req.body;
-    const refreshToken = req.body.refreshToken;
+    const { refreshToken } = req.body;
 
     if (!refreshToken) {
         return res.status(401).json({ message: 'Refresh token is missing' });
@@ -217,21 +216,13 @@ exports.refreshToken = async (req, res) => {
 
     try {
         const decoded = jwt.verify(refreshToken, REFRESH_TOKEN_SECRET);
-
         const user = await User.findById(decoded.id);
         if (!user || user.refreshToken !== refreshToken) {
             return res.status(401).json({ message: 'Invalid refresh token' });
         }
 
-        const newToken = jwt.sign({
-            id: user._id.toString(),
-            email: user.email,
-            role: user.role
-        }, ACCESS_TOKEN_SECRET, { expiresIn: '15m' });
-        res.setHeader('Authorization', `Bearer ${newToken}`);
-        next(); // Chuyển tiếp yêu cầu đến middleware tiếp theo hoặc router handler
-
-        res.status(200).json({ token: newToken });
+        const newAccessToken = jwt.sign({ id: user._id, email: user.email, role: user.role }, ACCESS_TOKEN_SECRET, { expiresIn: '15m' });
+        res.status(200).json({ token: newAccessToken });
     } catch (error) {
         console.error('Error refreshing token:', error);
         res.status(403).json({ message: 'Invalid or expired refresh token' });

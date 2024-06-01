@@ -3,14 +3,13 @@ const router = express.Router();
 const userController = require('../controllers/userController');
 const authMiddleware = require('../middlewares/authMiddleware');
 const cacheMiddleware = require("../middlewares/cacheMiddleware");
-const refreshAccessToken = require('../middlewares/refreshAccessToken');
 
 
 router.post('/login', userController.login);
 
 router.post('/register', userController.register);
 
-router.post('/refresh-token', refreshAccessToken, userController.refreshToken);
+router.post('/refresh-token', userController.refreshToken);
 
 router.get('/', cacheMiddleware(60),userController.getRoutes); // in ra test user
 

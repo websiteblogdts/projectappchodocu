@@ -2,6 +2,7 @@
   "name": "awesomeproject",
   "version": "1.0.0",
   "main": "node_modules/expo/AppEntry.js",
+  "proxy": "http://appchodocu.ddns.net:3000",
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
@@ -34,6 +35,7 @@
     "react-dom": "18.2.0",
     "react-native": "0.73.6",
     "react-native-androw": "^0.0.34",
+    "react-native-elements": "^3.4.3",
     "react-native-gesture-handler": "~2.14.0",
     "react-native-get-random-values": "~1.8.0",
     "react-native-image-picker": "^7.1.2",
@@ -48,7 +50,8 @@
     "react-native-webview": "13.6.4",
     "react-navigation-stack": "^2.10.4",
     "socket.io": "^4.7.5",
-    "socket.io-client": "^4.7.5"
+    "socket.io-client": "^4.7.5",
+    "sweetalert2": "^11.11.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

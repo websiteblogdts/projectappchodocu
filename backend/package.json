@@ -1,6 +1,7 @@
 {
   "name": "server",
   "version": "1.0.0",
+  "proxy": "http://appchodocu.ddns.net:3000",
   "description": "",
   "main": "index.js",
   "scripts": {
