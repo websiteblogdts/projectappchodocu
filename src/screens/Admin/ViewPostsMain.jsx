@@ -13,7 +13,8 @@ const ViewPostsMain = () => {
   const [products, setProducts] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const [approved, setApproved] = useState(false);
-  const numColumns = 2;
+  // const numColumns = 2;
+  const numColumns = Platform.OS === 'web' ? 8 : 2; // Thay đổi số cột dựa trên nền tảng
 
   useEffect(() => {
     fetchProducts(approved);
@@ -32,7 +33,7 @@ const ViewPostsMain = () => {
         <FontAwesome5
         name="exchange-alt" 
           title={approved ? "Show Unapproved" : "Show Approved"}
-          onClick={toggleApproved}
+          onPress={toggleApproved}
           style={styles.buttonshowhide}
           color={approved ? "#FF5733" : "#4CAF50"}
         />

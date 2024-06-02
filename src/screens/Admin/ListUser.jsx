@@ -12,6 +12,8 @@ const ListUser = () => {
   const [users, setUsers] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const [searchVisible, setSearchVisible] = useState(false); // Define setSearchVisible
+
   const [editUserData, setEditUserData] = useState({
     name: '',
     password: '',
@@ -22,6 +24,32 @@ const ListUser = () => {
     phone_number: ''
   });
   const [selectedUserId, setSelectedUserId] = useState(null);
+  const [searchText, setSearchText] = useState('');
+
+  useEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search Name/Mail/Phone"
+            placeholderTextColor="#888"
+            value={searchText}
+            onChangeText={text => setSearchText(text)}
+          />
+          <TouchableOpacity onPress={() => console.log('Search')}>
+            <Ionicons name="search" size={24} color="white" style={{ marginRight: 10 }} />
+          </TouchableOpacity>
+        </View>
+      ),
+    });
+  }, [navigation, searchText]);
+
+  const filteredUsers = users.filter(user =>
+    user.name.toLowerCase().includes(searchText.toLowerCase()) ||
+    user.email.toLowerCase().includes(searchText.toLowerCase()) ||
+    user.phone_number.toLowerCase().includes(searchText.toLowerCase())
+  );
 
   const fetchUsers = async () => {
     try {
@@ -161,11 +189,13 @@ const ListUser = () => {
 
   return (
     <View style={styles.container}>
+      
       {users.length === 0 ? (
         <Text style={styles.emptyText}>No users found</Text>
       ) : (
         <FlatList
-          data={users}
+        data={filteredUsers}
+          // data={users}
           renderItem={renderUser}
           keyExtractor={(item) => item._id.toString()}
           contentContainerStyle={styles.flatListContent}
@@ -289,6 +319,17 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
     backgroundColor: '#3B3B3B',
+  },
+  searchInput: {
+    // backgroundColor: 'white',
+    paddingHorizontal: 7,
+    paddingVertical: 8,
+    // borderRadius: 5,
+    marginRight: 10,
+    // flex: 1,
+    color: 'black',
+    borderBottomWidth: 1,
+
   },
   userContainer: {
     backgroundColor: '#414141',
