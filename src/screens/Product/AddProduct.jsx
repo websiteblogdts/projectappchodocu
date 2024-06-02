@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text,Modal,TextInput,TouchableOpacity , ScrollView,Alert,Image } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, Modal, TextInput, TouchableOpacity, ScrollView, Alert, Image } from 'react-native';
 import { IconButton } from 'react-native-paper';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import * as ImagePicker from 'expo-image-picker';
@@ -36,7 +36,7 @@ const AddProduct = () => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     fetchCategories();
     fetchProvinces();
   }, []);
@@ -45,29 +45,14 @@ const AddProduct = () => {
     try {
       const response = await fetch(`${config.apiBaseURL}/product/category`);
       const data = await response.json();
-        setCategories(data);
+      setCategories(data);
     } catch (error) {
-        console.error('Error fetching categories:', error);
+      console.error('Error fetching categories:', error);
     }
-};
-
-
+  };
 
   const handleSubmit = async () => {
     try {
-      // console.log("Images:", images);
-      // console.log("Uploaded image:", uploadedImage)
-      // console.log("Name:", name);
-      // console.log("Price:", price);
-      // console.log("Description:", description);
-      // console.log("Category:", category);
-      // console.log("Selected province:", selectedProvince);
-      // console.log("Selected district:", selectedDistrict);
-      // console.log("Selected ward:", selectedWard);
-      // console.log("Images before sending:", images);
-      // console.log("Sending product data:", {
-      //   name, price, description, images, category, address: { province: selectedProvince, district: selectedDistrict, ward: selectedWard }
-      // });
       const userToken = await AsyncStorage.getItem('userToken');
       if (!userToken) {
         Alert.alert('Error', 'No user token found. Please login again.');
@@ -75,10 +60,9 @@ const AddProduct = () => {
         return;
       }
       if (isSubmitting) {
-        // console.log("Submitting data, please wait...");
         return; 
       }
-        setIsSubmitting(true);
+      setIsSubmitting(true);
       const response = await fetch(`${config.apiBaseURL}/product/create`, {
         method: 'POST',
         headers: {
@@ -101,16 +85,11 @@ const AddProduct = () => {
       const data = await response.json(); 
       if (!response.ok) {
         throw new Error(data.error || `HTTP error ${response.status}`);
-       }
-      // console.log("Data submitted successfully!");
-      // console.log(data);
-      
+      }
       Alert.alert('Success', 'Product added successfully!');
-      } catch (error) {
-        // console.error('Error adding product:', error);
-        Alert.alert('Error rui son oi', error.message || 'Failed to add product');
-    }
-    finally {
+    } catch (error) {
+      Alert.alert('Error', error.message || 'Failed to add product');
+    } finally {
       setIsSubmitting(false);
     }
   };
@@ -119,11 +98,9 @@ const AddProduct = () => {
     setPrice(prevPrice => Number(prevPrice) + 1); 
   };
 
-  
   const decreasePrice = () => {
     setPrice(prevPrice => Math.max(0, prevPrice - 1));
   };
-
 
   const fetchProvinces = async () => {
     try {
@@ -131,258 +108,238 @@ const AddProduct = () => {
       const data = await response.json();
       setProvinces(data);
     } catch (error) {
-      // console.error('Error fetching provinces:', error);
+      console.error('Error fetching provinces:', error);
     }
   };
 
-const handleProvinceChange = (province) => {
-  setSelectedProvince(province);
-  const selectedProvince = provinces.find((p) => p.Name === province);
-  if (selectedProvince) {
-    setDistricts(selectedProvince.Districts);
-  } else {
-    setDistricts([]);
-  }
-  setWards([]);
-  setSelectedDistrict('');
-  setSelectedWard('');
-};
-
-const handleDistrictChange = (district) => {
-  setSelectedDistrict(district);
-  const selectedDistrict = districts.find((d) => d.Name === district);
-  if (selectedDistrict) {
-    setWards(selectedDistrict.Wards);
-  } else {
-    setWards([]);
-  }
-  setSelectedWard('');
-};
-
-const handleWardChange = (ward) => {
-  setSelectedWard(ward);
-};
-
-const handleUploadNhieuAnh = async (image) => {
-  let formData = new FormData();
-  formData.append('file', {
-    uri: image.uri,
-    type: 'image/jpeg',
-    name: 'upload.jpg'
-  });
-  formData.append('upload_preset', 'ackgbz0m');
-  formData.append('cloud_name', 'dvm8fnczy');
-  try {
-    const response = await axios.post("https://api.cloudinary.com/v1_1/dvm8fnczy/image/upload", formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      }
-    });
-
-    if (response.status === 200) {
-      // console.log("Upload successful: ", response.data);
-      setImages(prevImages => [...prevImages, response.data.secure_url]);
-      setUploadedImage(response.data.secure_url);
-      Alert.alert('Upload Successful', 'Your image has been uploaded successfully!');
-      // console.log("Uploaded image:", image); // Log ra ảnh được chọn để upload
-      setModal(false)
+  const handleProvinceChange = (province) => {
+    setSelectedProvince(province);
+    const selectedProvince = provinces.find((p) => p.Name === province);
+    if (selectedProvince) {
+      setDistricts(selectedProvince.Districts);
     } else {
-      setModal(false)
-      throw new Error("Failed to upload image");
+      setDistricts([]);
     }
-  } catch (error) {
-    // console.error("Error uploading image: ", error);
-    Alert.alert('Upload Failed', 'Failed to upload image.' );
-  }
-};
+    setWards([]);
+    setSelectedDistrict('');
+    setSelectedWard('');
+  };
 
+  const handleDistrictChange = (district) => {
+    setSelectedDistrict(district);
+    const selectedDistrict = districts.find((d) => d.Name === district);
+    if (selectedDistrict) {
+      setWards(selectedDistrict.Wards);
+    } else {
+      setWards([]);
+    }
+    setSelectedWard('');
+  };
 
-const handleRemoveImage = (indexToRemove) => {
-  setImages(prevImages => {
-    const newImages = prevImages.filter((_, index) => index !== indexToRemove);
-    // Update the uploadedImage to the last image in the new array or null if empty
-    setUploadedImage(newImages.length > 0 ? newImages[newImages.length - 1] : null);
-    return newImages;
-  });
-};
+  const handleWardChange = (ward) => {
+    setSelectedWard(ward);
+  };
 
+  const handleUploadNhieuAnh = async (image) => {
+    let formData = new FormData();
+    formData.append('file', {
+      uri: image.uri,
+      type: 'image/jpeg',
+      name: 'upload.jpg'
+    });
+    formData.append('upload_preset', 'ackgbz0m');
+    formData.append('cloud_name', 'dvm8fnczy');
+    try {
+      const response = await axios.post("https://api.cloudinary.com/v1_1/dvm8fnczy/image/upload", formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        }
+      });
 
-const _uploadImage = async () => {
-  const result = await ImagePicker.launchImageLibraryAsync({
-    mediaTypes: ImagePicker.MediaTypeOptions.Images,
-    allowsEditing: true,
-    aspect: [4, 3],
-    quality: 1,
-    multiple: true // Thêm đoạn này để cho phép chọn nhiều ảnh
-  });
+      if (response.status === 200) {
+        setImages(prevImages => [...prevImages, response.data.secure_url]);
+        setUploadedImage(response.data.secure_url);
+        Alert.alert('Upload Successful', 'Your image has been uploaded successfully!');
+        setModal(false);
+      } else {
+        setModal(false);
+        throw new Error("Failed to upload image");
+      }
+    } catch (error) {
+      Alert.alert('Upload Failed', 'Failed to upload image.');
+    }
+  };
 
-  if (!result.cancelled) {
-    handleUploadNhieuAnh(result.assets[0]); 
-    // console.log("Uploaded image:", result.assets[0]);
-    // Gọi hàm handleUpload với đối tượng ảnh thu được
-  } else {
-    // console.log("Image selection was cancelled");
-  }
-};
+  const handleRemoveImage = (indexToRemove) => {
+    setImages(prevImages => {
+      const newImages = prevImages.filter((_, index) => index !== indexToRemove);
+      setUploadedImage(newImages.length > 0 ? newImages[newImages.length - 1] : null);
+      return newImages;
+    });
+  };
 
-const _takePhoto = async () => {
-  // Same here for camera permissions
-  const { status } = await Camera.requestCameraPermissionsAsync();
-  if (status !== 'granted') {
-      alert('Sorry, we need camera permissions to make this work!');
-      return;
-  }
-  const result = await ImagePicker.launchCameraAsync({
-     mediaTypes: ImagePicker.MediaTypeOptions.Images,
+  const _uploadImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [4, 3],
       quality: 1,
-  });
+      multiple: true
+    });
 
-  if (!result.cancelled) {
-      // handleUpload(result.assets[0]);
-      handleUploadNhieuAnh(result.assets[0]);
-      // console.log("Uploaded image:", result.assets[0]);
-
-    } else {
-      // console.log("Image selection was cancelled");
+    if (!result.cancelled) {
+      handleUploadNhieuAnh(result.assets[0]); 
     }
   };
 
-  
-    const handleScroll = (event) => {
-      const scrollPosition = event.nativeEvent.contentOffset.x;
-      const width = event.nativeEvent.layoutMeasurement.width;
-      const index = Math.floor(scrollPosition / width);
-      setCurrentImageIndex(index);
-      // console.log("Current image index:", currentImageIndex);
-    };
+  const _takePhoto = async () => {
+    const { status } = await Camera.requestCameraPermissionsAsync();
+    if (status !== 'granted') {
+      alert('Sorry, we need camera permissions to make this work!');
+      return;
+    }
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.cancelled) {
+      handleUploadNhieuAnh(result.assets[0]);
+    }
+  };
+
+  const handleScroll = (event) => {
+    const scrollPosition = event.nativeEvent.contentOffset.x;
+    const width = event.nativeEvent.layoutMeasurement.width;
+    const index = Math.floor(scrollPosition / width);
+    setCurrentImageIndex(index);
+  };
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <View style={styles.header2}>
+          <Ionicons name="images-outline" 
+            color="#9C9C9C"
+            size={100}
+            style={styles.uploadIcon}
+            onPress={() => setModal(true)} 
+          />
+          <View style={styles.imageandprice}>
+            
+          <TouchableOpacity onPress={() => setModal(true)}>
+            {uploadedImage && <Image source={{ uri: uploadedImage }} style={styles.image} />}
+          </TouchableOpacity>
 
 
-return (
-<View style={styles.container}>
-  <View style={styles.header}>
-    <View style={styles.header2}>
-    <Ionicons name="images-outline" 
-                color="#9C9C9C"
-                 size={100}
-                 style={styles.uploadIcon}
-                  onPress={() => setModal(true)} />
-     <View style={styles.imageandprice}>
-        <TouchableOpacity onPress={() => setModal(true)} >
-                <Image source={{ uri: uploadedImage }} style={styles.image} />
-        </TouchableOpacity>
-    </View>
+          </View>
 
-<View>
-      <View style={styles.priceContainer}>
-        <TouchableOpacity onPress={decreasePrice} style={styles.button}>
-          <Text style={styles.buttonText}>-</Text>
-        </TouchableOpacity>
+          <View>
+            <View style={styles.priceContainer}>
+              <TouchableOpacity onPress={decreasePrice} style={styles.button}>
+                <Text style={styles.buttonText}>-</Text>
+              </TouchableOpacity>
 
-        <TextInput 
-          style={styles.inputprice}
-          onChangeText={text => setPrice(Number(text.replace(/[^0-9]/g, '')))}
-          // value={price.toString()}
-          value={'$' + price}
-          keyboardType="numeric"
-        />
+              <TextInput 
+                style={styles.inputprice}
+                onChangeText={text => setPrice(Number(text.replace(/[^0-9]/g, '')))}
+                value={'$' + price}
+                keyboardType="numeric"
+              />
 
-        <TouchableOpacity onPress={increasePrice} style={styles.button}>
-          <Text style={styles.buttonText}>+</Text>
-        </TouchableOpacity>
+              <TouchableOpacity onPress={increasePrice} style={styles.button}>
+                <Text style={styles.buttonText}>+</Text>
+              </TouchableOpacity>
+            </View>
 
-      </View>
-
-      <Ionicons name="save" 
-        color="#9C9C9C"
-        size={50}
-        style={styles.saveIcon} 
-        onPress={() => handleSubmit()} title="Save" />
-      </View>
-</View>
-
-    <View style={styles.details}>
-    <View style={styles.inputContainer}>
-    {/* <Text style={styles.tieude} >TITLE </Text> */}
-        <TextInput
-          style={styles.inputname}
-          placeholder="Enter a title for the article/product"
-          placeholderTextColor="#888"
-          value={name}
-          onChangeText={text => setName(text)}
-          maxLength={40}  // Giới hạn nhập tối đa 40 ký tự
-        />
-        <Text style={styles.charCount}>
-          {name.length}/40
-        </Text>
-      </View>
-
-        <View style={styles.category}>
-          <Picker
-            selectedValue={category}
-            onValueChange={(itemValue) => setCategory(itemValue)}
-            style={styles.categoryPicker}
-          >
-             <Picker.Item 
-             label="Select Category" 
-             value="" />
-           {categories.map((category) => (
-              <Picker.Item key={category._id} label={category.name} value={category._id} />
-           ))}
-          </Picker>
+            <Ionicons name="save" 
+              color="#9C9C9C"
+              size={50}
+              style={styles.saveIcon} 
+              onPress={() => handleSubmit()} 
+              title="Save" 
+            />
+          </View>
         </View>
 
-        <TextInput
-          style={styles.textInput}
-          onChangeText={setDescription}
-          value={description}
-          multiline
-          placeholder="Nhập mô tả sản phẩm..."
-          placeholderTextColor="#888" 
-          textAlignVertical="top"
-        />
-        
-     <View style={styles.containeraddress}>
-     <Text style={styles.addressLabel}>Address</Text>
+        <View style={styles.details}>
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={styles.inputname}
+              placeholder="Enter a title for the article/product"
+              placeholderTextColor="#888"
+              value={name}
+              onChangeText={text => setName(text)}
+              maxLength={40}
+            />
+            <Text style={styles.charCount}>
+              {name.length}/40
+            </Text>
+          </View>
 
-     <Picker
-        selectedValue={selectedProvince}
-        onValueChange={handleProvinceChange}
-        style={styles.addressSelect}
-      >
-        <Picker.Item key="selectProvince" label="Select Province" value="" />
-        {provinces.map((province) => (
-          <Picker.Item key={province.Name} label={province.Name} value={province.Name} />
-        ))}
-      </Picker>
+          <View style={styles.category}>
+            <Picker
+              selectedValue={category}
+              onValueChange={(itemValue) => setCategory(itemValue)}
+              style={styles.categoryPicker}
+            >
+              <Picker.Item label="Select Category" value="" />
+              {categories.map((category) => (
+                <Picker.Item key={category._id} label={category.name} value={category._id} />
+              ))}
+            </Picker>
+          </View>
 
-      <Picker
-          selectedValue={selectedDistrict}
-          onValueChange={handleDistrictChange}
-          style={styles.addressSelect}
-        >
-          <Picker.Item key="selectDistrict" label="Select District" value="" />
-          {districts && districts.map((district) => (
-            <Picker.Item key={district.Name} label={district.Name} value={district.Name} />
-          ))}
-        </Picker>
+          <TextInput
+            style={styles.textInput}
+            onChangeText={setDescription}
+            value={description}
+            multiline
+            placeholder="Nhập mô tả sản phẩm..."
+            placeholderTextColor="#888" 
+            textAlignVertical="top"
+          />
+          
+          <View style={styles.containeraddress}>
+            <Text style={styles.addressLabel}>Address</Text>
 
-        <Picker
-          selectedValue={selectedWard}
-          onValueChange={handleWardChange}
-          style={styles.addressSelect}
-        >
-          <Picker.Item key="selectWard" label="Select Ward" value="" />
-          {wards && wards.map((ward) => (
-            <Picker.Item key={ward.Name} label={ward.Name} value={ward.Name} />
-          ))}
-        </Picker>
+            <Picker
+              selectedValue={selectedProvince}
+              onValueChange={handleProvinceChange}
+              style={styles.addressSelect}
+            >
+              <Picker.Item key="selectProvince" label="Select Province" value="" />
+              {provinces.map((province) => (
+                <Picker.Item key={province.Name} label={province.Name} value={province.Name} />
+              ))}
+            </Picker>
 
+            <Picker
+              selectedValue={selectedDistrict}
+              onValueChange={handleDistrictChange}
+              style={styles.addressSelect}
+            >
+              <Picker.Item key="selectDistrict" label="Select District" value="" />
+              {districts && districts.map((district) => (
+                <Picker.Item key={district.Name} label={district.Name} value={district.Name} />
+              ))}
+            </Picker>
 
-    </View>
-  </View>
-</View>
+            <Picker
+              selectedValue={selectedWard}
+              onValueChange={handleWardChange}
+              style={styles.addressSelect}
+            >
+              <Picker.Item key="selectWard" label="Select Ward" value="" />
+              {wards && wards.map((ward) => (
+                <Picker.Item key={ward.Name} label={ward.Name} value={ward.Name} />
+              ))}
+            </Picker>
+          </View>
+        </View>
+      </View>
 
       <ScrollView
         contentContainerStyle={styles.scrollContainer}
@@ -411,27 +368,23 @@ return (
             ]}
           />
         ))}
+      </View>
+
+      <Modal
+        animationType='slide'
+        transparent={true}
+        visible={modal}
+        onRequestClose= {() => {setModal(false)}}
+      >
+        <View style={styles.modalView}>
+          <View style={styles.buttonModalView}>
+            <IconButton icon="camera" onPress={_takePhoto} />
+            <IconButton icon="folder-image" onPress={_uploadImage} />
+          </View>
+          <IconButton icon="cancel" style={styles.cancelupload} mode="contained" onPress={() => setModal(false)} />
+        </View>
+      </Modal>
     </View>
-
-
-           <Modal
-             animationType='slide'
-             transparent={true}
-             visible={modal}
-             onRequestClose= {() => {setModal(false)}}
-            >
-                <View style={styles.modalView}>
-                    <View style={styles.buttonModalView}>
-                      
-                        <IconButton icon="camera" onPress={_takePhoto} />
-                    
-                        <IconButton icon="folder-image" onPress={_uploadImage} />
-                                           
-                    </View>
-                   <IconButton icon="cancel" style={styles.cancelupload} mode="contained" onPress={() => setModal(false)} />
-                </View>
-            </Modal>
-  </View>
   );
 };
 

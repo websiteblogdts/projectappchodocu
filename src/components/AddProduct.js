@@ -5,8 +5,19 @@ const styles = StyleSheet.create({
   container: {
       flex: 1,
       alignItems: 'center',
-  
       backgroundColor: '#3B3B3B',
+    },
+    selectImageTextContainer: {
+      flexDirection: 'cow', // Ensure the text is displayed inline
+      alignItems: 'center', // Center the text vertically
+      justifyContent: 'center', // Center the text horizontally
+    },
+    selectImageText: {
+      flexDirection: 'row', // Ensure the text is displayed inline
+      color: '#888',
+      fontSize: 16,
+      textAlign: 'center',
+      marginTop: 20,
     },
     uploadedImage: {
       width: 100,
@@ -43,6 +54,8 @@ const styles = StyleSheet.create({
       flexDirection: 'row',
       borderRadius: 10,
       backgroundColor: '#3B3B3B',
+      paddingHorizontal: 5,
+      paddingTop: 5,
     },
     header2: {
       flexDirection: 'row',

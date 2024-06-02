@@ -51,12 +51,14 @@ const styles = StyleSheet.create({
       justifyContent: 'center',
       alignItems: 'center',
       marginTop: 22,
+      overflow: 'auto', // Cho phép cuộn nếu nội dung vượt qua kích thước của modal
+
     },
     modalView: {
-      margin: 20,
+      margin: 15,
       backgroundColor: "gray",
       borderRadius: 20,
-      padding: 35,
+      padding: 55,
       alignItems: 'center',
       shadowColor: '#000',
       shadowOffset: {
@@ -66,7 +68,9 @@ const styles = StyleSheet.create({
       shadowOpacity: 0.25,
       shadowRadius: 4,
       elevation: 5,
-      // width: '90%'
+      maxWidth: '120%', // Giới hạn chiều rộng của modal content
+      maxHeight: '80%', // Giới hạn chiều cao của modal content
+      overflow: 'auto', // Cho phép cuộn nếu nội dung vượt qua kích thước của modal content
     },
     input: {
       height: 40,
@@ -81,7 +85,9 @@ const styles = StyleSheet.create({
       fontWeight: 'bold'
     },
     deletedListItem: {
-      // flex: 1,
+      flex: 1,
+      width: '120%', 
+      height: '80%', 
       flexDirection: 'row',
       backgroundColor: '#f8f8f8',
       padding: 30,
@@ -104,6 +110,7 @@ const styles = StyleSheet.create({
       borderRadius: 10,
     },
     deletedItemText: {
+      width:180,
       // flex: 1, // makes text take up as much space as it can
       marginRight: 10, // space between text and button
       color: '#333',

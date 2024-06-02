@@ -244,13 +244,7 @@ Alert.alert('Upload Failed', 'Failed to upload image.');
     }
   };
   
-  // if (!userData) {
-  //   return (
-  //     <View style={styles.container}>
-  //       <Text>Loading...</Text>
-  //     </View>
-  //   );
-  // }
+
   if (loading) {
     return (
       <View style={styles.container}>
@@ -316,31 +310,19 @@ Alert.alert('Upload Failed', 'Failed to upload image.');
           <Text style={styles.infoLabel}>Phone Number: {userData.phone_number}</Text>
         </View>
         <View style={styles.infoContainer}>
-          <Text style={styles.infoLabel}>Mô Tả:</Text>
-          <TextInput
-            style={styles.textInput}
-            placeholder="Nhập mô tả sản phẩm..."
-            placeholderTextColor="#888"
-            textAlignVertical="top"
-            multiline
-          />
-        </View>
-
-      </View>
-
-      <TouchableOpacity style={styles.button} onPress={openChangePasswordModal}>
+        <TouchableOpacity style={styles.button} onPress={openChangePasswordModal}>
         <Text style={styles.buttonText}>Change Password</Text>
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.iconvatextsave}>
       <Text style={styles.texticonsave}>Save All</Text>
       <Ionicons name='save' style={styles.iconsave} size={35} color="#EA7575" onPress={() => handleChangeAvatar()} />
-      
       </TouchableOpacity>
-      {/* <TouchableOpacity  onPress={handleLogout} style={styles.buttonlogout}>
-      <Text style={styles.buttonTextlogout}>Log Out</Text>
-       <Ionicons name='exit-outline' title="Logout" size={40} color="#E0E0E0" style={styles.iconlogout} onPress={handleLogout} />
-      </TouchableOpacity> */}
+        </View>
+       
+      </View>
+
+   
 
       <Modal
         animationType="slide"

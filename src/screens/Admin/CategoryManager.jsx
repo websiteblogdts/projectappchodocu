@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput,  FlatList, Modal, Alert } from 'react-native';
+import { View, Text, TextInput,  FlatList, Modal, Alert ,Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -7,6 +7,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import config from '../../config/config';
 import styles from '../../components/Category';
+import Swal from 'sweetalert2';
 
 const CategoryManager = () => {
   const [categories, setCategories] = useState([]);
@@ -36,10 +37,9 @@ const CategoryManager = () => {
 ;
 
 
-
-useEffect(() => {
-  fetchDeletedCategories();
-}, []);
+// useEffect(() => {
+//   fetchDeletedCategories();
+// }, []);
 
 const fetchDeletedCategories = async () => {
   try {
@@ -96,108 +96,187 @@ const fetchCategories = async () => {
   }
 };
 
-  const deleteCategory = async (id) => {
-    Alert.alert(
-      "Confirm Deletion",
-      "Are you sure you want to delete this user?",
-      [
-        { text: "Cancel", style: "cancel" },
-        { text: "Delete", onPress: async () => {
-          try {
-            const userToken = await AsyncStorage.getItem('userToken');
-            console.log('Token from AsyncStorage:', userToken);
-      await axios.delete(`${config.apiBaseURL}/admin/categories/${id}`, {
-        headers: {
-          'Authorization': `Bearer ${userToken}` // Correct way to include the token
-        }
-      });
-      Alert.alert('Success', 'Category deleted successfully');
-      fetchCategories(); // Refresh the list after deletion
-      } catch (error) {
-        console.error('Failed to delete category:', error);
-        Alert.alert('Error', 'Failed to delete category');
-      }
-    }}
-  ]
- );
-};
+const deleteCategory = async (id) => {
+  const confirmMessage = 'Are you sure you want to delete this category?';
 
-const addCategory = async () => {
-  try {
-    // Retrieve the token from AsyncStorage
-    const userToken = await AsyncStorage.getItem('userToken');
-    console.log('Token from AsyncStorage:', userToken);
-    // Make the POST request to add a new category
-    await axios.post(`${config.apiBaseURL}/admin/createcategory`, { name: newCategoryName }, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${userToken}`  // Properly formatted Authorization header with Bearer token
+  if (Platform.OS === 'web') {
+    Swal.fire({
+      title: 'Confirm Deletion',
+      text: confirmMessage,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Delete',
+      cancelButtonText: 'Cancel'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        performCategoryDeletion(id);
       }
     });
-    // Close the modal and reset state only if the request is successful
-    setModalVisible(false);
-    setNewCategoryName('');
-    Alert.alert("Success", "Add category successfully")
-    fetchCategories();  // Refresh the categories list
-  } catch (error) {
-    // console.error('Failed to add category:', error);
-    Alert.alert('Error rui', error.response.data.error);
+  } else {
+    Alert.alert(
+      "Confirm Deletion",
+      confirmMessage,
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete", onPress: async () => {
+            performCategoryDeletion(id);
+          }
+        }
+      ]
+    );
   }
 };
+
+const performCategoryDeletion = async (id) => {
+  try {
+    const userToken = await AsyncStorage.getItem('userToken');
+    await axios.delete(`${config.apiBaseURL}/admin/categories/${id}`, {
+      headers: {
+        'Authorization': `Bearer ${userToken}`
+      }
+    });
+    Alert.alert('Success', 'Category deleted successfully');
+    fetchCategories();
+  } catch (error) {
+    console.error('Failed to delete category:', error);
+    Alert.alert('Error', 'Failed to delete category');
+  }
+};
+const addCategory = async () => {
+  try {
+    const userToken = await AsyncStorage.getItem('userToken');
+    
+    if (Platform.OS === 'web') {
+      setModalVisible(false)
+      Swal.fire({
+        title: 'Confirm',
+        text: 'Are you sure you want to add this category?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Add',
+        cancelButtonText: 'Cancel',
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          await performCategoryAddition(userToken);
+        }
+      });
+    } else {
+      Alert.alert(
+        'Confirm',
+        'Are you sure you want to add this category?',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Add',
+            onPress: async () => {
+              await performCategoryAddition(userToken);
+            }
+          }
+        ],
+        { cancelable: false }
+      );
+    }
+  } catch (error) {
+    console.error('Failed to add category:', error);
+    if (Platform.OS === 'web') {
+      Swal.fire('Error', 'Failed to add category', 'error');
+    } else {
+      Alert.alert('Error', 'Failed to add category');
+    }
+  }
+};
+
+const performCategoryAddition = async (userToken) => {
+  await axios.post(`${config.apiBaseURL}/admin/createcategory`, { name: newCategoryName }, {
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${userToken}`
+    }
+  });
+  setModalVisible(false);
+  setNewCategoryName('');
+  if (Platform.OS === 'web') {
+    Swal.fire('Success', 'Category added successfully', 'success');
+  } else {
+    Alert.alert('Success', 'Category added successfully');
+  }
+  fetchCategories();
+};
+
 const openUpdateModal = (category) => {
   setSelectedCategory(category);
   setUpdateModalVisible(true);
 };
-
 const handleUpdateCategory = async () => {
-
   try {
     const userToken = await AsyncStorage.getItem('userToken');
     const response = await axios.patch(`${config.apiBaseURL}/admin/categories/edit/${selectedCategory._id}`, { name: newCategoryName }, {
-        headers: {
-            'Authorization': `Bearer ${userToken}`
-        }
+      headers: {
+        'Authorization': `Bearer ${userToken}`
+      }
     });
 
     console.log("Response from server:", response.data);
-    Alert.alert("Success", "Category updated successfully");
-    setUpdateModalVisible(false);
+    if (Platform.OS === 'web') {
+      setUpdateModalVisible(false)
+      await Swal.fire('Success', 'Category updated successfully', 'success');
+    } else {
+      Alert.alert('Success', 'Category updated successfully');
+    }
+    setModalVisible(false)
     fetchCategories();
   } catch (error) {
-    // console.error('Failed to update category:', error);
-    // Safely accessing error.response
-    if (error.response) {
-      // Now we can safely access error.response.data
-      const errorMessage = error.response.data && error.response.data.error ? error.response.data.error : 'An unexpected error occurred';
-      Alert.alert('Error', errorMessage);
+    if (Platform.OS === 'web') {
+      setUpdateModalVisible(false)
+      if (error.response) {
+        const errorMessage = error.response.data && error.response.data.error ? error.response.data.error : 'An unexpected error occurred';
+        await Swal.fire('Error', errorMessage, 'error');
+      } else {
+        await Swal.fire('Error', 'Network error or no response from server', 'error');
+      }
     } else {
-      // Handle errors that don't have a response (network errors, timeout errors)
-      Alert.alert('Error', 'Network error or no response from server');
+      if (error.response) {
+        const errorMessage = error.response.data && error.response.data.error ? error.response.data.error : 'An unexpected error occurred';
+        Alert.alert('Error', errorMessage);
+      } else {
+        Alert.alert('Error', 'Network error or no response from server');
+      }
     }
   }
 };
 
 const restoreCategory = async (categoryId) => {
-  
   try {
-      const userToken = await AsyncStorage.getItem('userToken');
-      const response = await axios.put(`${config.apiBaseURL}/admin/categories/restore/${categoryId}`, {}, {
-          headers: {
-              'Authorization': `Bearer ${userToken}`
-          }
-      });
-      console.log("Response from server:", response.data);
-      if (response.status === 200) {
-          Alert.alert("Success", "Category restored successfully");
-          fetchDeletedCategories(); // Refresh the list of deleted categories
-          fetchCategories(); // Refresh the list of active categories
+    const userToken = await AsyncStorage.getItem('userToken');
+    const response = await axios.put(`${config.apiBaseURL}/admin/categories/restore/${categoryId}`, {}, {
+      headers: {
+        'Authorization': `Bearer ${userToken}`
       }
+    });
+    if (response.status === 200) {
+      if (Platform.OS === 'web') {
+        setShowDeletedCategoriesModal(false)
+        await Swal.fire('Success', 'Category restored successfully', 'success');
+      } else {
+        Alert.alert('Success', 'Category restored successfully');
+      }
+      fetchDeletedCategories();
+      fetchCategories();
+    }
   } catch (error) {
-      console.error('Failed to restore category:', error);
+    if (Platform.OS === 'web') {
+      setShowDeletedCategoriesModal(false)
+      await Swal.fire('Error', 'Failed to restore category', 'error');
+    } else {
       Alert.alert('Error', 'Failed to restore category');
+    }
   }
 };
-
 
   const handleCategoryNameChange = (text) => {
     setNewCategoryName(text);

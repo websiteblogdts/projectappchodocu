@@ -46,11 +46,11 @@ const styles = StyleSheet.create({
     },
     iconsave:{
       left: 80 ,
-      bottom: 210
+      // bottom: 210
     },
     texticonsave:{
       left: 70 ,
-      bottom: 203,
+      // bottom: 203,
       color: 'white',
       fontWeight: 'bold',
     },
@@ -75,40 +75,32 @@ const styles = StyleSheet.create({
       // marginTop: 1,
     },
     infoContainer: {
-      marginTop: 23,
+      marginTop: 40,
     },
     infoLabel: {
       color: 'white',
       fontWeight: 'bold',
+      
     },
-    infoValue: {
-      color: 'white',
-      marginTop: 5,
-    },
-    textInput: {
-    height: '50%',
-    borderWidth: 1,
-    borderRadius: 5,
-    borderColor: 'gray',
-    width: '100%',
-    color: "#9C9C9C",
-    },
+    // infoValue: {
+    //   color: 'white',
+    //   marginTop: 5,
+    // },
+
     buttonText: {
       fontSize: 17,
       color: '#fff',
       textAlign: 'center',
-      // bottom:200,
     },
     button: {
-      // backgroundColor: 'gray',
-      bottom: 170,
+      backgroundColor: 'gray',
       borderRadius: 15,
       color: '#fff',
       textAlign: 'center',
       borderColor: 'gray', // Thay 'blue' bằng màu bạn muốn
       borderWidth: 1,
       padding: 20,
-      marginHorizontal: 20,
+      marginHorizontal: 10,
     },
     buttonsubmit: {
       // backgroundColor: '#0066cc',
@@ -117,27 +109,27 @@ const styles = StyleSheet.create({
       marginHorizontal: 20,
     },
    
-    iconlogout:{
-      // bottom: 1,
-    },
-    buttonTextlogout: {
-      left: 15,
-      flex: 1,
-      fontSize: 20,
-      color: '#fff',
-      textAlign: 'center',
-      // fontWeight: 'bold',
-      fontFamily: 'ConcertOne',
-      fontSize: 16, 
-    },
-    buttonlogout:{
-      flexDirection: 'row',
-      backgroundColor: '#FF275B',
-      bottom: 145,
-      // top: 90,
-      borderRadius: 25,
-      padding: 40,
-    },
+    // iconlogout:{
+    //   // bottom: 1,
+    // },
+    // buttonTextlogout: {
+    //   left: 15,
+    //   flex: 1,
+    //   fontSize: 20,
+    //   color: '#fff',
+    //   textAlign: 'center',
+    //   // fontWeight: 'bold',
+    //   fontFamily: 'ConcertOne',
+    //   fontSize: 16, 
+    // },
+    // buttonlogout:{
+    //   flexDirection: 'row',
+    //   backgroundColor: '#FF275B',
+    //   bottom: 145,
+    //   // top: 90,
+    //   borderRadius: 25,
+    //   padding: 40,
+    // },
     centeredView: {
       flex: 1,
       justifyContent: 'center',
@@ -171,16 +163,15 @@ const styles = StyleSheet.create({
       fontWeight: 'bold',
       textAlign: 'center',
     },
-    input: {
-      
-      width: '80%',
-      height: 40,
-      borderColor: 'gray',
-      borderWidth: 1,
-      borderRadius: 5,
-      marginBottom: 20,
-      paddingHorizontal: 10,
-    },
+    // input: {
+    //   width: '80%',
+    //   height: 40,
+    //   borderColor: 'gray',
+    //   borderWidth: 1,
+    //   borderRadius: 5,
+    //   marginBottom: 20,
+    //   paddingHorizontal: 10,
+    // },
     inputContainer: {
       flexDirection: 'row',
       alignItems: 'center',
