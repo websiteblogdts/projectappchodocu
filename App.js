@@ -4,7 +4,10 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import * as Linking from 'expo-linking';
-
+import { View, ActivityIndicator } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+import config from './src/config/config';
 import Home from './src/screens/Home/Home';
 import LoginScreen from './src/screens/Login/Login';
 import ProductDetailUser from './src/screens/Product/ProductDetailUser';
@@ -21,7 +24,6 @@ import ProductListByUser from './src/screens/Product/ProductListByUser';
 import CategoryManager from './src/screens/Admin/CategoryManager';
 import ListMess from './src/screens/Chat/ListMess';
 import MessagesScreen from './src/screens/Chat/MessagesScreen';
-
 import PackageScreen from './src/screens/PackagesPayment/PackageScreen';
 import PayPalPayment from './src/screens/PackagesPayment/PayPalPayment';
 import SuccessScreen from './src/screens/PackagesPayment/SuccessScreen';
@@ -77,11 +79,13 @@ const Package = () => (
     <Stack.Screen name="CancelScreen" component={CancelScreen} />
   </Stack.Navigator>
 );
+
 const UserProfileScreenUser = () => (
   <Stack.Navigator screenOptions={defaultHeaderOptions}>
-    <Stack.Screen name="ProfileScreen" component={UserProfileScreen} options={{  title: 'View UserProfileScreen' }} />
+    <Stack.Screen name="ProfileScreen" component={UserProfileScreen} options={{ title: 'View UserProfileScreen' }} />
   </Stack.Navigator>
 );
+
 const BottomTabsForUser = () => (
   <Tab.Navigator screenOptions={{ tabBarActiveTintColor: '#CB75EA', tabBarInactiveTintColor: 'gray', tabBarStyle: { backgroundColor: '#3B3B3B' }, tabBarShowLabel: false, tabBarIconStyle: { display: 'flex' } }}>
     <Tab.Screen name="HomeStack" component={HomeStack} options={{ headerShown: false, tabBarIcon: ({ color, size }) => (<FontAwesome6 name="shop" size={size} color={color} />) }} />
@@ -113,77 +117,101 @@ const QuanlyPost = () => (
   </Stack.Navigator>
 );
 
-const Category = () => (
+const QuanlyCategory = () => (
   <Stack.Navigator screenOptions={defaultHeaderOptions}>
-    <Stack.Screen name="CategoryManager" component={CategoryManager} options={{ headerShown: true, title: 'View Category List' }} />
-  </Stack.Navigator>
-);
-
-const UserProfileAdmin = () => (
-  <Stack.Navigator screenOptions={defaultHeaderOptions}>
-    <Stack.Screen name="ProfileScreen" component={UserProfileScreen} options={{ headerShown: true, title: 'View UserProfileScreen' }} />
+    <Stack.Screen name="CategoryManager" component={CategoryManager} options={{ headerShown: true }} />
   </Stack.Navigator>
 );
 
 const BottomTabsForAdmin = () => (
   <Tab.Navigator screenOptions={{ tabBarActiveTintColor: '#CB75EA', tabBarInactiveTintColor: 'gray', tabBarStyle: { backgroundColor: '#3B3B3B' }, tabBarShowLabel: false, tabBarIconStyle: { display: 'flex' } }}>
-    <Tab.Screen name="HomeStack" component={HomeStackAdmin} options={{ headerShown: false, tabBarIcon: ({ color, size }) => (<FontAwesome6 name="shop" size={size} color={color} />) }} />
-    <Tab.Screen name="Quanlyuser" component={Quanlyuser} options={{ headerShown: false, tabBarIcon: ({ color, size }) => (<FontAwesome6 name="users" size={size} color={color} />) }} />
+    <Tab.Screen name="HomeStackAdmin" component={HomeStackAdmin} options={{ headerShown: false, tabBarIcon: ({ color, size }) => (<FontAwesome6 name="shop" size={size} color={color} />) }} />
+    <Tab.Screen name="Quanlyuser" component={Quanlyuser} options={{ headerShown: false, tabBarIcon: ({ color, size }) => (<FontAwesome6 name="user-gear" size={size} color={color} />) }} />
     <Tab.Screen name="QuanlyPost" component={QuanlyPost} options={{ headerShown: false, tabBarIcon: ({ color, size }) => (<FontAwesome6 name="list-check" size={size} color={color} />) }} />
-    <Tab.Screen name="Category" component={Category} options={{ headerShown: false, tabBarIcon: ({ color, size }) => (<FontAwesome6 name="align-left" size={size} color={color} />) }} />
-    <Tab.Screen name="UserProfile" component={UserProfileAdmin} options={{ headerShown: false, tabBarIcon: ({ color, size }) => (<FontAwesome6 name="circle-user" size={size} color={color} />) }} />
+    <Tab.Screen name="QuanlyCategory" component={QuanlyCategory} options={{ headerShown: false, tabBarIcon: ({ color, size }) => (<FontAwesome6 name="list-check" size={size} color={color} />) }} />
+    <Tab.Screen name="UserProfileScreen" component={UserProfileScreenUser} options={{ headerShown: false, tabBarIcon: ({ color, size }) => (<FontAwesome6 name="circle-user" size={size} color={color} />) }} />
   </Tab.Navigator>
 );
 
-export default function App() {
-  const navigationRef = useRef(null);
-  const [initialURL, setInitialURL] = useState(null);
+const App = () => {
 
-  const handleDeepLink = (event) => {
-    let data = Linking.parse(event.url);
-    console.log("Deep link data:", data);
-    if (data.path === 'success') {
-      navigationRef.current.navigate('SuccessScreen');
-    } else if (data.path === 'cancel') {
-      navigationRef.current.navigate('CancelScreen');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [role, setRole] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const navigationRef = useRef(null);
+  // const userId = user._id;
+
+  useEffect(() => {
+    const checkToken = async () => {
+      try {
+        const token = await AsyncStorage.getItem('userToken');
+        const role = await AsyncStorage.getItem('userRole');
+        const userId = await AsyncStorage.getItem('userId');
+
+        if (token) {
+          const isValid = await validateToken(token);
+          if (isValid) {
+            setIsLoggedIn(true);
+            setRole(role);
+          } else {
+            await removeToken();
+          }
+        }
+      } catch (error) {
+        console.error('Error checking token:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    checkToken();
+  }, []);
+
+  const validateToken = async (token) => {
+    try {
+      const response = await axios.get(`${config.apiBaseURL}/auth/validate-token`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      return response.status === 200;
+    } catch (error) {
+      console.error('Error validating token:', error);
+      return false;
     }
   };
 
-  useEffect(() => {
-    const getInitialURL = async () => {
-      const url = await Linking.getInitialURL();
-      setInitialURL(url);
-    };
-
-    getInitialURL();
-
-    Linking.addEventListener('url', handleDeepLink);
-
-    return () => {
-      Linking.removeEventListener('url', handleDeepLink);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (initialURL) {
-      const data = Linking.parse(initialURL);
-      console.log("Initial URL data:", data);
-      if (data.path === 'success') {
-        navigationRef.current.navigate('SuccessScreen');
-      } else if (data.path === 'cancel') {
-        navigationRef.current.navigate('CancelScreen');
-      }
+  const removeToken = async () => {
+    try {
+      await AsyncStorage.removeItem('userToken');
+      await AsyncStorage.removeItem('userRole');
+      await AsyncStorage.removeItem('userId');
+    } catch (error) {
+      console.error('Error removing token:', error);
     }
-  }, [initialURL]);
+  };
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="#CB75EA" />
+      </View>
+    );
+  }
 
   return (
-    <NavigationContainer ref={navigationRef}>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="Register" component={RegisterUser} />
-        <Stack.Screen name="User" component={BottomTabsForUser} />
+    <NavigationContainer ref={navigationRef} linking={{ prefixes: [Linking.createURL('/')] }}>
+      {isLoggedIn ? (
+        role === 'admin' ? <BottomTabsForAdmin /> : <BottomTabsForUser />
+      ) : (
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="Register" component={RegisterUser} />
+          <Stack.Screen name="User" component={BottomTabsForUser} />
         <Stack.Screen name="Admin" component={BottomTabsForAdmin} />
-      </Stack.Navigator>
+        </Stack.Navigator>
+      )}
     </NavigationContainer>
   );
-}
+};
+
+export default App;

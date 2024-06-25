@@ -9,6 +9,7 @@ import config from '../../config/config';
 // console.log(process.env.REACT_APP_API_BASE_URL)
 // import CookieManager from '@react-native-cookies/cookies';
 import styles from '../../components/Login';
+import { storeToken } from '../../store/Userlogin'; // Import saveToken
 
 function LoginScreen({ navigation }) {
   const [identifier, setEmailOrPhone] = useState('');
@@ -28,13 +29,15 @@ const handleLogin = async () => {
 
       const response = await axios.post(`${config.apiBaseURL}/user/login`, userData);
       const { token, role, user } = response.data; // Lấy user từ response data
-      const userId = user._id;
-      
-      console.log('Login successful! Role:', role, 'UserId:', userId, 'Token:', token); // Hiển thị role, token và userId trong terminal
+      // const userId = user._id;
 
-      await AsyncStorage.setItem('userToken', token);
-      await AsyncStorage.setItem('userRole', role); // Lưu role vào AsyncStorage
-      await AsyncStorage.setItem('userId', userId); // Lưu userId vào AsyncStorage
+      await storeToken(token, role, user._id);
+
+      // console.log('Login successful! Role:', role, 'UserId:', userId, 'Token:', token); // Hiển thị role, token và userId trong terminal
+
+      // await AsyncStorage.setItem('userToken', token);
+      // await AsyncStorage.setItem('userRole', role); // Lưu role vào AsyncStorage
+      // await AsyncStorage.setItem('userId', userId); // Lưu userId vào AsyncStorage
 
       navigation.navigate(role === 'admin' ? 'Admin' : 'User'); // Navigation dựa trên role
   } catch (error) {

@@ -9,7 +9,7 @@ const cors = require('cors'); // Thêm dòng này
 
 const io = require('../backend/config/socket'); 
 io.attach(http.createServer(app));
-
+const authRoutes =  require('./routes/authRoutes');
 const config = require('./config/config');
 const authMiddleware = require('./middlewares/authMiddleware');
 const messageRoutes = require('./routes/messageRoutes');
@@ -31,7 +31,7 @@ mongoose.connect(config.mongoURI, {
 }).catch(err => {
   console.log("Không thể kết nối rùi", err);
 });
-
+app.use('/auth', authRoutes);
 app.use('/mess', messageRoutes);
 app.use('/product', productRoutes);
 app.use('/admin', adminRoutes);
