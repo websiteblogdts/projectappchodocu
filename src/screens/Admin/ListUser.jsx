@@ -12,7 +12,7 @@ const ListUser = () => {
   const [users, setUsers] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
-  const [searchVisible, setSearchVisible] = useState(false); // Define setSearchVisible
+  const [searchVisible, setSearchVisible] = useState(false);
 
   const [editUserData, setEditUserData] = useState({
     name: '',
@@ -190,12 +190,11 @@ const ListUser = () => {
   return (
     <View style={styles.container}>
       
-      {users.length === 0 ? (
-        <Text style={styles.emptyText}>No users found</Text>
+      {filteredUsers.length === 0 ? (
+        <Text style={styles.emptyText}>No data found</Text>
       ) : (
         <FlatList
-        data={filteredUsers}
-          // data={users}
+          data={filteredUsers}
           renderItem={renderUser}
           keyExtractor={(item) => item._id.toString()}
           contentContainerStyle={styles.flatListContent}
@@ -241,6 +240,8 @@ const ListUser = () => {
               value={editUserData.phone_number}
               onChangeText={(text) => setEditUserData({ ...editUserData, phone_number: text })}
             />
+          
+
             <TextInput
               style={styles.input}
               placeholder="New Password"
@@ -256,57 +257,31 @@ const ListUser = () => {
               value={editUserData.reward_points}
               onChangeText={(text) => setEditUserData({ ...editUserData, reward_points: text })}
             />
-            {Platform.OS === 'web' ? (
-              <>
-                <select
-                  value={editUserData.role}
-                  onChange={(e) => setEditUserData({ ...editUserData, role: e.target.value })}
-                  style={styles.webSelect}
-                >
-                  <option value="user">User</option>
-                  <option value="moderator">Moderator</option>
-                </select>
-                <select
-                  value={editUserData.account_status}
-                  onChange={(e) => setEditUserData({ ...editUserData, account_status: e.target.value })}
-                  style={styles.webSelect}
-                >
-                  <option value="active">Active</option>
-                  <option value="locked">Locked</option>
-                </select>
-              </>
-            ) : (
-              <>
-                <Picker
-                  selectedValue={editUserData.role}
-                  style={styles.input}
-                  onValueChange={(itemValue) => setEditUserData({ ...editUserData, role: itemValue })}
-                >
-                  <Picker.Item label="User" value="user" />
-                  <Picker.Item label="Moderator" value="moderator" />
-                </Picker>
-                <Picker
-                  selectedValue={editUserData.account_status}
-                  style={styles.input}
-                  onValueChange={(itemValue) => setEditUserData({ ...editUserData, account_status: itemValue })}
-                >
-                  <Picker.Item label="Active" value="active" />
-                  <Picker.Item label="Locked" value="locked" />
-                </Picker>
-              </>
-            )}
-            <TouchableOpacity
-              style={styles.saveButton}
-              onPress={() => editUser()}
+            <Picker
+              selectedValue={editUserData.role}
+              style={styles.picker}
+              onValueChange={(itemValue) => setEditUserData({ ...editUserData, role: itemValue })}
             >
-              <Text style={styles.saveButtonText}>Save Changes</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.cancelButton}
-              onPress={() => setModalVisible(!modalVisible)}
+              <Picker.Item label="User" value="user" />
+              <Picker.Item label="Moderator" value="moderator" />
+            </Picker>
+            <Picker
+              selectedValue={editUserData.account_status}
+              style={styles.picker}
+              onValueChange={(itemValue) => setEditUserData({ ...editUserData, account_status: itemValue })}
             >
-              <Text style={styles.cancelButtonText}>Cancel</Text>
-            </TouchableOpacity>
+              <Picker.Item label="Active" value="active" />
+              <Picker.Item label="Locked" value="locked" />
+            </Picker>
+
+            <View style={styles.modalButtons}>
+              <TouchableOpacity onPress={editUser} style={styles.saveButton}>
+                <Text style={styles.saveButtonText}>Save</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.cancelButton}>
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>
@@ -321,51 +296,32 @@ const styles = StyleSheet.create({
     backgroundColor: '#3B3B3B',
   },
   searchInput: {
-    // backgroundColor: 'white',
-    paddingHorizontal: 7,
-    paddingVertical: 8,
-    // borderRadius: 5,
+    backgroundColor: '#555',
+    borderRadius: 8,
+    padding: Platform.OS === 'ios' ? 8 : 5,
+    color: 'white',
     marginRight: 10,
-    // flex: 1,
-    color: 'black',
-    borderBottomWidth: 1,
-
+    width: 200,
   },
   userContainer: {
-    backgroundColor: '#414141',
-    borderRadius: 16,
-    marginBottom: 15,
-    marginHorizontal: 2,
-    padding: 10,
-    elevation: 12,
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    backgroundColor: 'white',
+    padding: 15,
+    marginVertical: 8,
+    borderRadius: 10,
+    elevation: 3,
   },
   name: {
-    color: '#fff',
-    fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 8,
+    fontSize: 16,
   },
   email: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 8,
-    fontSize: 16,
-    marginBottom: 8,
-  },
-  emptyText: {
-    fontSize: 16,
-    textAlign: 'center',
-    marginTop: 20,
-  },
-  flatListContent: {
-    flexGrow: 1,
+    color: 'gray',
   },
   nutchucnang: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginLeft: 'auto',
   },
   modalContainer: {
     flex: 1,
@@ -384,7 +340,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 20,
-    textAlign: 'center',
+textAlign: 'center',
     color: 'white',
   },
   input: {
@@ -417,6 +373,21 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 16,
   },
+  flatListContent: {
+    paddingBottom: 100,
+   
+      // borderWidth: 1,
+      // borderColor: '#ccc',
+      // borderRadius: 5,
+      // paddingVertical: 10,
+      // paddingHorizontal: 15,
+      // marginBottom: 15,
+      // color: 'white',
+      // backgroundColor: '#3B3B3B',
+      // // flex: 1,
+      // padding: 10,
+    
+  },
   webSelect: {
     borderWidth: 1,
     borderColor: '#ccc',
@@ -426,7 +397,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     color: 'white',
     backgroundColor: '#3B3B3B',
-    // flex: 1,
+    flex: 1,
     padding: 10,
   },
 });

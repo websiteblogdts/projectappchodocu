@@ -6,6 +6,10 @@ const styles = StyleSheet.create({
       padding: 16,
       backgroundColor: '#3B3B3B',
     },
+    time: {
+      fontSize: 14,
+      color: 'gray',
+    },
     buttonshowhide: {
       borderRadius: 10, // Độ bo viền
       paddingVertical: 10, // Khoảng cách dọc
@@ -19,7 +23,7 @@ const styles = StyleSheet.create({
       borderRadius: 6,
       marginBottom: 15,
       marginHorizontal: 2,
-      padding: 10,
+      padding: 7,
       shadowColor: '#000',
       shadowOffset: {
         width: 0,

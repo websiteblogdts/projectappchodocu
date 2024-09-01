@@ -14,14 +14,20 @@
     "assetBundlePatterns": [
       "**/*"
     ],
-    "platforms": ["ios", "android", "web"],
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.yourcompany.appchodocu",
       "infoPlist": {
         "CFBundleURLTypes": [
           {
-            "CFBundleURLSchemes": ["appchodocu"]
+            "CFBundleURLSchemes": [
+              "appchodocu"
+            ]
           }
         ]
       }
@@ -55,11 +61,16 @@
     "web": {
       "favicon": "./assets/favicon.png",
       "config": {
-        "firebase": {
-        }
+        "firebase": {},
+        "authRedirect": "http://appchodocu.ddnsking.com:3000/auth"
       },
-      "hostname": "http://appchodocu.ddns.net:3000"
+      "hostname": "http://appchodocu.ddnsking.com:3000"
     },
-    "scheme": "appchodocu"
+    "scheme": "appchodocu",
+    "extra": {
+      "eas": {
+        "projectId": "5b782d23-60e5-4d88-9a42-c121e5193ad0"
+      }
+    }
   }
 }

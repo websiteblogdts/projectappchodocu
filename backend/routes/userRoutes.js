@@ -1,8 +1,10 @@
+//userroutes.js
 const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/userController');
 const authMiddleware = require('../middlewares/authMiddleware');
 const cacheMiddleware = require("../middlewares/cacheMiddleware");
+
 
 
 router.post('/login', userController.login);
@@ -23,6 +25,6 @@ router.put('/updatepass',authMiddleware, userController.updateUserPassword); // 
 
 router.put('/changeavatar', authMiddleware, userController.updateAvatar);
 
-router.get('/profile', cacheMiddleware(60), authMiddleware, userController.getUserProfile);
+router.get('/profile',  authMiddleware, userController.getUserProfile);
 
 module.exports = router;

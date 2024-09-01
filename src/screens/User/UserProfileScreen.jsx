@@ -236,7 +236,7 @@ Alert.alert('Upload Failed', 'Failed to upload image.');
       } else {
         console.log('Failed to remove token from AsyncStorage.');
       }
-      
+      console.log('userToken', tokenAfterLogout)
       // Chuyển hướng đến màn hình đăng nhập
       navigation.navigate('Login');
     } catch (error) {

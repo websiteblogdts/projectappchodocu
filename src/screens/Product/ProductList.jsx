@@ -4,12 +4,13 @@ import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import config from '../../config/config';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import moment from 'moment';
 
 const ProductListScreen = () => {
   const navigation = useNavigation();
   const [products, setProducts] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
-  const numColumns = 2; 
+  const numColumns = 2;
   const [viewMode, setViewMode] = useState('grid');
 
   useEffect(() => {
@@ -38,7 +39,7 @@ const ProductListScreen = () => {
   const fetchProducts = async () => {
     try {
       const userToken = await AsyncStorage.getItem('userToken');
-      // console.log('Token from AsyncStorage:', userToken);
+      console.log('Token from AsyncStorage:', userToken);
       // Đảm bảo rằng tham số truy vấn approved được thiết lập là true
       const response = await fetch(`${config.apiBaseURL}/product/productdaduyet`, {
         headers: {
@@ -46,8 +47,8 @@ const ProductListScreen = () => {
         }
       });
       const data = await response.json();
-      setProducts(data);
-      // console.log("Fetched products:", data);
+      const sortedData = data.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)); // Sort by updatedAt date
+      setProducts(sortedData);
       if (data.length === 0) {
         Alert.alert("Thông báo", "Không tìm thấy sản phẩm nào.");
       }
@@ -69,7 +70,13 @@ const ProductListScreen = () => {
   const toggleViewMode = () => {
     setViewMode(viewMode === 'grid' ? 'list' : 'grid');
   };
+  
 
+  const calculateTimeSincePosted = (date) => {
+    const now = moment();
+    const postDate = moment(date);
+    return postDate.from(now); // e.g., "2 minutes ago", "a day ago"
+  };
 
     const renderProduct = ({ item }) => {
     const screenWidth = Dimensions.get('window').width;
@@ -83,74 +90,67 @@ const ProductListScreen = () => {
       <TouchableOpacity onPress={() => navigateToProductDetail(item._id)}>
         <View style={[styles.productContainer, { width: itemWidth , height: itemHeight }]}>
         {item.images[0] && (
-          
+
             <Image
             source={{ uri: item.images[0] }}
             style={styles.image}
             resizeMode="cover"
           />
          
-
         )}
         <View style={styles.nameandprice}>
         <Text style={styles.price}>${item.price}</Text>
         <Text style={styles.name} numberOfLines={2} ellipsizeMode="tail">
           {item.name}
         </Text>
-        
+        <Text style={styles.time}>{calculateTimeSincePosted(item.updatedAt)}</Text>
         </View>
         </View>
       </TouchableOpacity>
     );
   };
 
-  return (
-    <View style={styles.container}>
-      {products.length === 0 ? (
-        
-     <Text style={styles.emptyText}>Danh sách trống</Text>
-      ) : (
-        <FlatList
-          data={products}
-          renderItem={renderProduct}
-          keyExtractor={(item) => item._id}
-          key={viewMode}  // Thêm dòng này để đảm bảo FlatList được re-render khi viewMode thay đổi
-          numColumns={viewMode === 'grid' ? numColumns : 1}
-          contentContainerStyle={styles.flatListContent}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-            />
-          }
-        />
-      )}
-    </View>
-  );
-};
    
-
+return (
+  <View style={styles.container}>
+    {products.length === 0 ? (
+   <Text style={styles.emptyText}>Danh sách trống</Text>
+    ) : (
+      <FlatList
+        data={products}
+        renderItem={renderProduct}
+        keyExtractor={(item) => item._id}
+        key={viewMode}  // Thêm dòng này để đảm bảo FlatList được re-render khi viewMode thay đổi
+        numColumns={viewMode === 'grid' ? numColumns : 1}
+        contentContainerStyle={styles.flatListContent}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+          />
+        }
+      />
+    )}
+  </View>
+);
+};
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
+    padding: 12,
     backgroundColor: '#3B3B3B',
-
   },
   name: {
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 8,
     textAlign: 'center',
-
   },
   price: {
     fontSize: 16,
     marginBottom: 8,
     textAlign: 'center',
-
   },
-
   emptyText: {
     fontSize: 16,
     textAlign: 'center',
@@ -169,13 +169,14 @@ const styles = StyleSheet.create({
   toggleButtonText: {
     color: 'white',
     fontSize: 16,
-  }
+  },
+
 
 });
 const gridStyles = StyleSheet.create({
   productContainer: {
-    width: 160,
-    height: 250,
+    // width: 160,
+    // height: 250,
     backgroundColor: '#B4EEB4',
     borderRadius: 8,
     marginBottom: 10,
@@ -207,6 +208,12 @@ const gridStyles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#EED5B7'
   },
+    time: {
+    fontSize: 14,
+    color: 'gray',
+    textAlign: 'center',
+  },
+
 });
 
 
@@ -216,12 +223,10 @@ const listStyles = StyleSheet.create({
    flexDirection:'row',
     backgroundColor: '#B4EEB4',
     borderRadius: 25,
-    margin: 70,
+    margin: 30,
     padding: 16,
     marginBottom: 15,
     marginHorizontal: 25,
-    alignItems: 'center', // Thêm để căn giữa các items theo chiều dọc
-    
   },
   nameandprice:{
     right:30,
@@ -229,31 +234,29 @@ const listStyles = StyleSheet.create({
       justifyContent: "space-around",
       width:"60%",
   },
-  imageContainer: {
-    elevation: 10, // Sử dụng cho Android để hiển thị đổ bóng
-    borderRadius: 40, // Bo góc cho hình ảnh
-  },
   name: {
-    fontSize: 15,  // Có thể giảm kích thước font nếu cần
+    fontSize: 13,  // Có thể giảm kích thước font nếu cần
     fontWeight: 'bold',
     textAlign: 'left',
     flex: 1, // Thêm để `name` chiếm hết không gian còn lại sau `image`
-
   },
   price: {
-    fontSize: 20,  // Giảm kích thước font cho giá
+    fontSize: 15,  // Giảm kích thước font cho giá
     marginBottom: 10,
     textAlign: 'left',
     fontWeight: 'bold',
-
   },
   image: {
     bottom:45,
     right:37,
-    width: 130,
-    height: 150,
-    borderRadius: 30,
+    width: 100,
+    height: 120,
+    borderRadius: 20,
     borderColor: 'black',
+  },
+    time: {
+    fontSize: 14,
+    color: 'gray',
   },
 });
 

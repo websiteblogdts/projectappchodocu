@@ -1,3 +1,4 @@
+//usercontroller.js
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
@@ -7,6 +8,7 @@ const { isValidPassword } = require('../middlewares/validator');
 const { hashPassword, comparePassword } = require('../utils/passwordUtils');
 const cache = require("memory-cache");
 // console.log(ACCESS_TOKEN_SECRET);
+const crypto = require('crypto');
 
 const generateAccessToken = (payload) => {
     return jwt.sign(payload, ACCESS_TOKEN_SECRET, { expiresIn: '24h' });
@@ -65,6 +67,66 @@ exports.getUserProfile = async (req, res) => {
       res.status(500).json({ error: 'Internal Server Error' });
     }
   };
+
+  exports.googleLoginCallback = async (req, res) => {
+    if (!req.user) {
+        return res.status(401).json({ message: "Authentication failed" });
+    }
+
+    const token = generateAccessToken({ id: req.user._id, email: req.user.email, role: req.user.role });
+    const refreshToken = generateRefreshToken({ id: req.user._id, email: req.user.email, role: req.user.role });
+
+    // Save refresh token to the user
+    req.user.refreshToken = refreshToken;
+    await req.user.save();
+
+    // Trả về JSON giống như đăng nhập thông thường
+    if (!req.user.phone_number) {
+        return res.status(200).json({
+            message: "Login successful. Please add your phone number.",
+            needPhoneNumber: true,
+            token: token,
+            refreshToken: refreshToken,
+            role: req.user.role,
+            user: {
+                _id: req.user._id,
+                email: req.user.email,
+                name: req.user.name,
+                avatar_image: req.user.avatar_image,
+                reward_points: req.user.reward_points,
+                role: req.user.role,
+                account_status: req.user.account_status,
+                isDeleted: req.user.isDeleted,
+                createdAt: req.user.createdAt,
+                updatedAt: req.user.updatedAt
+            }
+        });
+    }
+
+    res.status(200).json({
+        message: "Login successful",
+        token: token,
+        refreshToken: refreshToken,
+        role: req.user.role,
+        user: {
+            _id: req.user._id,
+            email: req.user.email,
+            phone_number: req.user.phone_number,
+            name: req.user.name,
+            avatar_image: req.user.avatar_image,
+            reward_points: req.user.reward_points,
+            role: req.user.role,
+            account_status: req.user.account_status,
+            isDeleted: req.user.isDeleted,
+            createdAt: req.user.createdAt,
+            updatedAt: req.user.updatedAt
+        }
+    });
+};
+
+  
+
+
 exports.login = async (req, res) => {
     const { identifier, password } = req.body;
 

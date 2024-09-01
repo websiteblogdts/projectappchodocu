@@ -5,9 +5,6 @@ import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import * as Linking from 'expo-linking';
 import { View, ActivityIndicator } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
-import config from './src/config/config';
 import Home from './src/screens/Home/Home';
 import LoginScreen from './src/screens/Login/Login';
 import ProductDetailUser from './src/screens/Product/ProductDetailUser';
@@ -28,7 +25,7 @@ import PackageScreen from './src/screens/PackagesPayment/PackageScreen';
 import PayPalPayment from './src/screens/PackagesPayment/PayPalPayment';
 import SuccessScreen from './src/screens/PackagesPayment/SuccessScreen';
 import CancelScreen from './src/screens/PackagesPayment/CancelScreen';
-
+import useAuth from './src/hooks/useAuth';
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -75,6 +72,7 @@ const Package = () => (
   <Stack.Navigator initialRouteName="PackageScreen" screenOptions={defaultHeaderOptions}>
     <Stack.Screen name="PackageScreen" component={PackageScreen} options={{ title: 'PackageScreen' }} />
     <Stack.Screen name="PayPalPayment" component={PayPalPayment} options={{ title: 'PayPalPayment' }} />
+    <Stack.Screen name="UserProfileScreen" component={UserProfileScreen} />
     <Stack.Screen name="SuccessScreen" component={SuccessScreen} />
     <Stack.Screen name="CancelScreen" component={CancelScreen} />
   </Stack.Navigator>
@@ -128,67 +126,55 @@ const BottomTabsForAdmin = () => (
     <Tab.Screen name="HomeStackAdmin" component={HomeStackAdmin} options={{ headerShown: false, tabBarIcon: ({ color, size }) => (<FontAwesome6 name="shop" size={size} color={color} />) }} />
     <Tab.Screen name="Quanlyuser" component={Quanlyuser} options={{ headerShown: false, tabBarIcon: ({ color, size }) => (<FontAwesome6 name="user-gear" size={size} color={color} />) }} />
     <Tab.Screen name="QuanlyPost" component={QuanlyPost} options={{ headerShown: false, tabBarIcon: ({ color, size }) => (<FontAwesome6 name="list-check" size={size} color={color} />) }} />
-    <Tab.Screen name="QuanlyCategory" component={QuanlyCategory} options={{ headerShown: false, tabBarIcon: ({ color, size }) => (<FontAwesome6 name="list-check" size={size} color={color} />) }} />
+    <Tab.Screen name="QuanlyCategory" component={QuanlyCategory} options={{ headerShown: false, tabBarIcon: ({ color, size }) => (<FontAwesome6 name="list-ul" size={size} color={color} />) }} />
     <Tab.Screen name="UserProfileScreen" component={UserProfileScreenUser} options={{ headerShown: false, tabBarIcon: ({ color, size }) => (<FontAwesome6 name="circle-user" size={size} color={color} />) }} />
   </Tab.Navigator>
 );
 
+
 const App = () => {
-
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [role, setRole] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { isLoggedIn, role, loading } = useAuth();
   const navigationRef = useRef(null);
-  // const userId = user._id;
+  
+  const linking = {
+    prefixes: [Linking.createURL('/'), 'https://appchodocutest.ddns.net', 'appchodocu://'],
+    config: {
+      screens: {
+        HomeStack: 'home',
+        CreateProduct: 'create-product',
+        Chat: 'chat',
+        ViewPostProduct: 'view-post-product',
+        Package: {
+          screens: {
+            PackageScreen: 'package',
+            PayPalPayment: 'package/payment',
+            UserProfileScreen: 'profile',
+            SuccessScreen: 'package/success',
+            CancelScreen: 'package/cancel',
+          },
+        },
+        Login: 'login',
+        Register: 'register',
+        User: 'user',
+        Admin: 'admin',
+      },
+    },
+  };
 
+  const onURLChange = ({ url }) => {
+    if (url.includes('appchodocu://package/success')) {
+      console.log('Payment success');
+    } else if (url.includes('appchodocu://package/cancel')) {
+      console.log('Payment canceled');
+    }
+  };
+  
   useEffect(() => {
-    const checkToken = async () => {
-      try {
-        const token = await AsyncStorage.getItem('userToken');
-        const role = await AsyncStorage.getItem('userRole');
-        const userId = await AsyncStorage.getItem('userId');
-
-        if (token) {
-          const isValid = await validateToken(token);
-          if (isValid) {
-            setIsLoggedIn(true);
-            setRole(role);
-          } else {
-            await removeToken();
-          }
-        }
-      } catch (error) {
-        console.error('Error checking token:', error);
-      } finally {
-        setLoading(false);
-      }
+    const subscription = Linking.addEventListener('url', onURLChange);
+    return () => {
+      subscription.remove();
     };
-    checkToken();
   }, []);
-
-  const validateToken = async (token) => {
-    try {
-      const response = await axios.get(`${config.apiBaseURL}/auth/validate-token`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      return response.status === 200;
-    } catch (error) {
-      console.error('Error validating token:', error);
-      return false;
-    }
-  };
-
-  const removeToken = async () => {
-    try {
-      await AsyncStorage.removeItem('userToken');
-      await AsyncStorage.removeItem('userRole');
-      await AsyncStorage.removeItem('userId');
-    } catch (error) {
-      console.error('Error removing token:', error);
-    }
-  };
 
   if (loading) {
     return (
@@ -198,20 +184,52 @@ const App = () => {
     );
   }
 
-  return (
-    <NavigationContainer ref={navigationRef} linking={{ prefixes: [Linking.createURL('/')] }}>
-      {isLoggedIn ? (
-        role === 'admin' ? <BottomTabsForAdmin /> : <BottomTabsForUser />
-      ) : (
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="Login" component={LoginScreen} />
-          <Stack.Screen name="Register" component={RegisterUser} />
-          <Stack.Screen name="User" component={BottomTabsForUser} />
-        <Stack.Screen name="Admin" component={BottomTabsForAdmin} />
-        </Stack.Navigator>
-      )}
-    </NavigationContainer>
-  );
+// return (
+//   <NavigationContainer>
+//     <Stack.Navigator>
+//       <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
+//       <Stack.Screen name="User" component={BottomTabsForUser} options={{ headerShown: false }} />
+//       <Stack.Screen name="Admin" component={BottomTabsForAdmin} options={{ headerShown: false }} />
+//       <Stack.Screen name="RegisterUser" component={RegisterUser} />
+//     </Stack.Navigator>
+//   </NavigationContainer>
+// );
+// }
+return (
+  <NavigationContainer ref={navigationRef} linking={linking}>
+    {isLoggedIn ? (
+      <>
+        {role === 'admin' ? <BottomTabsForAdmin /> : <BottomTabsForUser />}
+      </>
+    ) : (
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="Login" component={LoginScreen} />
+        <Stack.Screen name="RegisterUser" component={RegisterUser} />
+        <Stack.Screen name="User" component={BottomTabsForUser} options={{ headerShown: false }} />
+        <Stack.Screen name="Admin" component={BottomTabsForAdmin} options={{ headerShown: false }} />
+      </Stack.Navigator>
+    )}
+  </NavigationContainer>
+);
+
+
+  // return (
+  //   <NavigationContainer ref={navigationRef} linking={linking}>
+  //     {isLoggedIn ? (
+  //       <>
+  //         {role === 'admin' && <BottomTabsForAdmin />}
+  //         {role === 'user' && <BottomTabsForUser />}
+  //       </>
+  //     ) : (
+  //       <Stack.Navigator screenOptions={{ headerShown: false }}>
+  //          <Stack.Screen name="User" component={BottomTabsForUser} options={{ headerShown: false }} />
+  //          <Stack.Screen name="Admin" component={BottomTabsForAdmin} options={{ headerShown: false }} />
+  //         <Stack.Screen name="RegisterUser" component={RegisterUser} />
+  //         <Stack.Screen name="Login" component={LoginScreen} />
+  //       </Stack.Navigator>
+  //     )}
+  //   </NavigationContainer>
+  // );   
 };
 
 export default App;

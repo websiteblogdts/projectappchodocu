@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
   },
   price: {
     fontFamily: 'ConcertOne',
-    fontSize: 35,
+    fontSize: 25,
     color: 'white', 
     marginBottom: 10,
   },

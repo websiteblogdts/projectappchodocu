@@ -6,7 +6,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: "http://appchodocu.ddns.net", // Ensure this is the correct origin for your client
+    origin: "http://appchodocutest.ddns.net:3000", // Ensure this is the correct origin for your client
     methods: ["GET", "POST"],
     allowedHeaders: ["Content-Type"],
     credentials: true

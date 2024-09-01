@@ -16,7 +16,7 @@ router.put('/changstatusaccount/:userId', authMiddleware, adminController.change
 //quản lý product cho admin
 router.put('/product/:productId/approved',cacheMiddleware(60),authMiddleware, adminController.updateApprovedStatus);
 
-router.get('/products',cacheMiddleware(300), authMiddleware, adminController.getProductsByApprovalStatus);
+router.get('/products', authMiddleware, adminController.getProductsByApprovalStatus);
 //quản lý category cho admin
 router.post('/createcategory',authMiddleware, categoryController.createCategory);
 router.get('/allcategory', cacheMiddleware(600),authMiddleware, categoryController.getAllCategories);

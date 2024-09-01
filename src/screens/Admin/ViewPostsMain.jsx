@@ -1,12 +1,13 @@
 //fix web
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, RefreshControl, Dimensions, Alert, Platform } from 'react-native';
+import { View, Text, FlatList, Image, TouchableOpacity, RefreshControl, Dimensions, Alert, Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import config from '../../config/config';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import Swal from 'sweetalert2';
 import styles from '../../components/ViewPost';
+import moment from 'moment';
 
 const ViewPostsMain = () => {
   const navigation = useNavigation();
@@ -40,30 +41,62 @@ const ViewPostsMain = () => {
       ),
     });
   }, [navigation, approved]);
-
-  const fetchProducts = async (approved) => {
-    try {
-      const userToken = await AsyncStorage.getItem('userToken');
-      console.log('Token from AsyncStorage:', userToken);
-      const endpoint = approved ? 'approved=true' : 'approved=false';
-      const response = await fetch(`${config.apiBaseURL}/admin/products/?${endpoint}`, {
-        headers: {
-          'Authorization': `Bearer ${userToken}`
-        }
+  
+  const showAlert = (title, message) => {
+    if (Platform.OS === 'web') {
+      Swal.fire({
+        title: title,
+        text: message,
+        icon: 'info',
+        confirmButtonText: 'OK'
       });
-      const data = await response.json();
-      
-      if (!data || data.length === 0) {
-        showAlert('Thông báo', 'Không tìm thấy sản phẩm nào.');
-      } else {
-        setProducts(data);
-        console.log('Fetched products:', data);
-      }
-    } catch (error) {
-      console.error('Error fetching products:', error);
+    } else {
+      Alert.alert(title, message, [{ text: 'OK' }]);
     }
   };
+const fetchProducts = async (approved) => {
+  try {
+    const userToken = await AsyncStorage.getItem('userToken');
+    console.log('Token from AsyncStorage:', userToken);
+    const endpoint = approved ? 'approved=true' : 'approved=false';
+    const response = await fetch(`${config.apiBaseURL}/admin/products/?${endpoint}`, {
+      headers: {
+        'Authorization': `Bearer ${userToken}`
+      }
+    });
 
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+
+    const data = await response.json();
+
+    // Ensure data is an array before sorting
+    if (Array.isArray(data)) {
+      const sortedData = data.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)); // Sort by updatedAt date
+      setProducts(sortedData);
+      // console.log('Fetched products:', sortedData);
+    } else {
+      // console.error('Data is not an array:', data);
+      showAlert('Thông báo', 'Dữ liệu sản phẩm không hợp lệ.');
+    }
+    if (!data || data.length === 0) {
+      // setProducts(sortedData);
+      showAlert('Thông báo', 'Không tìm thấy sản phẩm nào.');
+    }
+  } catch (error) {
+    // console.error('Error fetching products:', error);
+    showAlert('Lỗi', 'Không thể tải dữ liệu sản phẩm.');
+  }
+};
+
+
+  const calculateTimeSincePosted = (date) => {
+    const now = moment();
+    const postDate = moment(date);
+    return postDate.from(now); // e.g., "2 minutes ago", "a day ago"
+  };
+  
   const toggleProductApproval = async (productId) => {
     try {
       const userToken = await AsyncStorage.getItem('userToken');
@@ -165,6 +198,8 @@ const ViewPostsMain = () => {
             {item.name}
           </Text>
           <Text style={styles.price}>${item.price}</Text>
+          <Text style={styles.time}>{calculateTimeSincePosted(item.updatedAt)}</Text>
+
         </View>
       </TouchableOpacity>
     );

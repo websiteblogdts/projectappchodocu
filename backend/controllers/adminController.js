@@ -10,7 +10,7 @@ exports.updateApprovedStatus = (req, res) => {
     Product.findById(productId)
         .then(product => {
             if (!product) {
-                return res.status(404).json({ message: 'Không tìm thấy sản phẩm.' });
+                return res.status(404).json({ error: 'Không tìm thấy sản phẩm.' });
             }
             // Đảo ngược giá trị của admin_approved
             product.admin_approved = !product.admin_approved;
@@ -34,15 +34,14 @@ exports.getProductsByApprovalStatus = (req, res) => {
         .populate({
             path: 'author',
             match: { isDeleted: false }
-          //  match: { isDeleted: false, account_status: 'active' } // bổ sung thêm lọc account khóa hay kích hoạt
         })
         .then(products => {
-            // Lọc ra các sản phẩm mà người dùng không bị khóa hoặc xóa
             const filteredProducts = products.filter(product => product.author !== null);
+            // Instead of returning a 404, return a 200 with an empty array
             if (filteredProducts.length === 0) {
-                return res.status(404).json({ message: 'Không có sản phẩm.' });
+                return res.status(200).json([]);
             }
-            res.send(filteredProducts);
+            res.status(200).send(filteredProducts);
         })
         .catch(error => {
             console.error(`Lỗi khi lấy danh sách sản phẩm có trạng thái phê duyệt là ${approved}:`, error);
@@ -50,12 +49,13 @@ exports.getProductsByApprovalStatus = (req, res) => {
         });
 };
 
+
 //lấy tất cả user cho trang admin
 exports.getAllUsers = async (req, res) => {
     try {
 
         if (req.user.role !== 'admin') {
-            return res.status(403).json({ error: "You are not authorized to perform this action" });
+            return res.status(409).json({ error: "You are not authorized to perform this action" });
         }
 
         // Lấy tất cả người dùng từ cơ sở dữ liệu

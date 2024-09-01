@@ -8,11 +8,9 @@ async function createPayment(req, res) {
     try {
         // Tìm gói dịch vụ từ cơ sở dữ liệu
         const package = await Package.findById(packageId);
-
         if (!package) {
             return res.status(404).json({ error: 'Package not found' });
         }
-
         // Tạo yêu cầu thanh toán với thông tin gói dịch vụ
         const request = new paypal.orders.OrdersCreateRequest();
         request.prefer("return=representation");
@@ -24,7 +22,11 @@ async function createPayment(req, res) {
                     value: package.price.toFixed(2)  // Chuyển đổi giá thành chuỗi định dạng "xx.xx"
                 },
                 description: package.description
-            }]
+            }],
+            application_context: {
+                return_url: 'appchodocu://package/success',  // URL này sẽ được gọi khi thanh toán thành công
+                cancel_url: 'appchodocu://package/cancel'    // URL này sẽ được gọi khi thanh toán bị hủy
+            }
         });
 
         const response = await client.execute(request);

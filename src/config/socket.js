@@ -1,6 +1,6 @@
 import { io } from "socket.io-client";
 
-const socket = io("http://appchodocu.ddns.net:4000", {
+const socket = io("http://appchodocutest.ddns.net:4000", {
   transports: ['websocket'],
   autoConnect: true 
 });
