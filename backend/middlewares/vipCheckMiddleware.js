@@ -20,7 +20,10 @@ const vipCheckMiddleware = async (req, res, next) => {
 
     // Trừ điểm thưởng nếu không phải VIP
     user.reward_points -= 100;
+    // const checkVipMiddleware = await user.save();
     await user.save();
+    // res.status(201).json(checkVipMiddleware);
+    // console.log(checkVipMiddleware);
 
     next();
 };

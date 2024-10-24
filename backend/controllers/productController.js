@@ -157,14 +157,14 @@ exports.createProduct = async (req, res) => {
             district,
             ward
         };
-        // Cập nhật thông tin sản phẩm
-        // product.name = req.body.name;
-        // product.price = req.body.price;
-        // product.description = req.body.description;
-        // product.images = req.body.images;
-        // product.category = req.body.category;
-        // product.address = req.body.address;
 
+        //         // Nếu bài viết đã bị từ chối, cho phép gửi lại sau khi chỉnh sửa
+        if (product.admin_rejected) {
+            product.admin_approved = false; // Reset trạng thái admin duyệt
+            product.admin_rejected = false; // Reset trạng thái bị từ chối
+            product.admin_rejected_reason = null; // Xóa lý do từ chối cũ
+            product.resubmitted = true; // Đánh dấu rằng bài viết đã được gửi lại sau khi chỉnh sửa
+        }
         // Lưu sản phẩm đã cập nhật vào cơ sở dữ liệu
         const updatedProduct = await product.save();
         cache.clear();

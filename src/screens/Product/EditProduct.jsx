@@ -1,4 +1,6 @@
+
 import React, { useState, useEffect } from 'react';
+import { useRoute } from '@react-navigation/native';
 import { View, Text, TouchableOpacity, Modal, TextInput, Button, ActivityIndicator, Image, ScrollView, Alert } from 'react-native';
 import { IconButton } from 'react-native-paper';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -6,17 +8,18 @@ import * as ImagePicker from 'expo-image-picker';
 import * as Camera from 'expo-camera';
 import { Picker } from '@react-native-picker/picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import styles from '../../components/ProductStyles';
+import styles from '../../components/AddProduct';
 import config from '../../config/config';
 import axios from 'axios';
 
-const EditProduct = ({ route, navigation }) => {
+const EditProduct = ({  navigation }) => {
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
   const [description, setDescription] = useState('');
   const [images, setImages] = useState([]);
   const [uploadedImage, setUploadedImage] = useState(null);
   const [modal, setModal] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const [product, setProduct] = useState(null);
 
@@ -34,15 +37,22 @@ const EditProduct = ({ route, navigation }) => {
   const [selectedWard, setSelectedWard] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
 
+
   const [category, setCategory] = useState('');
   const [categories, setCategories] = useState([]);
+    const route = useRoute();
 
-  const { productId, reloadProducts } = route.params;
+  const { productId } = route.params;
 
   useEffect(() => {
-    fetchCategories();
     fetchProduct(productId);
+    fetchCategories();
+    fetchProvinces(); // Fetch provinces when the component mounts
+    // fetchDistrict();
+    // fetchWard();
   }, []);
+
+ 
 
   const fetchProduct = async (productId) => {
     try {
@@ -56,9 +66,6 @@ const EditProduct = ({ route, navigation }) => {
       });
       const data = await response.json();
 
-        const provinceData = await fetchProvinces();        ;
-        const districtData = await fetchDistrict(data.address.provinces);
-        const wardData = await fetchWard(data.address.districts);
 
       setProduct(data);
 
@@ -68,20 +75,163 @@ const EditProduct = ({ route, navigation }) => {
       setCategory(data.category);
       setImages(data.images || []);
       setUploadedImage(data.images ? data.images[0] : '');
-
+      setSelectedCategory(data.category);
+      // const districtData = await fetchDistrict(data.address.province);
+      // const wardData = await fetchWard(data.address.district);
+      // setWards(wardData);
+      // setDistricts(selectedDistrict);
+// Cập nhật tỉnh, quận, xã
       setSelectedProvince(data.address.province);
       setSelectedDistrict(data.address.district);
       setSelectedWard(data.address.ward);
 
-      setProvince(provinceData);
-      setDistrict(districtData);
-      setWard(wardData);
+      // setSelectedProvince(data.address.province);
+      // setDistricts(districtData); // Cập nhật danh sách quận
+      // setSelectedDistrict(data.address.district);
+      // setWards(wardData); // Cập nhật danh sách xã
+      // setSelectedWard(data.address.ward);
+
+
+  // In log các giá trị
+  // console.log('Districts:', districtData); // Log danh sách quận
+  console.log('Selected District:', data.address.district);
+  // console.log('Wards:', wardData); // Log danh sách xã
+  console.log('Selected Ward:', data.address.ward);
+  console.log('Name:', data.name);
+  console.log('Price:', data.price);
+  console.log('Description:', data.description);
+  console.log('Category:', data.category);
+  console.log('Images:', data.images);
+  console.log('Fetched Product Data:', data);
             console.log('Fetched Product Data:', data);
 
     } catch (error) {
       console.error('Error fetching product:', error);
     }
   };
+
+//   const fetchProvinces = async () => {
+//     try {
+//         const response = await fetch('https://raw.githubusercontent.com/kenzouno1/DiaGioiHanhChinhVN/master/data.json');
+//         const data = await response.json();
+//         console.log('Fetched provinces data:', data); // Log dữ liệu để kiểm tra
+//         setProvinces(data); // Đặt tỉnh vào state
+//     } catch (error) {
+//         console.error('Error fetching provinces:', error);
+//     }
+// };
+
+
+  const fetchProvinces = async () => {
+    try {
+        const response = await fetch('https://raw.githubusercontent.com/kenzouno1/DiaGioiHanhChinhVN/master/data.json');
+        const data = await response.json();
+        setProvinces(data); // Đặt tỉnh vào state
+        console.log('Fetched Provinces:', data); // In ra danh sách các tỉnh
+
+        // Truy xuất địa chỉ
+        // const address = data.map(province => ({
+        //   province: province.Name,  // Sửa lại từ provinces.name thành province.Name
+        //   districts: province.Districts.map(district => ({
+        //     name: district.Name,  // Sửa lại từ district.name thành district.Name
+        //     wards: district.Wards || [], // Nếu có danh sách xã
+        //   }))
+        // }));
+        
+      // console.log('Address:', address); // In ra địa chỉ đã lấy
+
+      } catch (error) {
+        console.error('Error fetching provinces:', error);
+    }
+};
+
+// // Lưu ý: Khi fetch district và ward, bạn cần lấy thông tin từ `provinces`, không phải từ `province`
+// // Thay đổi từ `province` thành `provinces` trong hàm fetchDistrict và fetchWard
+
+const fetchDistrict = async (provinceName) => {
+  try {
+    const selectedProvince = provinces.find((p) => p.Name === provinceName); // Tìm tỉnh đã chọn
+    if (selectedProvince) {
+      const districtsData = selectedProvince.Districts;
+      setDistricts(districtsData); // Cập nhật danh sách quận huyện
+      return districtsData; // Trả về danh sách quận huyện
+    }
+    return [];
+  } catch (error) {
+    console.error('Error fetching district:', error);
+    return [];
+  }
+};
+// const fetchDistrict = async (province) => {
+//   try {
+//     const response = await fetch(`${config.apiBaseURL}/districts?province=${province}`);
+//     const data = await response.json();
+//     console.log('Fetched Districts:', data); // In ra dữ liệu quận
+//     return data; // Đảm bảo trả về dữ liệu
+//   } catch (error) {
+//     console.error('Error fetching districts:', error);
+//     return []; // Trả về mảng trống nếu có lỗi
+//   }
+// };
+
+const fetchWard = async (districtName) => {
+  try {
+    const selectedDistrict = districts.find((d) => d.Name === districtName); // Tìm quận huyện đã chọn
+    if (selectedDistrict) {
+      const wardsData = selectedDistrict.Wards;
+      setWards(wardsData); // Cập nhật danh sách xã
+      return wardsData; // Trả về danh sách xã
+    }
+    return [];
+  } catch (error) {
+    console.error('Error fetching wards:', error);
+    return [];
+  }
+};
+
+// const fetchWard = async (district) => {
+//   try {
+//     const response = await fetch(`${config.apiBaseURL}/wards?district=${district}`);
+//     const data = await response.json();
+//     console.log('Fetched Wards:', data); // In ra dữ liệu xã
+//     return data; // Đảm bảo trả về dữ liệu
+//   } catch (error) {
+//     console.error('Error fetching wards:', error);
+//     return []; // Trả về mảng trống nếu có lỗi
+//   }
+// };
+
+  const handleProvinceChange = (province) => {
+    setSelectedProvince(province);
+    const selectedProvince = provinces.find((p) => p.Name === province);
+    if (selectedProvince) {
+      setDistricts(selectedProvince.Districts);
+    } else {
+      setDistricts([]);
+    }
+    setWards([]);
+    setSelectedDistrict('');
+    setSelectedWard('');
+  };
+  
+  const handleDistrictChange = (district) => {
+    setSelectedDistrict(district);
+    const selectedDistrict = districts.find((d) => d.Name === district);
+    if (selectedDistrict) {
+      setWards(selectedDistrict.Wards);
+    } else {
+      setWards([]);
+    }
+    setSelectedWard('');
+  };
+  
+  const handleWardChange = (ward) => {
+    setSelectedWard(ward);
+  };
+  
+
+
+
 
   const fetchCategories = async () => {
     try {
@@ -125,77 +275,13 @@ const EditProduct = ({ route, navigation }) => {
       Alert.alert('Success', 'Product Update successfully!');
        // Nếu cập nhật thành công, điều hướng trở lại trang danh sách sản phẩm
        navigation.navigate('ProductListByUser');
-       // Trigger reload products list in parent component
-       reloadProducts();
     } catch (error) {
       // console.error('Error adding product:', error);
       Alert.alert('Error rui son oi', error.message || 'Failed to add product');
   }  
 };
 
-  const fetchProvinces = async () => {
-    try {
-      const response = await fetch('https://raw.githubusercontent.com/kenzouno1/DiaGioiHanhChinhVN/master/data.json');
-      const data = await response.json();
-      setProvinces(data);
-    } catch (error) {
-      console.error('Error fetching provinces:', error);
-    }
-  };
-
-  const fetchDistrict = async (provinceName) => {
-    try {
-      const selectedProvince = province.find((p) => p.Name === provinceName);
-      if (selectedProvince) {
-        return selectedProvince.district;
-      }
-      return [];
-    } catch (error) {
-      console.error('Error fetching district:', error);
-      return [];
-    }
-  };
-
-  const fetchWard = async (districtName) => {
-    try {
-      const selectedDistrict = district.find((d) => d.Name === districtName);
-      if (selectedDistrict) {
-        return selectedDistrict.Wards;
-      }
-      return [];
-    } catch (error) {
-      console.error('Error fetching wards:', error);
-      return [];
-    }
-  };
-
-  const handleProvinceChange = (province) => {
-    setSelectedProvince(province);
-    const selectedProvince = provinces.find((p) => p.Name === province);
-    if (selectedProvince) {
-      setDistricts(selectedProvince.Districts);
-    } else {
-      setDistricts([]);
-    }
-    setWards([]);
-    setSelectedDistrict('');
-    setSelectedWard('');
-  };
   
-  const handleDistrictChange = (district) => {
-    setSelectedDistrict(district);
-    const selectedDistrict = districts.find((d) => d.Name === district);
-    if (selectedDistrict) {
-      setWards(selectedDistrict.Wards);
-    } else {
-      setWards([]);
-    }
-    setSelectedWard('');
-  };
-  
-  const handleWardChange = (ward) => {
-    setSelectedWard(ward);
-  };
   
 
   const increasePrice = () => {
@@ -300,20 +386,34 @@ const EditProduct = ({ route, navigation }) => {
       }
     };
   
+    const handleScroll = (event) => {
+      const scrollPosition = event.nativeEvent.contentOffset.x;
+      const width = event.nativeEvent.layoutMeasurement.width;
+      const index = Math.floor(scrollPosition / width);
+      setCurrentImageIndex(index);
+    };
 
   return (
-     <ScrollView contentContainerStyle={styles.container}>
+     <ScrollView >
 
   {product ? (
     <View style={styles.container}>
-      <View style={styles.header2}>
-        <View style={styles.header}>
+      <View style={styles.header}>
+        <View style={styles.header2}>
+
+        <IconButton icon="upload" 
+        style={styles.uploadIcon}
+        size={100} 
+        color="#9C9C9C"
+        onPress={() => setModal(true)} 
+        />
           <View style={styles.imageandprice}>
             <TouchableOpacity onPress={() => setModal(true)} >
               <Image source={{ uri: uploadedImage }} style={styles.image} />
-              <IconButton icon="upload" style={styles.uploadIcon} onPress={() => setModal(true)} />
             </TouchableOpacity>
+          </View>
 
+          <View>
             <View style={styles.priceContainer}>
               <TouchableOpacity onPress={decreasePrice} style={styles.button}>
                 <Text style={styles.buttonText}>-</Text>
@@ -335,19 +435,31 @@ const EditProduct = ({ route, navigation }) => {
             <IconButton 
               icon="content-save"
               style={styles.saveIcon} 
+              size={50}
+              color="#9C9C9C"
               onPress={() => updateData()} 
+              title="Save" 
+
             />
 
           </View>
         </View>
 
         <View style={styles.details}>
+        <View style={styles.inputContainer}>
+
           <TextInput
-            style={styles.inputtext}
-            placeholder="Name"
+            style={styles.inputname}
+            placeholder="Enter a title for the article/product"
+            placeholderTextColor="#888"
             value={name}
             onChangeText={text => setName(text)}
+            maxLength={40}
           />
+<Text style={styles.charCount}>
+              {name.length}/40
+            </Text>
+            </View>
 
           <View style={styles.category}>
             <Picker
@@ -369,10 +481,12 @@ const EditProduct = ({ route, navigation }) => {
             multiline
             placeholder="Nhập mô tả sản phẩm..."
             textAlignVertical="top"
+            placeholderTextColor="#888" 
           />
 
           <View style={styles.containeraddress}>
-            <Text style={styles.addressLabel}>Address</Text>
+
+        <Text style={styles.addressLabel}>Address</Text>
             <Picker
               selectedValue={selectedProvince}
               onValueChange={handleProvinceChange}
@@ -405,18 +519,39 @@ const EditProduct = ({ route, navigation }) => {
                 <Picker.Item key={ward.Name} label={ward.Name} value={ward.Name} />
               ))}
             </Picker>
+
+
           </View>
         </View>
       </View>
-
-      <View style={styles.imageContainer}>
+      
+      <ScrollView
+        contentContainerStyle={styles.scrollContainer}
+        horizontal
+        pagingEnabled
+        showsHorizontalScrollIndicator={false}
+        onScroll={handleScroll}
+      >      
         {images.map((imageUri, index) => (
-          <View key={index} style={{ flexDirection: 'row', alignItems: 'center' }}>
+          // <View key={index} style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <View key={imageUri} style={styles.imageContainerdelete}>
             <Image source={{ uri: imageUri }} style={styles.uploadedImage} />
-            <TouchableOpacity onPress={() => handleRemoveImage(index)}>
-              <IconButton icon="delete" />
+            <TouchableOpacity style={styles.deleteButton} onPress={() => handleRemoveImage(index)}>
+            <Ionicons name="trash-bin" size={30} color="gray" />
             </TouchableOpacity>
           </View>
+        ))}
+      </ScrollView>
+
+      <View style={styles.indicatorContainer}>
+        {images.map((image, index) => (
+          <View
+            key={index}
+            style={[
+              styles.imageIndicator,
+              { backgroundColor: currentImageIndex === index ? '#000' : '#ccc' }
+            ]}
+          />
         ))}
       </View>
 

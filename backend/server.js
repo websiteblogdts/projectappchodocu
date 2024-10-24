@@ -2,6 +2,7 @@
 
 require('dotenv').config();
 // console.log(process.env);
+const otpRoutes = require('./routes/otpRoutes');
 
 const express = require('express');
 const mongoose = require('mongoose');
@@ -53,6 +54,8 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+
+app.use('/otp', otpRoutes);
 app.use('/auth', authRoutes);
 app.use('/mess', messageRoutes);
 app.use('/product', productRoutes);

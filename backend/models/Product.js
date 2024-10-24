@@ -15,6 +15,11 @@ const ProductSchema = new mongoose.Schema({
     category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true }, // Tham chiếu tới Category
     address: AddressSchema,
     admin_approved: { type: Boolean, default: false },
+    
+    admin_rejected: { type: Boolean, default: false },
+    admin_rejected_reason: { type: String },
+    resubmitted: { type: Boolean, default: false },
+
     isDeleted: { type: Boolean, default: false },
     deletedAt: { type: Date }
 }, { timestamps: true

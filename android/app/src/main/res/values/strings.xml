@@ -1,0 +1,8 @@
+<resources>
+  <string name="app_name">appchodocu</string>
+  <string name="expo_splash_screen_resize_mode" translatable="false">contain</string>
+  <string name="expo_splash_screen_status_bar_translucent" translatable="false">false</string>
+  <!-- <string name="server_client_id">537502668452-hajr6clf8df6uqr1luc0fvlfr3sf7bp3.apps.googleusercontent.com</string> -->
+    <string name="app_id">Y537502668452-hajr6clf8df6uqr1luc0fvlfr3sf7bp3.apps.googleusercontent.com</string> <!-- Thêm dòng này -->
+
+</resources>

@@ -15,9 +15,9 @@ router.get('/helloson', productController.getRoutes);
 
 router.use(authMiddleware);
 
-router.get('/productlistbyuser',cacheMiddleware(60), authMiddleware,  productController.getAllProductsByUser);// hiển trị trang status
+router.get('/productlistbyuser',authMiddleware,  productController.getAllProductsByUser);// hiển trị trang status
 
-router.get('/productdaduyet',cacheMiddleware(60), authMiddleware,  productController.getproductdaduyet);
+router.get('/productdaduyet', authMiddleware,  productController.getproductdaduyet);
 
 router.get('/:productId', cacheMiddleware(60), authMiddleware, productController.getProductById);
 

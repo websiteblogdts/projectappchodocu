@@ -1,3 +1,4 @@
+//hiển thị các sản phẩm mà user đăng và trạng thái đã được duyệt hay chưa.
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList,  Image, TouchableOpacity, RefreshControl, Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -10,7 +11,6 @@ const ProductListByUser = () => {
   const [products, setProducts] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const numColumns = 2;
-
 
   const fetchProducts = async () => {
     try {
@@ -54,43 +54,55 @@ const ProductListByUser = () => {
   };
 
   const navigateToProductDetail = (productId) => {
-    navigation.navigate('ProductDetailUser', { productId: productId, reloadProducts: reloadProducts });
+    navigation.navigate('ProductDetailUser', { productId: productId });
   };
 
-  const reloadProducts = async () => {
-    fetchProducts();
-  };
+  // const reloadProducts = async () => {
+  //   fetchProducts();
+  // };
 
   const renderProduct = ({ item }) => {
     const screenWidth = Dimensions.get('window').width;
     const itemWidth = (screenWidth - 32 - 16) / numColumns;
     const firstImageUri = item.images.length > 0 ? item.images[0] : null;
 
-    const backgroundColor = item.admin_approved ? '#C1FFC1' : '#414141'; // Màu xám nếu chưa được duyệt
+    // const backgroundColor = item.admin_approved ? '#C1FFC1' : '#414141'; // Màu xám nếu chưa được duyệt
+    let backgroundColor;
+    let statusText;
+    let statusColor;
   
+    // Kiểm tra trạng thái phê duyệt của sản phẩm
+    if (item.admin_rejected) {
+      backgroundColor = '#FFCCCB'; // Màu đỏ nhạt cho sản phẩm bị từ chối
+      statusText = 'Bị từ chối, cập nhật lại';
+      statusColor = 'red';
+    } else if (item.admin_approved) {
+      backgroundColor = '#C1FFC1'; // Màu xanh nhạt nếu đã duyệt
+      statusText = 'Đã duyệt';
+      statusColor = 'green';
+    } else {
+      backgroundColor = '#414141'; // Màu xám nếu chưa được duyệt
+      statusText = 'Chờ xử lý';
+      statusColor = 'gray';
+    }  
     return (
       <TouchableOpacity onPress={() => navigateToProductDetail(item._id)}>
         <View style={[styles.productContainer, { width: itemWidth, backgroundColor: backgroundColor }]}>
-        <Text style={[styles.status, { color: item.admin_approved ? 'green' : 'gray' }]}>{item.admin_approved ? 'Đã duyệt' : 'Chờ xử lý'}</Text>
-        {firstImageUri && (
-          <Image
-            source={{ uri: firstImageUri }}
-            style={styles.image}
-            resizeMode="cover"
-          />
-        )}
-        {/* {firstImageUri && (
-    <ProductImage imageUri={firstImageUri} />
-)} */}
-
-<Text style={[styles.name, { color: item.admin_approved ? 'black' : 'white' }]}>{item.name}</Text>
-<Text style={[styles.price, { color: item.admin_approved ? 'black' : 'white' }]}>${item.price}</Text>
-          {/* <Text style={styles.price}>${item.price}</Text> */}
+          <Text style={[styles.status, { color: statusColor }]}>{statusText}</Text>
+         
+          {firstImageUri && (
+            <Image
+              source={{ uri: firstImageUri }}
+              style={styles.image}
+              resizeMode="cover"
+            />
+          )}
+          <Text style={[styles.name, { color: item.admin_approved || item.admin_rejected ? 'black' : 'white' }]}>{item.name}</Text>
+          <Text style={[styles.price, { color: item.admin_approved || item.admin_rejected ? 'black' : 'white' }]}>${item.price}</Text>
         </View>
       </TouchableOpacity>
     );
   };
-
 
 
   return (

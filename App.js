@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+// import { NavigationContainer, useLinking } from '@react-navigation/native';
+import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -16,7 +17,8 @@ import ProductList from './src/screens/Product/ProductList';
 import EditProduct from './src/screens/Product/EditProduct';
 import AddProduct from './src/screens/Product/AddProduct';
 import UserProfileScreen from './src/screens/User/UserProfileScreen';
-import RegisterUser from './src/screens/Register/RegisterUser';
+import RegisterUser from './src/screens/Account/RegisterUser';
+import ForgetPassword from './src/screens/Account/ForgetPassword';
 import ProductListByUser from './src/screens/Product/ProductListByUser';
 import CategoryManager from './src/screens/Admin/CategoryManager';
 import ListMess from './src/screens/Chat/ListMess';
@@ -128,6 +130,7 @@ const BottomTabsForAdmin = () => (
     <Tab.Screen name="QuanlyPost" component={QuanlyPost} options={{ headerShown: false, tabBarIcon: ({ color, size }) => (<FontAwesome6 name="list-check" size={size} color={color} />) }} />
     <Tab.Screen name="QuanlyCategory" component={QuanlyCategory} options={{ headerShown: false, tabBarIcon: ({ color, size }) => (<FontAwesome6 name="list-ul" size={size} color={color} />) }} />
     <Tab.Screen name="UserProfileScreen" component={UserProfileScreenUser} options={{ headerShown: false, tabBarIcon: ({ color, size }) => (<FontAwesome6 name="circle-user" size={size} color={color} />) }} />
+    <Tab.Screen name="Package" component={Package} options={{ headerShown: false, tabBarIcon: ({ color, size }) => (<FontAwesome6 name="paypal" size={size} color={color} />) }} />
   </Tab.Navigator>
 );
 
@@ -135,9 +138,10 @@ const BottomTabsForAdmin = () => (
 const App = () => {
   const { isLoggedIn, role, loading } = useAuth();
   const navigationRef = useRef(null);
-  
+
   const linking = {
-    prefixes: [Linking.createURL('/'), 'https://appchodocutest.ddns.net', 'appchodocu://'],
+    // prefixes: [Linking.createURL('/'), 'exp://127.0.0.1:8081'],
+    prefixes: ['exp://127.0.0.1:8081'],
     config: {
       screens: {
         HomeStack: 'home',
@@ -161,20 +165,7 @@ const App = () => {
     },
   };
 
-  const onURLChange = ({ url }) => {
-    if (url.includes('appchodocu://package/success')) {
-      console.log('Payment success');
-    } else if (url.includes('appchodocu://package/cancel')) {
-      console.log('Payment canceled');
-    }
-  };
-  
-  useEffect(() => {
-    const subscription = Linking.addEventListener('url', onURLChange);
-    return () => {
-      subscription.remove();
-    };
-  }, []);
+
 
   if (loading) {
     return (
@@ -184,33 +175,36 @@ const App = () => {
     );
   }
 
-// return (
-//   <NavigationContainer>
-//     <Stack.Navigator>
-//       <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
-//       <Stack.Screen name="User" component={BottomTabsForUser} options={{ headerShown: false }} />
-//       <Stack.Screen name="Admin" component={BottomTabsForAdmin} options={{ headerShown: false }} />
-//       <Stack.Screen name="RegisterUser" component={RegisterUser} />
-//     </Stack.Navigator>
-//   </NavigationContainer>
-// );
-// }
-return (
-  <NavigationContainer ref={navigationRef} linking={linking}>
-    {isLoggedIn ? (
-      <>
-        {role === 'admin' ? <BottomTabsForAdmin /> : <BottomTabsForUser />}
-      </>
-    ) : (
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="RegisterUser" component={RegisterUser} />
+  ForgetPassword
+  return (
+    <NavigationContainer ref={navigationRef} linking={linking}>
+      <Stack.Navigator>
+        <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
         <Stack.Screen name="User" component={BottomTabsForUser} options={{ headerShown: false }} />
         <Stack.Screen name="Admin" component={BottomTabsForAdmin} options={{ headerShown: false }} />
+        <Stack.Screen name="RegisterUser" component={RegisterUser} />
+        <Stack.Screen name="ForgetPassword" component={ForgetPassword} />
       </Stack.Navigator>
-    )}
-  </NavigationContainer>
-);
+    </NavigationContainer>
+  );
+
+
+// return (
+//   <NavigationContainer ref={navigationRef} linking={linking}>
+//     {isLoggedIn ? (
+//       <>
+//         {role === 'admin' ? <BottomTabsForAdmin /> : <BottomTabsForUser />}
+//       </>
+//     ) : (
+//       <Stack.Navigator screenOptions={{ headerShown: false }}>
+//         <Stack.Screen name="Login" component={LoginScreen} />
+//         <Stack.Screen name="RegisterUser" component={RegisterUser} />
+//         <Stack.Screen name="User" component={BottomTabsForUser} options={{ headerShown: false }} />
+//         <Stack.Screen name="Admin" component={BottomTabsForAdmin} options={{ headerShown: false }} />
+//       </Stack.Navigator>
+//     )}
+//   </NavigationContainer>
+// );
 
 
   // return (

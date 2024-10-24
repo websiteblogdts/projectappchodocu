@@ -26,11 +26,58 @@ exports.updateApprovedStatus = (req, res) => {
         });
 };
 
+exports.rejectProduct = (req, res) => {
+    const productId = req.params.productId;
+    const { rejectedReason } = req.body; // Lý do từ chối từ request body
+
+    Product.findById(productId)
+        .then(product => {
+            if (!product) {
+                return res.status(404).json({ error: 'Không tìm thấy sản phẩm.' });
+            }
+
+            // Cập nhật trạng thái từ chối và lưu lý do
+            product.admin_approved = false;
+            product.admin_rejected = true;
+            product.admin_rejected_reason = rejectedReason;
+
+            return product.save();
+        })
+        .then(updatedProduct => {
+            cache.clear();
+            res.json(updatedProduct);
+        })
+        .catch(error => {
+            console.error('Lỗi khi từ chối sản phẩm:', error);
+            res.status(500).json({ error: 'Lỗi máy chủ nội bộ.' });
+        });
+};
+// Lấy tất cả sản phẩm bị từ chối
+exports.getRejectedProducts = (req, res) => {
+    Product.find({ admin_rejected: true })
+        .populate({
+            path: 'author',
+            match: { isDeleted: false }
+        })
+        .then(products => {
+            const filteredProducts = products.filter(product => product.author !== null);
+            // Thay vì trả về 404, trả về 200 với mảng rỗng
+            if (filteredProducts.length === 0) {
+                return res.status(200).json([]);
+            }
+            res.status(200).send(filteredProducts);
+        })
+        .catch(error => {
+            console.error('Lỗi khi lấy danh sách sản phẩm bị từ chối:', error);
+            res.status(500).json({ error: 'Lỗi máy chủ nội bộ.' });
+        });
+};
+
 //lấy tất cả sản phẩm theo trạng thái phê duyệt (true hoặc false)
 exports.getProductsByApprovalStatus = (req, res) => {
     const approved = req.query.approved === 'true';
 
-    Product.find({ admin_approved: approved })
+    Product.find({ admin_approved: approved, admin_rejected: false })
         .populate({
             path: 'author',
             match: { isDeleted: false }

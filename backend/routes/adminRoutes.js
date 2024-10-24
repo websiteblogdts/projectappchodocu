@@ -5,6 +5,7 @@ const categoryController = require('../controllers/categoryController');
 const authMiddleware = require('../middlewares/authMiddleware');
 const cacheMiddleware = require("../middlewares/cacheMiddleware");
 
+router.get('/rejected-products', adminController.getRejectedProducts);
 
 router.use(authMiddleware);
 // Quản lý user cho admin
@@ -13,6 +14,8 @@ router.get('/userbyid/:userId', cacheMiddleware(60),authMiddleware, adminControl
 router.put('/edituser/:userId',  authMiddleware, adminController.updateUserByIdForAdmin);
 router.delete('/user/delete/:userId', authMiddleware, adminController.deleteUserById);
 router.put('/changstatusaccount/:userId', authMiddleware, adminController.changeStatusAccount);
+router.put('/product/:productId/reject', authMiddleware, adminController.rejectProduct); 
+
 //quản lý product cho admin
 router.put('/product/:productId/approved',cacheMiddleware(60),authMiddleware, adminController.updateApprovedStatus);
 

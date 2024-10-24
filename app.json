@@ -1,5 +1,8 @@
 {
   "expo": {
+    "plugins": [
+    ],
+    "scheme": "com.sondtgcd191140.appchodocu",
     "name": "appchodocu",
     "slug": "appchodocu",
     "version": "1.0.0",
@@ -21,7 +24,7 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.yourcompany.appchodocu",
+      "bundleIdentifier": "com.sondtgcd191140.appchodocu",
       "infoPlist": {
         "CFBundleURLTypes": [
           {
@@ -33,7 +36,6 @@
       }
     },
     "android": {
-      "package": "com.yourcompany.appchodocu",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -43,12 +45,12 @@
           "action": "VIEW",
           "data": [
             {
-              "scheme": "https",
-              "host": "*.appchodocu.com",
-              "pathPrefix": "/"
+              "scheme": "com.sondtgcd191140.appchodocu", 
+              "host": "*", 
+              "pathPrefix": "/back"
             },
             {
-              "scheme": "appchodocu"
+              "scheme": "com.sondtgcd191140.appchodocu"
             }
           ],
           "category": [
@@ -56,17 +58,17 @@
             "DEFAULT"
           ]
         }
-      ]
+      ],
+      "package": "com.sondtgcd191140.appchodocu"
     },
     "web": {
       "favicon": "./assets/favicon.png",
       "config": {
         "firebase": {},
-        "authRedirect": "http://appchodocu.ddnsking.com:3000/auth"
+        "authRedirect": "http://appchodocutest.ddns.net:8081"
       },
-      "hostname": "http://appchodocu.ddnsking.com:3000"
+      "hostname": "http://appchodocutest.ddns.net:8081"
     },
-    "scheme": "mycoolredirect",
     "extra": {
       "eas": {
         "projectId": "5b782d23-60e5-4d88-9a42-c121e5193ad0"

@@ -6,8 +6,8 @@ Font.loadAsync({
   'BlackOpsOne': require('./../../assets/fonts/BlackOpsOne-Regular.ttf'),
   'BungeeShade': require('./../../assets/fonts/BungeeShade-Regular.ttf'),
   'ConcertOne': require('./../../assets/fonts/ConcertOne-Regular.ttf'), 
- 
 });
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -51,6 +51,13 @@ const styles = StyleSheet.create({
     fontSize: 25,
     color: 'white', 
     marginBottom: 10,
+  },
+  admin_rejected: {
+    // fontFamily: 'ConcertOne',
+    fontSize: 20,
+    color: 'red', 
+    marginBottom: 10,
+    backgroundColor:"#414141",
   },
   descriptionContainer: {
     maxHeight: 150, // chỉnh ô mô tả to bé đẩy cái chấm chấm kia lên cao

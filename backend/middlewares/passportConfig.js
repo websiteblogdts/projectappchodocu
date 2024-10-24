@@ -2,6 +2,7 @@ const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const User = require('../models/User');
 const crypto = require('crypto');
+const jwt = require('jsonwebtoken'); // Import jwt
 
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
@@ -10,38 +11,48 @@ passport.use(new GoogleStrategy({
   },
   async (accessToken, refreshToken, profile, done) => {
     try {
-      // Find user by email
+      // Tìm người dùng theo email
       let user = await User.findOne({ email: profile.emails[0].value });
 
       if (!user) {
-        // If user doesn't exist, create a new one
+        // Nếu người dùng không tồn tại, tạo một người dùng mới
         user = new User({
           googleId: profile.id,
           email: profile.emails[0].value,
           name: profile.displayName,
           avatar_image: profile.photos[0].value,
-          reward_points: 10000, // Set default points
-          role: 'user', // Default role
-          account_status: 'active', // Default account status
-          password: crypto.randomBytes(16).toString('hex'), // Generate a random password
-          // phone_number will be null by default
+          reward_points: 10000, // Điểm mặc định
+          role: 'user', // Vai trò mặc định
+          account_status: 'active', // Trạng thái tài khoản mặc định
+          password: crypto.randomBytes(16).toString('hex'), // Tạo một mật khẩu ngẫu nhiên
         });
         await user.save();
       } else if (!user.googleId) {
-        // If the user exists but has no Google ID, update the user
+        // Nếu người dùng đã tồn tại nhưng không có Google ID, cập nhật người dùng
         user.googleId = profile.id;
-        user.avatar_image = profile.photos[0].value; // Optionally update the avatar
+        user.avatar_image = profile.photos[0].value; // Cập nhật avatar nếu cần
         await user.save();
+      } else if (user.account_status === 'deleted') {
+        // Kiểm tra trạng thái tài khoản đã bị xóa
+        return done(null, false, { message: 'Account deleted. Please contact support to restore.' });
+      } else if (user.account_status !== 'active') {
+        // Trạng thái tài khoản không phải là active
+        return done(null, false, { message: 'Account not active. Please verify your email or contact support.' });
       }
 
-      // Check if the user has a phone number
+      // Kiểm tra xem người dùng có số điện thoại không
       if (!user.phone_number) {
-        // Redirect user to a page where they can add their phone number
-        // Note: this redirection will be handled in the route logic
+        // Chuyển hướng người dùng đến trang để thêm số điện thoại
         return done(null, user, { needPhoneNumber: true });
       }
 
-      return done(null, user);
+      // Tạo JWT
+      const token = jwt.sign({
+        id: user._id,
+        role: user.role, // Thêm vai trò người dùng vào token
+      }, process.env.JWT_SECRET, { expiresIn: '1h' }); // Đặt thời gian hết hạn cho token
+
+      return done(null, { user, token }); // Trả về user và token
     } catch (err) {
       return done(err, null);
     }

@@ -1,3 +1,7 @@
+//file authroutes.js
+const { OAuth2Client } = require('google-auth-library');
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
 const express = require('express');
 const router = express.Router();
 const passport = require('passport');
@@ -5,21 +9,28 @@ const userController = require('../controllers/userController');
 const User = require('../models/User'); // Đảm bảo import model User
 const authMiddleware = require('../middlewares/authMiddleware');
 
+// res.send(`<script>window.location.replace("exp://?id_token=${id_token}")</script>`);
+
+
 // Google authentication route
 router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+// Route xử lý login bằng Google (tiếp nhận access token từ frontend)
 
 // Callback route for Google authentication
 router.get('/google/callback', 
-  passport.authenticate('google', { failureRedirect: '/' }), 
-  (req, res, next) => {
-    // Check if the user needs to provide a phone number
-    if (req.authInfo && req.authInfo.needPhoneNumber) {
-      return res.redirect('/auth/add-phone-number'); // Redirect to the phone number input form
-    }
-    next(); // Continue to the controller if phone number is provided or not required
-  }, 
-  userController.googleLoginCallback
+passport.authenticate('google', { session: false }), // Tắt session
+  (req, res) => {
+    // Trả về user và token
+    const { user, token } = req.user; // Thông tin người dùng và token từ Passport
+    res.json({
+      user,
+      token,
+    });
+  }
 );
+
+
+router.post('/google/login', userController.googleLogin);
 
 // dẫn đến trang điền sdt
 router.get('/add-phone-number', (req, res) => {
@@ -29,37 +40,6 @@ router.get('/add-phone-number', (req, res) => {
   res.render('add-phone-number'); // Render a form where the user can add their phone number
 });
 
-// // Route xử lý việc thêm số điện thoại
-// router.post('/add-phone-number', async (req, res) => {
-//   const { phone_number } = req.body;
-  
-//   if (!phone_number) {
-//     return res.status(400).json({ error: 'Phone number is required' });
-//   }
-  
-//   try {
-//     // Cập nhật số điện thoại cho người dùng hiện tại
-//     const user = await User.findById(req.user._id);
-//     if (!user) {
-//       return res.status(404).json({ error: 'User not found' });
-//     }
-    
-//     // Kiểm tra xem số điện thoại có bị trùng lặp không
-//     const existingUser = await User.findOne({ phone_number, _id: { $ne: req.user._id } });
-//     if (existingUser) {
-//       return res.status(400).json({ error: 'Phone number already in use' });
-//     }
-
-//     // Cập nhật số điện thoại cho người dùng hiện tại
-//     user.phone_number = phone_number;
-//     await user.save();
-
-//     res.status(200).json({ message: 'Phone number updated successfully' });
-//   } catch (error) {
-//     console.error('Error adding phone number:', error);
-//     res.status(500).json({ error: 'Internal Server Error' });
-//   }
-// });
 router.post('/add-phone-number', async (req, res) => {
   const { phone_number } = req.body;
 

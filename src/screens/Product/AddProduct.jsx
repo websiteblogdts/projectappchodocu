@@ -221,12 +221,14 @@ const AddProduct = () => {
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.header2}>
+
           <Ionicons name="images-outline" 
             color="#9C9C9C"
             size={100}
             style={styles.uploadIcon}
             onPress={() => setModal(true)} 
           />
+
           <View style={styles.imageandprice}>
             
           <TouchableOpacity onPress={() => setModal(true)}>
@@ -261,6 +263,7 @@ const AddProduct = () => {
               onPress={() => handleSubmit()} 
               title="Save" 
             />
+            
           </View>
         </View>
 

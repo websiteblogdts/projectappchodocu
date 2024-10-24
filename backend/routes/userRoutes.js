@@ -11,13 +11,15 @@ router.post('/login', userController.login);
 
 router.post('/register', userController.register);
 
+router.post('/forgetpassword', userController.forgetPassword);
+
 router.post('/refresh-token', userController.refreshToken);
 
 router.get('/', cacheMiddleware(60),userController.getRoutes); // in ra test user
 
 router.use(authMiddleware);
 
-router.put('/upgrade-to-vip', userController.upgradeToVip);
+// router.put('/upgrade-to-vip', userController.upgradeToVip);
 
 router.get('/getid',cacheMiddleware(60), authMiddleware, userController.getUserId);
 

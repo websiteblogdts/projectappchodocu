@@ -8,7 +8,7 @@ import config from '../../config/config';
 
 const ProductDetailUser = ({ route, navigation }) => {
   const [product, setProduct] = useState(null);
-  const { reloadProducts } = route.params;
+  
   const [categoryName, setCategoryName] = useState('');
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
@@ -70,7 +70,7 @@ const fetchProduct = async (productId) => {
   };
   const handleUpdateProduct = (productId) => {
     // Chuyển hướng đến trang cập nhật sản phẩm và truyền ID sản phẩm
-    navigation.navigate('EditProduct', { productId: product._id , reloadProducts: reloadProducts
+    navigation.navigate('EditProduct', { productId: product._id 
     });
   };
 
@@ -158,6 +158,7 @@ const deleteProduct = async (productId) => {
             onScroll={handleImageSwipe}
           >
             {product && product.images.map((image, index) => (
+              
               <View key={index} style={styles.imageContainer}>
                 <Image source={{ uri: image }} style={styles.image}/>
                 <Text style={styles.imageIndex}>{index + 1}/{product.images.length}</Text>
@@ -169,6 +170,14 @@ const deleteProduct = async (productId) => {
             {renderImageIndicators()}
           </View>
           
+          {product.admin_rejected && (
+          <ScrollView style={styles.descriptionContainer}>
+
+            <Text style={[styles.admin_rejected,]}>Lý do từ chối: {product.admin_rejected_reason}</Text>
+            </ScrollView>
+
+          )}
+
           <Text style={styles.name}>{product.name}</Text>
           <Text style={styles.price}>${product.price}</Text>
           <Text style={styles.category}>Category: {categoryName}</Text>
